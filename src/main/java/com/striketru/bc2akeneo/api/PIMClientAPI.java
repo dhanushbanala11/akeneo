@@ -17,6 +17,8 @@ import java.util.Optional;
 
 import com.striketru.bc2akeneo.common.PIMResponse;
 import com.striketru.bc2akeneo.model.Token;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
@@ -63,13 +65,20 @@ public class PIMClientAPI {
         public PIMResponse patch(String resourceId, String content) throws IOException {
 
             URI resourceUri = uri;
-            if(!"".equals(resourceId)){
+            if(StringUtils.isNotEmpty(resourceId)){
                 resourceUri = uri.resolve(path.replace("{code}", urlencode(resourceId)));
             }
             HttpResponse response = patch(resourceUri, content, true);
             return PIMResponse.builder().from(response);
         }
+        
+        public PIMResponse patch(String content) throws IOException {
 
+            URI resourceUri = uri.resolve(path);
+            ContentType vnd_akeneo_collection_content_type =  ContentType.create("application/vnd.akeneo.collection+json", "UTF-8");
+            HttpResponse response = patch(resourceUri, content, true, vnd_akeneo_collection_content_type);
+            return PIMResponse.builder().from(response);
+        }
 
         private HttpResponse get(URI resourceUri, boolean retry) throws IOException {
             Request request = Request.Get(resourceUri).addHeader("Authorization", authHeader);
@@ -80,12 +89,17 @@ public class PIMClientAPI {
             }
             return response;
         }
-
         private HttpResponse patch(URI resourceUri, String content, boolean retry) throws IOException {
+        	return patch(resourceUri, content, retry, ContentType.APPLICATION_JSON);
+        }
+
+        	
+        private HttpResponse patch(URI resourceUri, String content, boolean retry, ContentType contentType) throws IOException {
             Request request = Request.Patch(resourceUri)
                     .addHeader("Authorization", authHeader)
-                    .bodyString(content, ContentType.APPLICATION_JSON);
-            HttpResponse patchResponse = request.execute().returnResponse();
+                    .bodyString(content, contentType);
+            Response response = request.execute();
+            HttpResponse patchResponse = response.returnResponse();
             if (isUnauthenticated(patchResponse) && retry) {
                 authenticate();
                 return patch(resourceUri, content, false);
@@ -102,6 +116,7 @@ public class PIMClientAPI {
         }        
     }
     public final PIMResource products = new PIMResource("/api/rest/v1/products/{code}");
+    public final PIMResource multiproducts = new PIMResource("/api/rest/v1/products");
     public final PIMResource searchproducts = new PIMResource("/api/rest/v1/products?search={query}");
     public final PIMResource paginateproducts = new PIMResource("/api/rest/v1/products{query}");
 

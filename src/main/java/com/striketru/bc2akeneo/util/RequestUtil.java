@@ -55,7 +55,7 @@ public class RequestUtil {
         return String.format(PIM_ATTR_IMAGE_JSON_PATTERN, key, getValue(locale), getValue(scope), data, href);
     }
 
-    private String createUpdateBaseProduct(Map<String, Object> data){
+    public String createUpdateBaseProduct(Map<String, Object> data){
     	List<String> categories = (List<String>) data.get("categories");
 
     	String step1 = StringUtils.join(categories, "\", \"");// Join with ", "
@@ -64,10 +64,10 @@ public class RequestUtil {
     	Map<String, Object> primaryImage = (Map<String, Object>) data.get("primary_image"); 
     	System.err.println(data.get("name"));
     	StringBuilder strbuild = new StringBuilder("{");
-    	
 //    	strbuild.append(createKeyValueJson("product_title", data.get("name").toString())).append(",");
+    	
     	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
-    	strbuild.append("\"categories\""+":["+step2+"]").append(",");
+//    	strbuild.append("\"categories\""+":["+step2+"]").append(",");
     	strbuild.append("\"values\": {");
     	strbuild.append(createAttributeJson("brand", null, null, data.get("brand_id").toString())).append(",");
     	strbuild.append(createAttributeJson("sku_type", null, null, "B")).append(",");
@@ -182,10 +182,10 @@ public class RequestUtil {
     		removedComaResp = removeComaAtEnd(strbuild.toString());
     	}
     	
-    	if(newCategories.size() > 0) {
-    		removedComaResp.append(",");
-    		removedComaResp.append(createAttributeArrayJson("item_type", null, null, newCategories));
-    	}
+//    	if(newCategories.size() > 0) {
+//    		removedComaResp.append(",");
+//    		removedComaResp.append(createAttributeArrayJson("item_type", null, null, newCategories));
+//    	}
     	
     	removedComaResp.append("}");
     	removedComaResp.append("}");
@@ -204,30 +204,45 @@ public class RequestUtil {
     }
     
     
-	public static String request(Map<String, Object> convertedResp) {
-		RequestUtil requestData = new RequestUtil();
-		String baseResponse = requestData.createUpdateBaseProduct(convertedResp);
-		if(StringUtils.isNotEmpty(baseResponse)) {
-			requestData.createUpdateOptionProducts(convertedResp);
-		}
-		
-		return baseResponse;
+//	public String request(Map<String, Object> convertedResp) {
+//		RequestUtil requestData = new RequestUtil();
+//		String baseResponse =createUpdateBaseProduct(convertedResp);
+//		if(StringUtils.isNotEmpty(baseResponse)) {
+//			requestData.createUpdateOptionProducts(convertedResp);
+//		}
+//		
+//		return baseResponse;
+//	}
+//	
+    
+	public String createUpdateOptionProducts(String sku, Map<String, Object> data) {
+		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
+
+		StringBuilder strbuild = new StringBuilder("");
+		int count = 0;
+		for (Map<String, Object> modifierObj: modifiers){ 
+			String display_name = (String) modifierObj.get("display_name");
+			if (!display_name.equalsIgnoreCase("not_an_option")) {
+				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
+				for (Map<String, Object> optionProduct: optionValues){
+					strbuild.append(createOptionProduct(display_name, optionProduct)).append("\n");
+				}
+			}
+		}		
+		return strbuild.toString();
 	}
 	
-	private String createUpdateOptionProducts(Map<String, Object> data) {
-		Map<String, Object> modifiers = (Map<String, Object>) data.get("modifiers");
-		Map<String, Object> optionValues = (Map<String, Object>) modifiers.get("option_values");
-		Map<String, Object> value_data = (Map<String, Object>) optionValues.get("image_url");
+	private String createOptionProduct(String displayName, Map<String, Object> data) {
+		String[] optionsSku = data.get("label").toString().split("--");
 		
 		StringBuilder strbuild = new StringBuilder("{");
-    	
-    	strbuild.append(createKeyValueJson("display_name", modifiers.get("display_name").toString())).append(",");
+    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
     	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
     	strbuild.append("\"values\": {");
-    	strbuild.append(createAttributeJson("brand", null, null, data.get("brand_id").toString())).append(",");
     	strbuild.append(createAttributeJson("sku_type", null, null, "O")).append(",");
-    	strbuild.append(createAttributeJson("product_description", null, null, data.get("description").toString())).append(",");
-    	strbuild.append(createAttributeJson("label", null, null, data.get("label").toString()));
+//    	strbuild.append(createAttributeJson("display_name", null, null, displayName)).append(",");
+//    	strbuild.append(createAttributeJson("label", null, null, optionsSku[0].trim())).append(",");
+    	strbuild.append(createAttributeImageJson("swatch_file", null, null, "9/1/e/d/91ed04c50887ee44b94bad26c4d4ac7acbd85b28_Sag_Harbor_Dining_Armchair9607__14425.1615580640.1000.1000.jpg", "fileURL"));
     	
     	strbuild.append("}");
     	strbuild.append("}");

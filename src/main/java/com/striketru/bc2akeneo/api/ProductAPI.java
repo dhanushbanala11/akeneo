@@ -42,30 +42,56 @@ public class ProductAPI {
         pimClient = HttpUtil.createPIMClient(appProperties);
     }
 
+    
+    public String upsertProductBySku(final String sku, final String content) throws IOException {
+        String output = "In-progress...";
+        PIMResponse response = pimClient.products.patch(sku, content);        
+        if(response.getCode() == 204){
+            output = "Update was successful";
+        }else if(response.getCode() == 201){
+            output = "Creation was successful";
+        }
+        PRODUCTLOGGER.debug("UpdateBySku :::"+output);
+        return output;
+    }
+
+    public String upsertMutipleProducts(final String content) throws IOException {
+        String output = "In-progress...";
+        PIMResponse response = pimClient.multiproducts.patch(content);        
+        if(response.getCode() == 204){
+            output = "Update was successful";
+        }else if(response.getCode() == 201){
+            output = "Creation was successful";
+        }
+        PRODUCTLOGGER.debug("UpdateBySku :::"+output);
+        return output;
+    }
+
+    
     /**
      * Returns the instance the product API.
      *
      * @return a product API.
      */
 
-    public String createUpdateProductBySku(final Map<String, Object> data, String sku) throws IOException, Exception {
-        String output = "In-progress...";
-        String reqObject = RequestUtil.request(data);
-        PIMResponse response = pimClient.products.patch(sku, reqObject);
-
-        if(response.getCode() == 204){
-            output = "204-Update was successful";
-        } else if(response.getCode() == 201){
-            output = "201-Creation was successful";
-        } else {
-        	output = "\n "+data.get("sku").toString()+" - "+response.getMessage()+" :: data: "+ data;
-//            output = "Code: {} and Message: {}".format(String.valueOf(response.getCode()), customMessage);
-        }
-        //PRODUCTLOGGER.debug("UpdateBySku ::: "+output);
-//        if (response.getCode() > 399){
-//            throw new Exception();
+//    public String createUpdateProductBySku(final Map<String, Object> data, String sku) throws IOException, Exception {
+//        String output = "In-progress...";
+//        String reqObject = RequestUtil.request(data);
+//        PIMResponse response = pimClient.products.patch(sku, reqObject);
+//
+//        if(response.getCode() == 204){
+//            output = "204-Update was successful";
+//        } else if(response.getCode() == 201){
+//            output = "201-Creation was successful";
+//        } else {
+//        	output = "\n "+data.get("sku").toString()+" - "+response.getMessage()+" :: data: "+ data;
+////            output = "Code: {} and Message: {}".format(String.valueOf(response.getCode()), customMessage);
 //        }
-        return output;
-    }
+//        //PRODUCTLOGGER.debug("UpdateBySku ::: "+output);
+////        if (response.getCode() > 399){
+////            throw new Exception();
+////        }
+//        return output;
+//    }
 
 }
