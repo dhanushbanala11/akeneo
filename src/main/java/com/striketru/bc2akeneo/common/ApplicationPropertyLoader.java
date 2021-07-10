@@ -64,11 +64,11 @@ public class ApplicationPropertyLoader  {
         Map<String, String> appProperties = new HashMap<>();
 //        try {
 //            Properties propertiesPidam = LoaderProperties.getInstance().readFile("bc2akeneo.properties");
-        	appProperties.put("pimurl", "https://authenteak-sandbox.cloud.akeneo.com");
-        	appProperties.put("pimclient", "3_ciz1i7s9khcswk8o4ggs4oc8w88444c488cwos40s08csso08");
-        	appProperties.put("pimsecret", "3pqjg8zkxzk0wwcswsw4s0kk48gco4800ok8c04o8kg0kk0o0o");
-        	appProperties.put("pimusername", "test_1908");
-        	appProperties.put("pimpassword", "07eae61ec");
+        	appProperties.put("pimurl", "https://authenteak-production.cloud.akeneo.com");
+        	appProperties.put("pimclient", "1_18kxcawvycm8ckgso84osccskgg8480w8ogsc004cooww48w0w");
+        	appProperties.put("pimsecret", "52ch16awca04cks4scg0ks4oc40s4ocgww0oks00kwskksg8o4");
+        	appProperties.put("pimusername", "api_8251");
+        	appProperties.put("pimpassword", "a00ec065c");
 //            propertiesPidam.forEach((key, value) -> appProperties.put(key.toString(), value.toString()));
 //        } catch (Exception e) {
 //            e.printStackTrace();
