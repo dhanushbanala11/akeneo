@@ -1,5 +1,6 @@
 package com.striketru.bc2akeneo.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -67,6 +68,13 @@ public class ProductAPI {
         return output;
     }
 
+    public String createMediafile(final String widenurl, final JsonObject jsonstring) throws IOException{
+        PRODUCTLOGGER.debug("ProductBySku Mediafile:::"+widenurl);
+    	String response = pimClient.productmedia.post(jsonstring, new File(widenurl));
+    	PRODUCTLOGGER.debug("createMediafile :::"+response);
+        return response;
+        
+    }
     
     /**
      * Returns the instance the product API.

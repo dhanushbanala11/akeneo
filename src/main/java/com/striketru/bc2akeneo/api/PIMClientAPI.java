@@ -5,9 +5,7 @@
  */
 package com.striketru.bc2akeneo.api;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -15,15 +13,22 @@ import java.net.URI;
 import java.util.Base64;
 import java.util.Optional;
 
-import com.striketru.bc2akeneo.common.PIMResponse;
-import com.striketru.bc2akeneo.model.Token;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.striketru.bc2akeneo.common.PIMResponse;
+import com.striketru.bc2akeneo.model.Token;
 
 public class PIMClientAPI {
     private final URI uri;
@@ -79,20 +84,6 @@ public class PIMClientAPI {
             HttpResponse response = patch(resourceUri, content, true, vnd_akeneo_collection_content_type);
             return PIMResponse.builder().from(response);
         }
-
-        private HttpResponse get(URI resourceUri, boolean retry) throws IOException {
-            Request request = Request.Get(resourceUri).addHeader("Authorization", authHeader);
-            HttpResponse response = request.execute().returnResponse();
-            if (isUnauthenticated(response) && retry) {
-                authenticate();
-                return get(resourceUri, false);
-            }
-            return response;
-        }
-        private HttpResponse patch(URI resourceUri, String content, boolean retry) throws IOException {
-        	return patch(resourceUri, content, retry, ContentType.APPLICATION_JSON);
-        }
-
         	
         private HttpResponse patch(URI resourceUri, String content, boolean retry, ContentType contentType) throws IOException {
             Request request = Request.Patch(resourceUri)
@@ -105,6 +96,59 @@ public class PIMClientAPI {
                 return patch(resourceUri, content, false);
             }
             return patchResponse;
+        }
+        
+        private HttpResponse get(URI resourceUri, boolean retry) throws IOException {
+            Request request = Request.Get(resourceUri).addHeader("Authorization", authHeader);
+            HttpResponse response = request.execute().returnResponse();
+            if (isUnauthenticated(response) && retry) {
+                authenticate();
+                return get(resourceUri, false);
+            }
+            return response;
+        }
+        private HttpResponse patch(URI resourceUri, String content, boolean retry) throws IOException {
+        	return patch(resourceUri, content, retry, ContentType.APPLICATION_JSON);
+        }
+        
+        public String post(JsonObject jsonstring, File file) throws IOException {
+            URI resourceUri = uri.resolve(path);
+            HttpResponse response = post(resourceUri, jsonstring, file, true);
+            System.out.println(response);
+            if(isPostSuccess(response)) {
+                return getAsString(response.getEntity());
+            } else {
+                int statusOf = statusOf(response);
+                return "FAILED call, responded: " + statusOf;
+            }
+        }
+        
+        private HttpResponse post(URI resourceUri, JsonObject postData, File fileUpload, boolean retry) throws IOException {
+            System.out.println(authHeader);
+            System.out.println(fileUpload.getName());
+            System.out.println(postData.toString());
+            HttpClient client = HttpClientBuilder.create().build();            
+            HttpPost post = new HttpPost(resourceUri.normalize());
+            post.addHeader("Authorization", authHeader);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addBinaryBody("file", fileUpload, ContentType.DEFAULT_BINARY, fileUpload.getName());
+            if(postData.has("code")) {
+            	builder.addTextBody("product_model", postData.toString(), ContentType.TEXT_PLAIN);
+            }else {
+            	builder.addTextBody("product", postData.toString(), ContentType.TEXT_PLAIN);
+            }
+            
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            HttpResponse response = client.execute(post);
+            if (isUnauthenticated(response) && retry) {
+                authenticate();
+                System.out.println("Authne"+authenticate());
+                return post(resourceUri, postData, fileUpload, false);
+            }
+
+            return response;
         }
 
         private boolean isUnauthenticated(HttpResponse response) throws IOException {
@@ -119,6 +163,7 @@ public class PIMClientAPI {
     public final PIMResource multiproducts = new PIMResource("/api/rest/v1/products");
     public final PIMResource searchproducts = new PIMResource("/api/rest/v1/products?search={query}");
     public final PIMResource paginateproducts = new PIMResource("/api/rest/v1/products{query}");
+    public final PIMResource productmedia = new PIMResource("/api/rest/v1/media-files");
 
     private static String urlencode(String value) {
         return value != null ? value.replace(" ", "%20").replace("#", "%23") : value;
