@@ -3,6 +3,7 @@ package com.striketru.bc2akeneo;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -27,6 +28,13 @@ public class Bc2akeneoApplication {
 
 	RequestUtil akeneoUtil = new RequestUtil();
 	ObjectMapper mapper = new ObjectMapper();
+	String tempFolderPath = getTempFolderPath();
+	ProductAPI productapi = null;
+	
+	public Bc2akeneoApplication(){
+		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
+		productapi = new ProductAPI(appProp.getAppProperties());
+	}
 	
 	public void execute(){
 		
@@ -38,10 +46,8 @@ public class Bc2akeneoApplication {
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
 		
-		
 		try {
 			
-//			List<Object> data =  getBcData();
 //			List<Object> data =  getBcData("9147");
 //			List<Object> data =  getBcData("2864");
 			int pageCount = getBcDataPageCount();
@@ -50,7 +56,7 @@ public class Bc2akeneoApplication {
 			List<Object> data = null;
 			List<WriteResult> results = new ArrayList<>(); 
 			for (int i= 1; i <= pageCount; i++) {
-				data =  getBcData();
+				data =  getBcData(i);
 				List<String> productResponses = new ArrayList<>();
 				ObjectMapper oMapper = new ObjectMapper();
 				for (Object productData : data) {
@@ -101,9 +107,9 @@ public class Bc2akeneoApplication {
 	 * 
 	 * @throws IOException
 	 */
-	public List<Object> getBcData() throws IOException {
+	public List<Object> getBcData(int pageNum) throws IOException {
 		BcAPI bcApi = new BcAPI();
-		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
+		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options&page="+pageNum+"&limit=10";
 		Content bcResponse = bcApi.get(url);
 		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
 		System.out.println(bcResp.get("data"));
@@ -123,29 +129,52 @@ public class Bc2akeneoApplication {
 	}
 	
 	
-	public void executeImageDownload(){
-		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg?c=2";
+	public void imageWritetoPIM(String imageUrl, String tempFolderPath, String identifier, String attribute,  String locale, String scope) {
+		String destinationPath = downloadFileToTempFolder(imageUrl, tempFolderPath);
 		try {
-			downloadFileToTempFolder(imageUrl, "sample1.jpg", getTempFolderPath());
+			productapi.createMediafile(destinationPath, akeneoUtil.createMediaProductJson(identifier, attribute, locale, scope));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	public void executeImageDownload(){
+		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg";
+//		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg?c=2";
+		imageWritetoPIM(imageUrl, tempFolderPath, "","","","");
+		
 
-    private void downloadFileToTempFolder(String tmpImageFile, String inptFilename,String tmpFolderPath) throws IOException
-    {
-        try(InputStream in = new URL(tmpImageFile).openStream()){
-            Files.copy(in, Paths.get(tmpFolderPath+File.separator+inptFilename));
-        }
+	}
+
+    private String downloadFileToTempFolder(String imageUrl, String tmpFolderPath)    {
+		String inputFilename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+		if (inputFilename.contains("?")) {
+			inputFilename = inputFilename.substring(0, inputFilename.indexOf("?"));
+		} 
+		System.out.println(inputFilename);
+		String destinationPath = tmpFolderPath+File.separator+inputFilename;
+		System.out.println(destinationPath);
+        try(InputStream in = new URL(imageUrl).openStream()){
+            Files.copy(in, Paths.get(destinationPath));
+        } catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        return destinationPath;
     }
     
-    private String getTempFolderPath() throws IOException  {
+    private String getTempFolderPath()  {
         File tmpFile = new File(FileSystems.getDefault().getPath("").toAbsolutePath().toString().concat(File.separator+"temp"));
-        if(tmpFile.exists())
-            FileUtils.cleanDirectory(tmpFile);
-        else
+        if(tmpFile.exists()) {
+			try {
+				FileUtils.cleanDirectory(tmpFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        } else {
             tmpFile.mkdir();
+        }
         return tmpFile.getAbsolutePath();
     }
 	

@@ -111,7 +111,7 @@ public class PIMClientAPI {
         	return patch(resourceUri, content, retry, ContentType.APPLICATION_JSON);
         }
         
-        public String post(JsonObject jsonstring, File file) throws IOException {
+        public String post(String jsonstring, File file) throws IOException {
             URI resourceUri = uri.resolve(path);
             HttpResponse response = post(resourceUri, jsonstring, file, true);
             System.out.println(response);
@@ -123,20 +123,20 @@ public class PIMClientAPI {
             }
         }
         
-        private HttpResponse post(URI resourceUri, JsonObject postData, File fileUpload, boolean retry) throws IOException {
+        private HttpResponse post(URI resourceUri, String postData, File fileUpload, boolean retry) throws IOException {
             System.out.println(authHeader);
             System.out.println(fileUpload.getName());
-            System.out.println(postData.toString());
+            System.out.println(postData);
             HttpClient client = HttpClientBuilder.create().build();            
             HttpPost post = new HttpPost(resourceUri.normalize());
             post.addHeader("Authorization", authHeader);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.addBinaryBody("file", fileUpload, ContentType.DEFAULT_BINARY, fileUpload.getName());
-            if(postData.has("code")) {
-            	builder.addTextBody("product_model", postData.toString(), ContentType.TEXT_PLAIN);
+            if(postData.contains("code")) {
+            	builder.addTextBody("product_model", postData, ContentType.TEXT_PLAIN);
             }else {
-            	builder.addTextBody("product", postData.toString(), ContentType.TEXT_PLAIN);
+            	builder.addTextBody("product", postData, ContentType.TEXT_PLAIN);
             }
             
             HttpEntity entity = builder.build();

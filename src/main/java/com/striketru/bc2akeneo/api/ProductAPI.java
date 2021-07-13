@@ -4,20 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.striketru.bc2akeneo.common.PIMResponse;
-import com.striketru.bc2akeneo.util.HttpUtil;
-import com.striketru.bc2akeneo.util.RequestUtil;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.fluent.Content;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.striketru.bc2akeneo.common.PIMResponse;
+import com.striketru.bc2akeneo.util.HttpUtil;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -70,7 +61,7 @@ public class ProductAPI {
         return output;
     }
 
-    public String createMediafile(final String widenurl, final JsonObject jsonstring) throws IOException{
+    public String createMediafile(final String widenurl, String jsonstring) throws IOException{
         PRODUCTLOGGER.debug("ProductBySku Mediafile:::"+widenurl);
     	String response = pimClient.productmedia.post(jsonstring, new File(widenurl));
     	PRODUCTLOGGER.debug("createMediafile :::"+response);
