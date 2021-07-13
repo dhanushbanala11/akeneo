@@ -63,6 +63,8 @@ public class ProductAPI {
             output = "Update was successful";
         }else if(response.getCode() == 201){
             output = "Creation was successful";
+        } else {
+        	output = response.getJson();
         }
         PRODUCTLOGGER.debug("UpdateBySku :::"+output);
         return output;

@@ -1,11 +1,9 @@
 plugins {
-	id 'org.springframework.boot' version '2.5.2'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 }
 
 group = 'com.striketru'
-version = '0.0.1-SNAPSHOT'
+version = '1.0'
 sourceCompatibility = '11'
 
 repositories {
@@ -13,9 +11,6 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 	implementation  'org.apache.logging.log4j:log4j-api:2.12.1'
     implementation  'com.fasterxml.jackson.core:jackson-databind:2.9.9'
     implementation  'com.google.code.gson:gson:2.8.1'
@@ -26,12 +21,14 @@ dependencies {
     implementation  'com.sun.mail:javax.mail:1.6.2'
     implementation  'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.9.9'
     implementation  'org.apache.commons:commons-csv:1.6'
-    implementation   'commons-io:commons-io:2.6'
+    implementation  'commons-io:commons-io:2.6'
     implementation  'org.apache.httpcomponents:httpmime:4.5.10'
     implementation  'org.apache.logging.log4j:log4j-core:2.12.1'
     implementation  'org.apache.commons:commons-configuration2:2.7'
 }
 
-test {
-	useJUnitPlatform()
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.striketru.bc2akeneo.Bc2akeneoApplication'
+    }
 }

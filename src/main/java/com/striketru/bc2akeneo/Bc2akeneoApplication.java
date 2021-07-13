@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.striketru.bc2akeneo.api.BcAPI;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
+import com.striketru.bc2akeneo.model.WriteResult;
 import com.striketru.bc2akeneo.util.RequestUtil;
 
 //@SpringBootApplication
@@ -41,23 +42,36 @@ public class Bc2akeneoApplication {
 		try {
 			
 //			List<Object> data =  getBcData();
-			List<Object> data =  getBcData("9147");
-
-			List<String> productResponses = new ArrayList<>();
-			ObjectMapper oMapper = new ObjectMapper();
-			for (Object productData : data) {
-				Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
-				String optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap);
-				boolean isOptionProductsExists = false;
-				if (StringUtils.isNotEmpty(optionProductRequest)){
-					isOptionProductsExists = true;
-					productapi.upsertMutipleProducts(optionProductRequest);
+//			List<Object> data =  getBcData("9147");
+//			List<Object> data =  getBcData("2864");
+			int pageCount = getBcDataPageCount();
+			
+			
+			List<Object> data = null;
+			List<WriteResult> results = new ArrayList<>(); 
+			for (int i= 1; i <= pageCount; i++) {
+				data =  getBcData();
+				List<String> productResponses = new ArrayList<>();
+				ObjectMapper oMapper = new ObjectMapper();
+				for (Object productData : data) {
+					Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
+					WriteResult result = new WriteResult(productDataMap.get("sku").toString());
+					String optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result);
+					boolean isOptionProductsExists = false;
+					if (StringUtils.isNotEmpty(optionProductRequest)){
+						isOptionProductsExists = true;
+						String response = productapi.upsertMutipleProducts(optionProductRequest);
+						result.setOptionsResponse(response);
+					}
+					String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
+					System.out.println("Request : " + baseProductRequest);
+					productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
+					results.add(result);
 				}
-				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
-				System.out.println("Request : " + baseProductRequest);
-				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
+				System.out.println(productResponses);
 			}
-			System.out.println(productResponses);
+			
+			System.out.println(results);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -65,13 +79,31 @@ public class Bc2akeneoApplication {
 		
 	}
 	
+	public int getBcDataPageCount() throws IOException {
+		BcAPI bcApi = new BcAPI();
+		String pages = "";
+		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
+		Content bcResponse = bcApi.get(url);
+		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
+		if (bcResp.get("meta") != null) {
+			Map<String, Object> meta = (Map<String, Object>)bcResp.get("meta");
+			Map<String, Object> pagination = (Map<String, Object>)meta.get("pagination");
+			pages = pagination.get("total_pages").toString();
+			System.out.println(pages);
+		}
+		System.out.println(bcResp.get("meta"));
+		return  StringUtils.isNotEmpty(pages) ? Integer.valueOf(pages) : 0;
+	}
+	
+	
+	
 	/**
 	 * 
 	 * @throws IOException
 	 */
 	public List<Object> getBcData() throws IOException {
 		BcAPI bcApi = new BcAPI();
-		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products/9147?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
+		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
 		Content bcResponse = bcApi.get(url);
 		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
 		System.out.println(bcResp.get("data"));

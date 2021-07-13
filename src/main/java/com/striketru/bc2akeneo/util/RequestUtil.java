@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.gson.Gson;
+import com.striketru.bc2akeneo.model.WriteResult;
 
 public class RequestUtil {
 	public static Gson gson = new Gson();
@@ -253,7 +254,7 @@ public class RequestUtil {
 //	}
 //	
     
-	public String createUpdateOptionProducts(String sku, Map<String, Object> data) {
+	public String createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result) {
 		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
 
 		StringBuilder strbuild = new StringBuilder("");
@@ -264,9 +265,11 @@ public class RequestUtil {
 				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
 				for (Map<String, Object> optionProduct: optionValues){
 					strbuild.append(createOptionProduct(display_name, optionProduct)).append("\n");
+					count++;
 				}
 			}
-		}		
+		}	
+		result.setOptionsCount(count);
 		return strbuild.toString();
 	}
 	
