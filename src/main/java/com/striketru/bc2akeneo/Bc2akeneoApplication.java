@@ -1,6 +1,7 @@
 package com.striketru.bc2akeneo;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -43,24 +44,24 @@ public class Bc2akeneoApplication {
 		Map<String, Object> bcResp = null;
 		System.out.println("Application Properties : " + System.getProperty("APP_PROP"));
 		System.out.println("** Connecting to BC **");
-			
 
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
-		
+		List<String> createdOptions = new ArrayList<String>();
 		try {
 			List<WriteResult> results = new ArrayList<>(); 
 			boolean isNotPageRead = true;
 			
 			if (isNotPageRead) {
-				List<Object> dataTemp =  getBcData("9147","2864");
-				executeProductPage(dataTemp, results);
+				List<Object> dataTemp =  getBcData("2864"); //9147, 2864
+				executeProductPage(dataTemp, results, createdOptions);
 			} else {
 				int pageCount = getBcDataPageCount();
+				pageCount = 30;
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  getBcData(i);
-					executeProductPage(data, results);
+					executeProductPage(data, results, createdOptions);
 				}
 			}
 			
@@ -72,13 +73,13 @@ public class Bc2akeneoApplication {
 		
 	}
 	
-	public void executeProductPage(List<Object> data, List<WriteResult> results){
+	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions){
 		ObjectMapper oMapper = new ObjectMapper();
 		for (Object productData : data) {
 			Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
 			try {
 				WriteResult result = new WriteResult(productDataMap.get("sku").toString());
-				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result);
+				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions);
 				boolean isOptionProductsExists = false;
 				for (String request: optionProductRequest)  {
 					System.out.println(request);
@@ -91,8 +92,12 @@ public class Bc2akeneoApplication {
 				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
 				System.out.println("Request : " + baseProductRequest);
 				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
-				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
-				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
+//				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
+//				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
+				
+				String priceRequest = akeneoUtil.createProductPrices(productDataMap.get("sku").toString(), productDataMap, result);
+				productapi.upsertMutipleProducts(priceRequest);
+				
 				results.add(result);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -101,21 +106,40 @@ public class Bc2akeneoApplication {
 		
 	}
 	
-	public void displayResults(List<WriteResult> results) {
+	public void displayResults(List<WriteResult> results) throws IOException {
+		FileWriter myWriter = new FileWriter("akeneo_logs.txt");	
+//		String content = "**** start **** \n";
+//		for (WriteResult result: results) {
+//			content += result.countString() + "\n";
+//			System.out.println(result.countString());
+//		}
+//		content += "**** End **** \n";
+		String content = "";
 		for (WriteResult result: results) {
-			System.out.println(result.countString());
-		}
-		for (WriteResult result: results) {
+			content += "\n SKU : "+ result.getSku()+"|";
 			System.out.println("SKU : "+ result.getSku());
-			System.out.println("Options Product: count="+result.getOptionsCount());
+			content +=  "Options Product: count="+result.getOptionsCount()+"|";
+			System.out.println("Options_Product_count: "+result.getOptionsCount());
+			content += result.getOptionsResponse()+"|";
 			System.out.println(result.getOptionsResponse());
+			content += "price_count: "+result.getPriceCount()+"|";
 			System.out.println("price: count="+result.getPriceCount());
+			content += result.getPriceResponse()+"|";
 			System.out.println(result.getPriceResponse());
+			content += "image: count="+result.getImageCount()+"|";
 			System.out.println("image: count="+result.getImageCount());
+			
+			content += "Variant :"+ result.isVariants()+"|";
+			content += "Modifiers :"+ result.isModifiers()+"|";
+			
+			content += result.getImageResponse();
 			System.out.println(result.getImageResponse());
 		}
+			myWriter.write(content);
+			myWriter.close();
 		
 	}
+	
 	public int getBcDataPageCount() throws IOException {
 		BcAPI bcApi = new BcAPI();
 		String pages = "";

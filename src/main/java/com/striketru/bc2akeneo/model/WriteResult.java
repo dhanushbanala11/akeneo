@@ -10,6 +10,8 @@ public class WriteResult {
 	private String priceResponse;
 	private int imageCount;
 	private String imageResponse;
+	private boolean isVariants;
+	private boolean isModifiers;
 	
 	public WriteResult(String sku) {
 		this.sku = sku;
@@ -54,6 +56,10 @@ public class WriteResult {
 	public void setPriceCount(int priceCount) {
 		this.priceCount = priceCount;
 	}
+	
+	public void incrementPriceCount(int priceCount) {
+		this.priceCount = this.priceCount + priceCount;
+	}
 
 	public String getPriceResponse() {
 		return priceResponse;
@@ -82,12 +88,28 @@ public class WriteResult {
 	public String countString() {
 		return String.format(COUNT_STR, getSku(), getOptionsCount(), getPriceCount(), getImageCount());
 	}
+	
+	public boolean isVariants() {
+		return isVariants;
+	}
+
+	public void setVariants(boolean isVariants) {
+		this.isVariants = isVariants;
+	}
+
+	public boolean isModifiers() {
+		return isModifiers;
+	}
+
+	public void setModifiers(boolean isModifiers) {
+		this.isModifiers = isModifiers;
+	}
 
 	@Override
 	public String toString() {
 		return "WriteResult [sku=" + sku + ", optionsCount=" + optionsCount + ", optionsResponse=" + optionsResponse
 				+ ", priceCount=" + priceCount + ", priceResponse=" + priceResponse + ", imageCount=" + imageCount
-				+ ", imageResponse=" + imageResponse + "]";
+				+ ", imageResponse=" + imageResponse + ", variants=" + isVariants + ", isModifiers=" + isModifiers +"]";
 	}
 	
 
