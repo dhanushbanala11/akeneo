@@ -26,11 +26,13 @@ import com.striketru.bc2akeneo.util.RequestUtil;
 //@SpringBootApplication
 public class Bc2akeneoApplication {
 
+	
 	RequestUtil akeneoUtil = new RequestUtil();
 	ObjectMapper mapper = new ObjectMapper();
 	String tempFolderPath = getTempFolderPath();
 	ProductAPI productapi = null;
-	
+	BcAPI bcApi = new BcAPI();
+
 	public Bc2akeneoApplication(){
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		productapi = new ProductAPI(appProp.getAppProperties());
@@ -47,37 +49,22 @@ public class Bc2akeneoApplication {
 		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
 		
 		try {
-			
-//			List<Object> data =  getBcData("9147");
-//			List<Object> data =  getBcData("2864");
-			int pageCount = getBcDataPageCount();
-			
-			
-			List<Object> data = null;
 			List<WriteResult> results = new ArrayList<>(); 
-			for (int i= 1; i <= pageCount; i++) {
-				data =  getBcData(i);
-				List<String> productResponses = new ArrayList<>();
-				ObjectMapper oMapper = new ObjectMapper();
-				for (Object productData : data) {
-					Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
-					WriteResult result = new WriteResult(productDataMap.get("sku").toString());
-					String optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result);
-					boolean isOptionProductsExists = false;
-					if (StringUtils.isNotEmpty(optionProductRequest)){
-						isOptionProductsExists = true;
-						String response = productapi.upsertMutipleProducts(optionProductRequest);
-						result.setOptionsResponse(response);
-					}
-					String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
-					System.out.println("Request : " + baseProductRequest);
-					productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
-					results.add(result);
+			boolean isNotPageRead = true;
+			
+			if (isNotPageRead) {
+				List<Object> dataTemp =  getBcData("9147","2864");
+				executeProductPage(dataTemp, results);
+			} else {
+				int pageCount = getBcDataPageCount();
+				List<Object> data = null;
+				for (int i= 1; i <= pageCount; i++) {
+					data =  getBcData(i);
+					executeProductPage(data, results);
 				}
-				System.out.println(productResponses);
 			}
 			
-			System.out.println(results);
+			displayResults(results);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -85,6 +72,50 @@ public class Bc2akeneoApplication {
 		
 	}
 	
+	public void executeProductPage(List<Object> data, List<WriteResult> results){
+		ObjectMapper oMapper = new ObjectMapper();
+		for (Object productData : data) {
+			Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
+			try {
+				WriteResult result = new WriteResult(productDataMap.get("sku").toString());
+				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result);
+				boolean isOptionProductsExists = false;
+				for (String request: optionProductRequest)  {
+					System.out.println(request);
+					if (StringUtils.isNotEmpty(request)){
+						isOptionProductsExists = true;
+						String response = productapi.upsertMutipleProducts(request);
+						result.setOptionsResponse(response);
+					}
+				}
+				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
+				System.out.println("Request : " + baseProductRequest);
+				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
+				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
+				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
+				results.add(result);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	public void displayResults(List<WriteResult> results) {
+		for (WriteResult result: results) {
+			System.out.println(result.countString());
+		}
+		for (WriteResult result: results) {
+			System.out.println("SKU : "+ result.getSku());
+			System.out.println("Options Product: count="+result.getOptionsCount());
+			System.out.println(result.getOptionsResponse());
+			System.out.println("price: count="+result.getPriceCount());
+			System.out.println(result.getPriceResponse());
+			System.out.println("image: count="+result.getImageCount());
+			System.out.println(result.getImageResponse());
+		}
+		
+	}
 	public int getBcDataPageCount() throws IOException {
 		BcAPI bcApi = new BcAPI();
 		String pages = "";
@@ -108,7 +139,6 @@ public class Bc2akeneoApplication {
 	 * @throws IOException
 	 */
 	public List<Object> getBcData(int pageNum) throws IOException {
-		BcAPI bcApi = new BcAPI();
 		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options&page="+pageNum+"&limit=10";
 		Content bcResponse = bcApi.get(url);
 		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
@@ -117,18 +147,28 @@ public class Bc2akeneoApplication {
 	}
 	
 
-	public List<Object> getBcData(String id) throws IOException {
-		BcAPI bcApi = new BcAPI();
-		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products/"+ id + "?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
-		Content bcResponse = bcApi.get(url);
-		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
-		System.out.println(bcResp.get("data"));
+	public List<Object> getBcData(String... ids ) throws IOException {
 		List<Object> listObj = new ArrayList<>();
-		listObj.add(bcResp.get("data"));
+		for (String id : ids) {
+			String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products/"+ id + "?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
+			Content bcResponse = bcApi.get(url);
+			Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
+			System.out.println(bcResp.get("data"));
+			listObj.add(bcResp.get("data"));
+		}
 		return listObj;
 	}
 	
 	
+
+	public void executeImageDownload(){
+//		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg";
+		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg?c=2";
+		imageWritetoPIM(imageUrl, tempFolderPath, "PP-R1043-X","primary_image", null, null);
+		
+
+	}
+
 	public void imageWritetoPIM(String imageUrl, String tempFolderPath, String identifier, String attribute,  String locale, String scope) {
 		String destinationPath = downloadFileToTempFolder(imageUrl, tempFolderPath);
 		try {
@@ -138,14 +178,6 @@ public class Bc2akeneoApplication {
 		}
 	}
 	
-	public void executeImageDownload(){
-		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg";
-//		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg?c=2";
-		imageWritetoPIM(imageUrl, tempFolderPath, "","","","");
-		
-
-	}
-
     private String downloadFileToTempFolder(String imageUrl, String tmpFolderPath)    {
 		String inputFilename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 		if (inputFilename.contains("?")) {

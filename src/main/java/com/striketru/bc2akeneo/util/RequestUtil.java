@@ -221,7 +221,9 @@ public class RequestUtil {
 				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
 				for (Map<String, Object> optionProduct: optionValues){
 					String[] optionsSku = optionProduct.get("label").toString().split("--");
-					prodOptions.add(optionsSku[1].trim());
+					if (optionsSku.length >=2) {
+						prodOptions.add(optionsSku[1].trim());
+					}
 				}
 			}
 		}	
@@ -254,9 +256,11 @@ public class RequestUtil {
 //	}
 //	
     
-	public String createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result) {
+	public List<String> createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result) {
 		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
-
+		int MAX_PROD_COUNT = 50;
+		List<String> requestList = new ArrayList<>();
+		
 		StringBuilder strbuild = new StringBuilder("");
 		int count = 0;
 		for (Map<String, Object> modifierObj: modifiers){ 
@@ -264,29 +268,42 @@ public class RequestUtil {
 			if (!display_name.equalsIgnoreCase("not_an_option")) {
 				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
 				for (Map<String, Object> optionProduct: optionValues){
-					strbuild.append(createOptionProduct(display_name, optionProduct)).append("\n");
-					count++;
+					String optProdStr = createOptionProduct(display_name, optionProduct);
+					if (StringUtils.isNotEmpty(optProdStr)) {
+						strbuild.append(optProdStr).append("\n");
+						count++;
+						if (count == MAX_PROD_COUNT) {
+							requestList.add(strbuild.toString());
+							strbuild = new StringBuilder("");
+							result.incrementOptionsCount(count);
+							count =0;
+						}
+					}
 				}
 			}
 		}	
-		result.setOptionsCount(count);
-		return strbuild.toString();
+		requestList.add(strbuild.toString());
+		result.incrementOptionsCount(count);
+		return requestList;
 	}
 	
 	private String createOptionProduct(String displayName, Map<String, Object> data) {
 		String[] optionsSku = data.get("label").toString().split("--");
 		
-		StringBuilder strbuild = new StringBuilder("{");
-    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
-    	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
-    	strbuild.append("\"values\": {");
-    	strbuild.append(createAttributeJson("sku_type", null, null, "O")).append(",");
-//    	strbuild.append(createAttributeJson("display_name", null, null, displayName)).append(",");
-//    	strbuild.append(createAttributeJson("label", null, null, optionsSku[0].trim())).append(",");
-    	strbuild.append(createAttributeImageJson("swatch_file", null, null, "9/1/e/d/91ed04c50887ee44b94bad26c4d4ac7acbd85b28_Sag_Harbor_Dining_Armchair9607__14425.1615580640.1000.1000.jpg", "fileURL"));
-    	
-    	strbuild.append("}");
-    	strbuild.append("}");
+		StringBuilder strbuild = new StringBuilder("");
+		if (optionsSku.length >=2) {
+			strbuild.append("{");
+	    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
+	    	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
+	    	strbuild.append("\"values\": {");
+	    	strbuild.append(createAttributeJson("sku_type", null, null, "O")).append(",");
+	//    	strbuild.append(createAttributeJson("display_name", null, null, displayName)).append(",");
+	//    	strbuild.append(createAttributeJson("label", null, null, optionsSku[0].trim())).append(",");
+	    	strbuild.append(createAttributeImageJson("swatch_file", null, null, "9/1/e/d/91ed04c50887ee44b94bad26c4d4ac7acbd85b28_Sag_Harbor_Dining_Armchair9607__14425.1615580640.1000.1000.jpg", "fileURL"));
+	    	
+	    	strbuild.append("}");
+	    	strbuild.append("}");
+		}
 		
 		return strbuild.toString();
 	}

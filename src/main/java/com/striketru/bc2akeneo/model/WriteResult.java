@@ -2,6 +2,7 @@ package com.striketru.bc2akeneo.model;
 
 public class WriteResult {
 
+	static final String COUNT_STR = "SKU: %s, OptionsCount = %d, priceCount = %d, imageCount = %d";
 	private String sku;
 	private int optionsCount;
 	private String optionsResponse;
@@ -29,6 +30,10 @@ public class WriteResult {
 	public void setOptionsCount(int optionsCount) {
 		this.optionsCount = optionsCount;
 	}
+	public void incrementOptionsCount(int optionsCount) {
+		this.optionsCount = this.optionsCount + optionsCount;
+	}
+	
 
 	public String getOptionsResponse() {
 		return optionsResponse;
@@ -36,6 +41,10 @@ public class WriteResult {
 
 	public void setOptionsResponse(String optionsResponse) {
 		this.optionsResponse = optionsResponse;
+	}
+	
+	public void appendOptionsResponse(String optionsResp) {
+		this.optionsResponse = this.optionsResponse + optionsResp;
 	}
 
 	public int getPriceCount() {
@@ -68,6 +77,10 @@ public class WriteResult {
 
 	public void setImageResponse(String imageResponse) {
 		this.imageResponse = imageResponse;
+	}
+	
+	public String countString() {
+		return String.format(COUNT_STR, getSku(), getOptionsCount(), getPriceCount(), getImageCount());
 	}
 
 	@Override
