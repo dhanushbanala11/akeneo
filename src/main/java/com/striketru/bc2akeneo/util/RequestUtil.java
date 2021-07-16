@@ -368,50 +368,6 @@ public class RequestUtil {
 		return optionsList;
 	}
 	
-	public List<String> getOptionValuesPricesFromParent(List<Map<String, Object>> movs, String baseSku, String type, List<String> optionsList, int count, WriteResult result, Map<String, String> attributes, List<String> pricesList) {
-		StringBuilder strbuild = new StringBuilder("");
-		int MAX_PROD_COUNT = 50;
-		
-		List<String> createdLabels = new ArrayList<String>();
-		for(Map<String, Object> data: movs) {
-			String displayName = StringUtils.EMPTY;
-			if(!type.equals(BuilderConstants.VARIANTS)) {
-				displayName = data.get(BuilderConstants.DISPLAY_NAME).toString();
-			}
-			if(type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, data.get(BuilderConstants.SKU).toString())) {
-				break;
-			}
-			if(!displayName.equalsIgnoreCase("not_an_option") && type.equals(BuilderConstants.VARIANTS)) {
-				List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTION_VALUES);
-				for(Map<String, Object>option: options) {
-					if(!type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, option.get(BuilderConstants.SKU).toString())) {
-						break;
-					}
-					if(type.equals(BuilderConstants.VARIANTS)) {
-						displayName = option.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
-					}
-					String label = option.get("label").toString();
-					if(!createdLabels.contains(label)) {
-						count++;
-						String response = createProductPrices(baseSku, option, result);
-						if(!response.isEmpty()) {
-							strbuild.append(response).append("\n");
-							if (count == MAX_PROD_COUNT) {
-								optionsList.add(strbuild.toString());
-								strbuild = new StringBuilder("");
-								result.incrementOptionsCount(count);
-								count = 0;
-							}
-						}
-					}
-				}
-			}
-		}
-		optionsList.add(strbuild.toString());
-		result.incrementOptionsCount(count);
-		return optionsList;
-	}
-	
 	private String createOptionProduct(String displayName, Map<String, Object> data, List<String> createdOptions, Map<String, String> attributes) {
 		String label = data.get("label").toString();
 		String[] optionsSku = label.split("--");
