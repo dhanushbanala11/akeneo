@@ -1,15 +1,22 @@
 package com.striketru.bc2akeneo;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,9 +25,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Content;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.striketru.bc2akeneo.api.BcAPI;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
+import com.striketru.bc2akeneo.constants.BuilderConstants;
 import com.striketru.bc2akeneo.model.WriteResult;
 import com.striketru.bc2akeneo.util.RequestUtil;
 
@@ -39,7 +48,7 @@ public class Bc2akeneoApplication {
 		productapi = new ProductAPI(appProp.getAppProperties());
 	}
 	
-	public void execute(){
+	public void execute() throws IOException{
 		
 		Map<String, Object> bcResp = null;
 		System.out.println("Application Properties : " + System.getProperty("APP_PROP"));
@@ -47,24 +56,25 @@ public class Bc2akeneoApplication {
 
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
+		Map<String, String> attributes = getPIMattributes();
+//		System.out.println(attributes.toString());
 		List<String> createdOptions = new ArrayList<String>();
 		try {
 			List<WriteResult> results = new ArrayList<>(); 
 			boolean isNotPageRead = true;
 			
 			if (isNotPageRead) {
-				List<Object> dataTemp =  getBcData("2864"); //9147, 2864
-				executeProductPage(dataTemp, results, createdOptions);
+				List<Object> dataTemp =  getBcData("440"); //9147, 2864, 440
+				executeProductPage(dataTemp, results, createdOptions, attributes);
 			} else {
 				int pageCount = getBcDataPageCount();
-				pageCount = 30;
+//				pageCount = 50;
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  getBcData(i);
-					executeProductPage(data, results, createdOptions);
+					executeProductPage(data, results, createdOptions, attributes);
 				}
 			}
-			
 			displayResults(results);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -73,16 +83,22 @@ public class Bc2akeneoApplication {
 		
 	}
 	
-	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions){
+	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions, Map<String, String> attributes){
 		ObjectMapper oMapper = new ObjectMapper();
 		for (Object productData : data) {
 			Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
 			try {
 				WriteResult result = new WriteResult(productDataMap.get("sku").toString());
-				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions);
+				List<String> optionProductRequest = akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, result, attributes);
+				System.out.println(optionProductRequest);
+//				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions, attributes);
 				boolean isOptionProductsExists = false;
+				List<Map<String, Object>> options = (List<Map<String, Object>>) productDataMap.get("options");
+				if(options.size() > 0) {
+					result.setHasOptions(true);
+				}
 				for (String request: optionProductRequest)  {
-					System.out.println(request);
+//					System.out.println(request);
 					if (StringUtils.isNotEmpty(request)){
 						isOptionProductsExists = true;
 						String response = productapi.upsertMutipleProducts(request);
@@ -90,7 +106,7 @@ public class Bc2akeneoApplication {
 					}
 				}
 				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
-				System.out.println("Request : " + baseProductRequest);
+//				System.out.println("Request : " + baseProductRequest);
 				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
 //				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
@@ -99,7 +115,8 @@ public class Bc2akeneoApplication {
 				productapi.upsertMutipleProducts(priceRequest);
 				
 				results.add(result);
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -131,6 +148,7 @@ public class Bc2akeneoApplication {
 			
 			content += "Variant :"+ result.isVariants()+"|";
 			content += "Modifiers :"+ result.isModifiers()+"|";
+			content += "Options :"+ result.isHasOptions()+"|";
 			
 			content += result.getImageResponse();
 			System.out.println(result.getImageResponse());
@@ -163,11 +181,33 @@ public class Bc2akeneoApplication {
 	 * @throws IOException
 	 */
 	public List<Object> getBcData(int pageNum) throws IOException {
-		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options&page="+pageNum+"&limit=10";
+		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,modifiers,options&page="+pageNum+"&limit=10";
 		Content bcResponse = bcApi.get(url);
 		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
-		System.out.println(bcResp.get("data"));
+		//System.out.println(bcResp.get("data"));
 		return  (List<Object>) bcResp.get("data");
+	}
+	
+	public Map<String, String> getPIMattributes() throws IOException {
+		Path filePath = Paths.get("attributes.csv");
+		Map<String, String> attributes =  new HashMap<>();
+		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
+			String line = br.readLine(); 
+			int count = 1;
+			while (line != null) {
+				String[] attributesFromFile = line.split(";");
+				if(count == 668) {
+					System.out.println(attributesFromFile);
+				}
+				count++;
+				attributesFromFile[1] = attributesFromFile[1].replace("\"", "");
+				attributes.put(attributesFromFile[2].trim()+"-"+attributesFromFile[1].trim(), attributesFromFile[0].trim());
+				line = br.readLine(); 
+				} 
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		return attributes;
 	}
 	
 
@@ -238,5 +278,4 @@ public class Bc2akeneoApplication {
 		new Bc2akeneoApplication().execute();
 //		new Bc2akeneoApplication().executeImageDownload();
 	}
-
 }

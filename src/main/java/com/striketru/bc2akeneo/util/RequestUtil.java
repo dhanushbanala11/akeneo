@@ -2,6 +2,8 @@ package com.striketru.bc2akeneo.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -11,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.gson.Gson;
+import com.striketru.bc2akeneo.constants.BuilderConstants;
 import com.striketru.bc2akeneo.model.WriteResult;
 
 public class RequestUtil {
@@ -95,7 +98,7 @@ public class RequestUtil {
     	
     	
     	List<Object> newObj  =  (List<Object>) data.get("custom_fields");
-    	if(newObj.size() > 0)
+    	if(newObj!=null && newObj.size() > 0)
     		strbuild.append(",");
     	
 //    	ArrayList<String> newCategories = new ArrayList<String>();
@@ -259,7 +262,7 @@ public class RequestUtil {
 //	}
 //	
     
-	public List<String> createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result, List<String> createdOptions) {
+	public List<String> createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result, List<String> createdOptions, Map<String, String> attributes) {
 		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
 		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get("variants");
 		
@@ -282,11 +285,15 @@ public class RequestUtil {
 			String display_name = (String) modifierObj.get("display_name");
 			if (!display_name.equalsIgnoreCase("not_an_option")) {
 				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
+				if(optionValues.size() > 0) {
+					result.setModifiers(true);
+				}
+				
 				for (Map<String, Object> optionProduct: optionValues){
-					String optProdStr = createOptionProduct(display_name, optionProduct, createdOptions);
+					count++;
+					String optProdStr = createOptionProduct(display_name, optionProduct, createdOptions, attributes);
 					if (StringUtils.isNotEmpty(optProdStr)) {
 						strbuild.append(optProdStr).append("\n");
-						count++;
 						if (count == MAX_PROD_COUNT) {
 							requestList.add(strbuild.toString());
 							strbuild = new StringBuilder("");
@@ -302,23 +309,129 @@ public class RequestUtil {
 		return requestList;
 	}
 	
-	private String createOptionProduct(String displayName, Map<String, Object> data, List<String> createdOptions) {
-		String[] optionsSku = data.get("label").toString().split("--");
+	public List<String> getAllValueOptions(String baseSku, Map<String, Object> data, WriteResult result, Map<String, String> attributes) {
+		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get(BuilderConstants.MODIFIERS);
+		List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTIONS);
+		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get(BuilderConstants.VARIANTS);
 		
+		int count = 0;
+		List<String> optionsList = new ArrayList<>();
+		List<String> pricesList = new ArrayList<>();
+		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, optionsList, count, result, attributes, pricesList);
+		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, optionsList, count, result, attributes, pricesList);
+		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, optionsList, count, result, attributes, pricesList);
+		
+		return optionsList;
+	}
+	
+	public List<String> getOptionValuesFromParent(List<Map<String, Object>> movs, String baseSku, String type, List<String> optionsList, int count, WriteResult result, Map<String, String> attributes, List<String> pricesList) {
 		StringBuilder strbuild = new StringBuilder("");
-		if (optionsSku.length >=2 && !createdOptions.contains(optionsSku[1].trim())) {
-			createdOptions.add(optionsSku[1].trim());
+		int MAX_PROD_COUNT = 50;
+		
+		List<String> createdLabels = new ArrayList<String>();
+		for(Map<String, Object> data: movs) {
+			String displayName = StringUtils.EMPTY;
+			if(!type.equals(BuilderConstants.VARIANTS)) {
+				displayName = data.get(BuilderConstants.DISPLAY_NAME).toString();
+			}
+			if(type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, data.get(BuilderConstants.SKU).toString())) {
+				break;
+			}
+			if(!displayName.equalsIgnoreCase("not_an_option") && type.equals(BuilderConstants.VARIANTS)) {
+				List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTION_VALUES);
+				for(Map<String, Object>option: options) {
+					if(!type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, option.get(BuilderConstants.SKU).toString())) {
+						break;
+					}
+					if(type.equals(BuilderConstants.VARIANTS)) {
+						displayName = option.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
+					}
+					String label = option.get("label").toString();
+					if(!createdLabels.contains(label)) {
+						count++;
+						String response = createOptionProduct(displayName, option, createdLabels, attributes);
+						if(!response.isEmpty()) {
+							strbuild.append(response).append("\n");
+							if (count == MAX_PROD_COUNT) {
+								optionsList.add(strbuild.toString());
+								strbuild = new StringBuilder("");
+								result.incrementOptionsCount(count);
+								count = 0;
+							}
+						}
+					}
+				}
+			}
+		}
+		optionsList.add(strbuild.toString());
+		result.incrementOptionsCount(count);
+		return optionsList;
+	}
+	
+	public List<String> getOptionValuesPricesFromParent(List<Map<String, Object>> movs, String baseSku, String type, List<String> optionsList, int count, WriteResult result, Map<String, String> attributes, List<String> pricesList) {
+		StringBuilder strbuild = new StringBuilder("");
+		int MAX_PROD_COUNT = 50;
+		
+		List<String> createdLabels = new ArrayList<String>();
+		for(Map<String, Object> data: movs) {
+			String displayName = StringUtils.EMPTY;
+			if(!type.equals(BuilderConstants.VARIANTS)) {
+				displayName = data.get(BuilderConstants.DISPLAY_NAME).toString();
+			}
+			if(type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, data.get(BuilderConstants.SKU).toString())) {
+				break;
+			}
+			if(!displayName.equalsIgnoreCase("not_an_option") && type.equals(BuilderConstants.VARIANTS)) {
+				List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTION_VALUES);
+				for(Map<String, Object>option: options) {
+					if(!type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, option.get(BuilderConstants.SKU).toString())) {
+						break;
+					}
+					if(type.equals(BuilderConstants.VARIANTS)) {
+						displayName = option.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
+					}
+					String label = option.get("label").toString();
+					if(!createdLabels.contains(label)) {
+						count++;
+						String response = createProductPrices(baseSku, option, result);
+						if(!response.isEmpty()) {
+							strbuild.append(response).append("\n");
+							if (count == MAX_PROD_COUNT) {
+								optionsList.add(strbuild.toString());
+								strbuild = new StringBuilder("");
+								result.incrementOptionsCount(count);
+								count = 0;
+							}
+						}
+					}
+				}
+			}
+		}
+		optionsList.add(strbuild.toString());
+		result.incrementOptionsCount(count);
+		return optionsList;
+	}
+	
+	private String createOptionProduct(String displayName, Map<String, Object> data, List<String> createdOptions, Map<String, String> attributes) {
+		String label = data.get("label").toString();
+		String[] optionsSku = label.split("--");
+		String displayCode = attributes.get("display_name"+"-"+displayName);
+		StringBuilder strbuild = new StringBuilder("");
+		if (optionsSku.length >=2 && !createdOptions.contains(data.get("label").toString())) {
+			createdOptions.add(label);
 			strbuild.append("{");
 	    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
 	    	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
 	    	strbuild.append("\"values\": {");
 	    	strbuild.append(createAttributeJson("sku_type", null, null, "O")).append(",");
-	    	strbuild.append(createAttributeJson("display_name", null, null, "select_finish")).append(",");
+	    	strbuild.append(createAttributeJson("display_name", null, null, displayCode));
 	//    	strbuild.append(createAttributeJson("label", null, null, optionsSku[0].trim())).append(",");
-	    	strbuild.append(createAttributeImageJson("swatch_file", null, null, "9/1/e/d/91ed04c50887ee44b94bad26c4d4ac7acbd85b28_Sag_Harbor_Dining_Armchair9607__14425.1615580640.1000.1000.jpg", "fileURL"));
+//	    	strbuild.append(createAttributeImageJson("swatch_file", null, null, "9/1/e/d/91ed04c50887ee44b94bad26c4d4ac7acbd85b28_Sag_Harbor_Dining_Armchair9607__14425.1615580640.1000.1000.jpg", "fileURL"));
 	    	
 	    	strbuild.append("}");
 	    	strbuild.append("}");
+		}else {
+			System.out.println(label);
 		}
 		
 		return strbuild.toString();
@@ -331,20 +444,37 @@ public class RequestUtil {
 		StringBuilder strbuild = new StringBuilder("");
 		int count = 0;
 		for (Map<String, Object> modifierObj: modifiers){ 
-			 	count++;
 				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
 				for (Map<String, Object> optionProduct: optionValues){
 					String[] optionsSku = optionProduct.get("label").toString().split("--");
-					if (optionsSku.length >=2) {
+//					if (optionsSku.length >=2) { //removed - Need to consider all options with prices even if there is no SKU
+						Matcher positivePriceRegex = Pattern.compile("\\((\\+\\$.*?)\\)").matcher(optionProduct.get("label").toString());
+						Matcher negativePriceRegex = Pattern.compile("\\((\\-\\$.*?)\\)").matcher(optionProduct.get("label").toString());
+						String price = null;
+						while (positivePriceRegex.find()) {
+							price = positivePriceRegex.group(1);
+							price = price.replaceAll("[+$]*", "");
+						}
+						
+						if(price == null) {
+							while (negativePriceRegex.find()) {
+								price = negativePriceRegex.group(1);
+								price = price.replaceAll("[-$]*", "");
+							}
+						}
+						if(price!=null) {
+							count++;
+						}
 						String priceResp = createProductPrice(baseSku, optionProduct);
-						result.incrementPriceCount(count);
+						
 						if(priceResp!=null) {
 							strbuild.append(priceResp).append("\n");
 						}
-					}
+//					}
 				}
 			
 		}
+		result.setPriceCount(count);
 		return strbuild.toString();
 	}
 	
@@ -355,13 +485,14 @@ public class RequestUtil {
 		Matcher positivePriceRegex = Pattern.compile("\\((\\+\\$.*?)\\)").matcher(label);
 		Matcher negativePriceRegex = Pattern.compile("\\((\\-\\$.*?)\\)").matcher(label);
 		String price = null;
+		
 		while (positivePriceRegex.find()) {
 			price = positivePriceRegex.group(1);
 			price = price.replaceAll("[+$]*", "");
 		}
 		
 		if(price == null) {
-			while (positivePriceRegex.find()) {
+			while (negativePriceRegex.find()) {
 				price = negativePriceRegex.group(1);
 				price = price.replaceAll("[-$]*", "");
 			}
@@ -369,14 +500,21 @@ public class RequestUtil {
 		
 		String[] optionsSku = data.get("label").toString().split("--");
 		
+		if(data.get("label").toString().equals("Add Protective Cover FC003 (+$90.00)")) {
+			System.out.println(data.get("label").toString());
+		}
+		
 		if(price!=null) {
 			String[] gradeFinder = label.split(" ");
 			String identifier2 = null;
 			strbuild = new StringBuilder("{");
 			if(Arrays.asList(gradeFinder).contains("Grade") && gradeFinder.length > 0) {
 				identifier2 = gradeFinder[1];
-			}else {
+			}else if(optionsSku.length >= 2) {
 				identifier2 = optionsSku[1];
+			}else {
+				Date date = new Date();
+				identifier2 = date.toString();
 			}
 	    	strbuild.append(createKeyValueJson("identifier", baseSku+"_"+identifier2)).append(",");
 	    	strbuild.append("\"values\": {");
@@ -388,7 +526,7 @@ public class RequestUtil {
 	    		strbuild.append(createAttributeJson("grade", null, null, gradeFinder[1])).append(",");
 	    	}
 	    	strbuild.append(createAttributeJson("base_sku", null, null, baseSku)).append(",");
-	    	strbuild.append(createAttributeJson("option_sku", null, null, optionsSku[1]));
+	    	strbuild.append(createAttributeJson("option_sku", null, null, (optionsSku.length < 2)?identifier2:optionsSku[1]));
 	    	strbuild.append("}");
 	    	strbuild.append("}");
 		}

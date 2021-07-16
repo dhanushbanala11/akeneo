@@ -12,6 +12,7 @@ public class WriteResult {
 	private String imageResponse;
 	private boolean isVariants;
 	private boolean isModifiers;
+	private boolean hasOptions;
 	
 	public WriteResult(String sku) {
 		this.sku = sku;
@@ -105,11 +106,19 @@ public class WriteResult {
 		this.isModifiers = isModifiers;
 	}
 
+	public boolean isHasOptions() {
+		return hasOptions;
+	}
+
+	public void setHasOptions(boolean hasOptions) {
+		this.hasOptions = hasOptions;
+	}
+
 	@Override
 	public String toString() {
 		return "WriteResult [sku=" + sku + ", optionsCount=" + optionsCount + ", optionsResponse=" + optionsResponse
 				+ ", priceCount=" + priceCount + ", priceResponse=" + priceResponse + ", imageCount=" + imageCount
-				+ ", imageResponse=" + imageResponse + ", variants=" + isVariants + ", isModifiers=" + isModifiers +"]";
+				+ ", imageResponse=" + imageResponse + ", variants=" + isVariants + ", isModifiers=" + isModifiers + " hasOptions=" + hasOptions +"]";
 	}
 	
 

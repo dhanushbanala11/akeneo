@@ -66,7 +66,6 @@ public class ProductAPI {
     	String response = pimClient.productmedia.post(jsonstring, new File(widenurl));
     	PRODUCTLOGGER.debug("createMediafile :::"+response);
         return response;
-        
     }
     
     /**
