@@ -37,15 +37,22 @@ import com.striketru.bc2akeneo.util.RequestUtil;
 public class Bc2akeneoApplication {
 
 	
+	public enum CSV_FILE_TYPE{ATTRIBUTE_OPTION, FAMILIES, CUSTOM_FIELDS}
+	
 	RequestUtil akeneoUtil = new RequestUtil();
 	ObjectMapper mapper = new ObjectMapper();
 	String tempFolderPath = getTempFolderPath();
 	ProductAPI productapi = null;
+	Map<String, String> optionAttributes = null;
+	Map<String, String> famililes = null;
+	Map<String, String> customFields = null;
 	BcAPI bcApi = new BcAPI();
 
 	public Bc2akeneoApplication(){
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		productapi = new ProductAPI(appProp.getAppProperties());
+		optionAttributes = getPropertyFromCSV("attributes.csv", CSV_FILE_TYPE.ATTRIBUTE_OPTION);
+		customFields = getPropertyFromCSV("attributes.csv", CSV_FILE_TYPE.CUSTOM_FIELDS);
 	}
 	
 	public void execute() throws IOException{
@@ -56,7 +63,6 @@ public class Bc2akeneoApplication {
 
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
-		Map<String, String> attributes = getPIMattributes();
 //		System.out.println(attributes.toString());
 		List<String> createdOptions = new ArrayList<String>();
 		try {
@@ -65,22 +71,20 @@ public class Bc2akeneoApplication {
 			
 			if (isNotPageRead) {
 				List<Object> dataTemp =  getBcData("440"); //9147, 2864, 440
-				executeProductPage(dataTemp, results, createdOptions, attributes);
+				executeProductPage(dataTemp, results, createdOptions, optionAttributes);
 			} else {
 				int pageCount = getBcDataPageCount();
 //				pageCount = 50;
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  getBcData(i);
-					executeProductPage(data, results, createdOptions, attributes);
+					executeProductPage(data, results, createdOptions, optionAttributes);
 				}
 			}
 			displayResults(results);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions, Map<String, String> attributes){
@@ -108,7 +112,7 @@ public class Bc2akeneoApplication {
 						result.setOptionsResponse(response);
 					}
 				}
-				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists);
+				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists, customFields);
 //				System.out.println("Request : " + baseProductRequest);
 				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
@@ -213,7 +217,39 @@ public class Bc2akeneoApplication {
 		return attributes;
 	}
 	
-
+	private Map<String, String> getPropertyFromCSV(String csvfileName, CSV_FILE_TYPE csvFileType) {
+		Path filePath = Paths.get(csvfileName);
+		Map<String, String> attributes =  new HashMap<>();
+		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
+			String line = br.readLine(); 
+			while (line != null) {
+				if (csvFileType == CSV_FILE_TYPE.ATTRIBUTE_OPTION) { 
+					String[] attributesFromFile = line.split(";");
+					if (attributesFromFile.length >=3) { 
+						attributesFromFile[1] = attributesFromFile[1].replace("\"", "");
+						attributes.put(attributesFromFile[2].trim()+"-"+attributesFromFile[1].trim(), attributesFromFile[0].trim());
+					}
+				} else if (csvFileType == CSV_FILE_TYPE.FAMILIES) {
+					String[] attributesFromFile = line.split(",");
+					if (attributesFromFile.length >=2) { 
+						attributesFromFile[1] = attributesFromFile[1].replace("\"", "");
+						attributes.put(attributesFromFile[0].trim(), attributesFromFile[1].trim());
+					}
+				} else if (csvFileType == CSV_FILE_TYPE.CUSTOM_FIELDS) {
+					String[] attributesFromFile = line.split(",");
+					if (attributesFromFile.length >=3) { 
+						attributes.put(attributesFromFile[0].trim(), attributesFromFile[1].trim() + "##" + attributesFromFile[2].trim());
+					}
+				}
+				line = br.readLine(); 
+			} 
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		return attributes;
+	}
+	
+	
 	public List<Object> getBcData(String... ids ) throws IOException {
 		List<Object> listObj = new ArrayList<>();
 		for (String id : ids) {

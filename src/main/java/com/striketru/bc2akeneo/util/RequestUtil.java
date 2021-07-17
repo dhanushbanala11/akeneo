@@ -76,7 +76,7 @@ public class RequestUtil {
     }
     
 
-    public String createUpdateBaseProduct(Map<String, Object> data, boolean isOptionProductsExists){
+    public String createUpdateBaseProduct(Map<String, Object> data, boolean isOptionProductsExists, Map<String, String> customFields){
     	List<String> categories = (List<String>) data.get("categories");
 
     	String step1 = StringUtils.join(categories, "\", \"");// Join with ", "
@@ -99,6 +99,17 @@ public class RequestUtil {
     	strbuild.append(",").append(createAttributeJson("product_description", null, null, data.get("description").toString()));
     	strbuild.append(",").append(createAttributeJson("bigcommerce_id", null, null, data.get("id").toString()));
     	strbuild.append(",").append(createAttributeJson("product_title", null, null, data.get("name").toString()));
+    	
+    	List<Object> bcCustomFields  =  (List<Object>) data.get("custom_fields");
+    	for (Object obj : bcCustomFields) {
+    		Map<String, String> field = (Map<String, String>)obj;
+    		String attribute_attrtype = customFields.get(field.get("name"));
+    		if (attribute_attrtype != null) { 
+    			attribute_attrtype.split("##");
+    			
+    			/// continue logic herer 
+    		}
+    	}
     	
     	StringBuilder removedComaResp = new StringBuilder();
     	if( strbuild.length() > 0 ) {
@@ -157,64 +168,7 @@ public class RequestUtil {
     }
     
     
-//	public String request(Map<String, Object> convertedResp) {
-//		RequestUtil requestData = new RequestUtil();
-//		String baseResponse =createUpdateBaseProduct(convertedResp);
-//		if(StringUtils.isNotEmpty(baseResponse)) {
-//			requestData.createUpdateOptionProducts(convertedResp);
-//		}
-//		
-//		return baseResponse;
-//	}
-//	
-    
-//	public List<String> createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result, List<String> createdOptions, Map<String, String> attributes, Map<String, String> optionMap) {
-//		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
-//		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get("variants");
-//		
-//		int MAX_PROD_COUNT = 50;
-//		List<String> requestList = new ArrayList<>();
-//
-//		if(modifiers.isEmpty()) {
-//			result.setModifiers(false);
-//		}
-//		
-//		for (Map<String, Object> variantsrObj: variants){ 
-//			if(!StringUtils.equals(variantsrObj.get("sku").toString(), sku)) {
-//				result.setVariants(true);
-//			}
-//		}
-//		
-//		StringBuilder strbuild = new StringBuilder("");
-//		int count = 0;
-//		for (Map<String, Object> modifierObj: modifiers){ 
-//			String display_name = (String) modifierObj.get("display_name");
-//			if (!display_name.equalsIgnoreCase("not_an_option")) {
-//				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
-//				if(optionValues.size() > 0) {
-//					result.setModifiers(true);
-//				}
-//				
-//				for (Map<String, Object> optionProduct: optionValues){
-//					count++;
-//					String optProdStr = createOptionProduct(display_name, optionProduct, attributes, optionMap);
-//					if (StringUtils.isNotEmpty(optProdStr)) {
-//						strbuild.append(optProdStr).append("\n");
-//						if (count == MAX_PROD_COUNT) {
-//							requestList.add(strbuild.toString());
-//							strbuild = new StringBuilder("");
-//							result.incrementOptionsCount(count);
-//							count =0;
-//						}
-//					}
-//				}
-//			}
-//		}	
-//		requestList.add(strbuild.toString());
-//		result.incrementOptionsCount(count);
-//		return requestList;
-//	}
-//	
+	
     
 	List<String> optionProductRequest = new ArrayList<>();
 	List<String> priceProductRequest = new ArrayList<>();
