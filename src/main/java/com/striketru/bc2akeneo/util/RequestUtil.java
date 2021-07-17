@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,7 @@ import com.striketru.bc2akeneo.model.WriteResult;
 public class RequestUtil {
 	public static Gson gson = new Gson();
 	private static final String[] ignoreList = {"Swatch Request Form","Google Shopping Availability","Google Shopping Condition","Google Shopping Identifer exists","Features","Google Shopping Promotion ID","Width Range","Width Unit","Height Unit","Depth Range","Depth Unit","Seath Height Unit","Weight Unit","Descriptor","Base Variant Id","Bin Picking Number","Bulk Pricing Rules","Calculated Price","Categories","Condition","Cost Price","Product Resources Shipping","Seating Width ( in.)","Seating Depth ( in.)","Seating Height ( in.)","Seating Seat Height ( in.)","Seating Arm Height ( in.)","Seating Weight (lbs.)","Seating Material","Dimensions ( in.)","Heat Output/BTUs","Any Other Relevant Info","Gift Wrapping Options List","Gift Wrapping Options Type","Height Range","Url Standard 1","Url Standard 2","Inventory Level","Inventory Tracking","Inventory Warning Level","Is Condition Shown","Is Featured","Is Free Shipping","Is Preorder Only","Layout File","Map Price","Order Quantity Maximum","Order Quantity Minimum","Preorder Message","Preorder Release Date","Primary Image File","Product Tax Code","Reviews Count","Reviews Rating Sum","Total Sold","Type","View Count","Seating Width Range","Umbrellas Width Range","Grills Width Range","Heaters Width Range","Seating Height Range","Umbrellas Height Range","Grills Height Range","Heaters Height Range","Fire Pits Height Range","Seating Depth Range","Umbrellas Depth Range","Grills Depth Range","Heaters Depth Range","Sets","Option Type","Featured Highlight","Specs Highlight","Lead-Time 2","Blacklist", "Brand","Cushions", "Height", "Width","Depth", "Use"};
+	private static long customSKU = 1000000;
 	
     private static final String NULL_OR_VALUE_PATTERN = "\"%s\"";
     public static String getValue(String value){
@@ -96,104 +100,6 @@ public class RequestUtil {
     	strbuild.append(",").append(createAttributeJson("bigcommerce_id", null, null, data.get("id").toString()));
     	strbuild.append(",").append(createAttributeJson("product_title", null, null, data.get("name").toString()));
     	
-    	
-    	List<Object> newObj  =  (List<Object>) data.get("custom_fields");
-    	if(newObj!=null && newObj.size() > 0)
-    		strbuild.append(",");
-    	
-//    	ArrayList<String> newCategories = new ArrayList<String>();
-//    	for(int i=0; i<=newObj.size() - 1; i++) {
-//    		boolean insertComa = true;
-//    		Map<String, Object> customField = (Map<String, Object>) newObj.get(i);
-//    		System.out.println(customField.get("name").toString());
-//    		
-//    		if(Arrays.stream(ignoreList).anyMatch(customField.get("name").toString()::equals)) {
-//    			insertComa = false;
-//    		}else if(StringUtils.equals(customField.get("name").toString(), "Category")) {
-//    			newCategories.add(customField.get("value").toString());
-//    			insertComa = false;
-//    		}else if(StringUtils.equals(customField.get("name").toString(), "Material")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Swatch Request Form")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Price")) {
-////    			strbuild.append(createAttributeJson("price_range", null, null, customField.get("value").toString()));
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Related Products")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("More Colors Icon")) {
-////    			strbuild.append(createAttributeJson("more_colors_icon", null, null, customField.get("value").toString()));
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Recycle Icon")) {
-////    			strbuild.append(createAttributeJson("recycle_icon", null, null, customField.get("value").toString()));
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Manufacturer Part Number")) {
-////    			strbuild.append(createAttributeJson("manufacturer_part_number", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Quick Ship Icon")) {
-////    			strbuild.append(createAttributeJson("quick_ship_icon", null, null, customField.get("value").toString()));
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Free Shipping Icon")) {
-////    			strbuild.append(createAttributeJson("free_shipping_icon", null, null, customField.get("value").toString()));
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Lead-Time")) {
-//    			strbuild.append(createAttributeJson("lead_time", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Lead-Time")) {
-//    			strbuild.append(createAttributeJson("lead_time", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Yahoo Google Shopping ID")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Yahoo Bing Shopping ID")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping MPN")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping GTIN")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping Promotion ID")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping Custom_Label_0")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping Custom_Label_1")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping shipping_label")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Yahoo Google Taxonomy")) {
-//    			strbuild.append(createAttributeJson("yahoo_google_taxonomy", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Google Shopping Availability")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping Condition")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Google Shopping Identifer_exists")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Trade Discount")) {
-//    			strbuild.append(createAttributeJson("trade_discount", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Sale Flag")) {
-////    			strbuild.append(createAttributeJson("sale_flag", null, null, customField.get("value").toString()));
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Highlight 1")) {
-//    			strbuild.append(createAttributeJson("highlight_1", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Highlight 2")) {
-//    			strbuild.append(createAttributeJson("highlight_2", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Highlight 3")) {
-//    			strbuild.append(createAttributeJson("highlight_3", null, null, customField.get("value").toString()));
-//    		}else if(customField.get("name").toString().equals("Promo Text")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("PLP Promo Text")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Highlight 4")) {
-//    			System.out.println("****************"+i);
-//    		}else if(customField.get("name").toString().equals("Assembly Required")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("id")) {
-//    			insertComa = false;
-//    		}else if(customField.get("name").toString().equals("Category Excerpt")) {
-//    			insertComa = false;
-//    		}
-//    		else {
-//    			strbuild.append(createAttributeJson(customField.get("name").toString().toLowerCase(), null, null, customField.get("value").toString()));
-//    		}
-//    		if(i != newObj.size() - 1 && insertComa) {
-//    			strbuild.append(",");
-//    		}
-//    	}
     	StringBuilder removedComaResp = new StringBuilder();
     	if( strbuild.length() > 0 ) {
     		removedComaResp = removeComaAtEnd(strbuild.toString());
@@ -262,73 +168,72 @@ public class RequestUtil {
 //	}
 //	
     
-	public List<String> createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result, List<String> createdOptions, Map<String, String> attributes) {
-		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
-		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get("variants");
-		
-		int MAX_PROD_COUNT = 50;
-		List<String> requestList = new ArrayList<>();
+//	public List<String> createUpdateOptionProducts(String sku, Map<String, Object> data, WriteResult result, List<String> createdOptions, Map<String, String> attributes, Map<String, String> optionMap) {
+//		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
+//		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get("variants");
+//		
+//		int MAX_PROD_COUNT = 50;
+//		List<String> requestList = new ArrayList<>();
+//
+//		if(modifiers.isEmpty()) {
+//			result.setModifiers(false);
+//		}
+//		
+//		for (Map<String, Object> variantsrObj: variants){ 
+//			if(!StringUtils.equals(variantsrObj.get("sku").toString(), sku)) {
+//				result.setVariants(true);
+//			}
+//		}
+//		
+//		StringBuilder strbuild = new StringBuilder("");
+//		int count = 0;
+//		for (Map<String, Object> modifierObj: modifiers){ 
+//			String display_name = (String) modifierObj.get("display_name");
+//			if (!display_name.equalsIgnoreCase("not_an_option")) {
+//				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
+//				if(optionValues.size() > 0) {
+//					result.setModifiers(true);
+//				}
+//				
+//				for (Map<String, Object> optionProduct: optionValues){
+//					count++;
+//					String optProdStr = createOptionProduct(display_name, optionProduct, attributes, optionMap);
+//					if (StringUtils.isNotEmpty(optProdStr)) {
+//						strbuild.append(optProdStr).append("\n");
+//						if (count == MAX_PROD_COUNT) {
+//							requestList.add(strbuild.toString());
+//							strbuild = new StringBuilder("");
+//							result.incrementOptionsCount(count);
+//							count =0;
+//						}
+//					}
+//				}
+//			}
+//		}	
+//		requestList.add(strbuild.toString());
+//		result.incrementOptionsCount(count);
+//		return requestList;
+//	}
+//	
+    
+	List<String> optionProductRequest = new ArrayList<>();
+	List<String> priceProductRequest = new ArrayList<>();
 
-		if(modifiers.isEmpty()) {
-			result.setModifiers(false);
-		}
-		
-		for (Map<String, Object> variantsrObj: variants){ 
-			if(!StringUtils.equals(variantsrObj.get("sku").toString(), sku)) {
-				result.setVariants(true);
-			}
-		}
-		
-		StringBuilder strbuild = new StringBuilder("");
-		int count = 0;
-		for (Map<String, Object> modifierObj: modifiers){ 
-			String display_name = (String) modifierObj.get("display_name");
-			if (!display_name.equalsIgnoreCase("not_an_option")) {
-				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
-				if(optionValues.size() > 0) {
-					result.setModifiers(true);
-				}
-				
-				for (Map<String, Object> optionProduct: optionValues){
-					count++;
-					String optProdStr = createOptionProduct(display_name, optionProduct, createdOptions, attributes);
-					if (StringUtils.isNotEmpty(optProdStr)) {
-						strbuild.append(optProdStr).append("\n");
-						if (count == MAX_PROD_COUNT) {
-							requestList.add(strbuild.toString());
-							strbuild = new StringBuilder("");
-							result.incrementOptionsCount(count);
-							count =0;
-						}
-					}
-				}
-			}
-		}	
-		requestList.add(strbuild.toString());
-		result.incrementOptionsCount(count);
-		return requestList;
-	}
-	
-	public List<String> getAllValueOptions(String baseSku, Map<String, Object> data, WriteResult result, Map<String, String> attributes) {
+	public void getAllValueOptions(String baseSku, Map<String, Object> data, WriteResult result, Map<String, String> attributes, List<String> optionProductRequest, List<String> priceProductRequest) {
 		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get(BuilderConstants.MODIFIERS);
 		List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTIONS);
 		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get(BuilderConstants.VARIANTS);
 		
-		int count = 0;
-		List<String> optionsList = new ArrayList<>();
-		List<String> pricesList = new ArrayList<>();
-		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, optionsList, count, result, attributes, pricesList);
-		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, optionsList, count, result, attributes, pricesList);
-		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, optionsList, count, result, attributes, pricesList);
-		
-		return optionsList;
+		Map<String, String> optionMap = new HashMap<>();
+		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, result, attributes, priceProductRequest, optionMap);
+		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, result, attributes, priceProductRequest, optionMap);
+		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, result, attributes, priceProductRequest, optionMap);
+		optionProductRequest = getRequestList(optionMap);
 	}
 	
-	public List<String> getOptionValuesFromParent(List<Map<String, Object>> movs, String baseSku, String type, List<String> optionsList, int count, WriteResult result, Map<String, String> attributes, List<String> pricesList) {
+	public void getOptionValuesFromParent(List<Map<String, Object>> movs, String baseSku, String type, WriteResult result, Map<String, String> attributes, List<String> pricesList, Map<String, String> optionMap) {
 		StringBuilder strbuild = new StringBuilder("");
-		int MAX_PROD_COUNT = 50;
-		
-		List<String> createdLabels = new ArrayList<String>();
+//		List<String> createdLabels = new ArrayList<String>();
 		for(Map<String, Object> data: movs) {
 			String displayName = StringUtils.EMPTY;
 			if(!type.equals(BuilderConstants.VARIANTS)) {
@@ -347,34 +252,24 @@ public class RequestUtil {
 						displayName = option.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
 					}
 					String label = option.get("label").toString();
-					if(!createdLabels.contains(label)) {
-						count++;
-						String response = createOptionProduct(displayName, option, createdLabels, attributes);
-						if(!response.isEmpty()) {
-							strbuild.append(response).append("\n");
-							if (count == MAX_PROD_COUNT) {
-								optionsList.add(strbuild.toString());
-								strbuild = new StringBuilder("");
-								result.incrementOptionsCount(count);
-								count = 0;
-							}
-						}
+					if(checkOptionProductsNotExists(optionMap,label)) {
+						optionMap.put(label, createOptionProduct(displayName, option, attributes, optionMap));
+						result.incrementOptionsCount();
 					}
 				}
 			}
 		}
-		optionsList.add(strbuild.toString());
-		result.incrementOptionsCount(count);
-		return optionsList;
+//		optionsList.add(strbuild.toString());
+//		result.incrementOptionsCount(count);
+//		return optionsList;
 	}
 	
-	private String createOptionProduct(String displayName, Map<String, Object> data, List<String> createdOptions, Map<String, String> attributes) {
+	private String createOptionProduct(String displayName, Map<String, Object> data, Map<String, String> attributes, Map<String, String> optionMap) {
 		String label = data.get("label").toString();
-		String[] optionsSku = label.split("--");
+		String[] optionsSku = getSKU(getStringFromMap(data, "label"));
 		String displayCode = attributes.get("display_name"+"-"+displayName);
 		StringBuilder strbuild = new StringBuilder("");
-		if (optionsSku.length >=2 && !createdOptions.contains(data.get("label").toString())) {
-			createdOptions.add(label);
+		if (optionsSku.length >=2 ) {
 			strbuild.append("{");
 	    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
 	    	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
@@ -488,4 +383,51 @@ public class RequestUtil {
 		}
 		return (strbuild!=null)?strbuild.toString():null;
 	}
+	
+	public String getStringFromMap(Map<String, Object> data, String key) {
+		if (data != null && data.get(key) != null) {
+			return data.get(key).toString();
+		}
+		return null;
+	}
+
+	public List<Map<String, Object>> getListOfMapFromMap(Map<String, Object> data, String key) {
+		if (data != null && data.get(key) != null) {
+			return (List<Map<String, Object>>) data.get(key);
+		}
+		return new ArrayList<>();
+	}
+
+	public String[] getSKU(String label) {
+		String[] optionsSku = label.split("--");
+		if (optionsSku.length <2 ) {
+//			optionsSku = String[2];
+			optionsSku = new String[] {new String(optionsSku[0].trim()), String.valueOf(customSKU)};
+		}
+		return optionsSku;
+	}
+	
+	public List<String> getRequestList(Map<String, String> optionMap) {
+		int MAX_PROD_COUNT = 50;
+		int count = 0;
+		List<String> optionsList = new ArrayList<>();
+		StringBuilder strbuild = new StringBuilder("");
+		for (String key :  optionMap.keySet()) {
+			if (count == MAX_PROD_COUNT) {
+				optionsList.add(strbuild.toString());
+				strbuild = new StringBuilder("");
+				count = 0;
+			}
+			strbuild.append(optionMap.get(key)).append("\n");
+			count++;
+		}
+		return optionsList;
+	}
+	
+    public boolean checkOptionProductsNotExists(Map<String, String> optionMap, String key) {
+    	if(optionMap == null) {
+    		optionMap = new HashMap<>();
+    	}
+    	return optionMap.get(key)==null ? true : false;
+    }
 }

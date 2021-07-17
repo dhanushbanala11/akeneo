@@ -33,8 +33,8 @@ public class WriteResult {
 	public void setOptionsCount(int optionsCount) {
 		this.optionsCount = optionsCount;
 	}
-	public void incrementOptionsCount(int optionsCount) {
-		this.optionsCount = this.optionsCount + optionsCount;
+	public void incrementOptionsCount() {
+		this.optionsCount = this.optionsCount + 1;
 	}
 	
 

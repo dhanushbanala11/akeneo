@@ -89,7 +89,10 @@ public class Bc2akeneoApplication {
 			Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
 			try {
 				WriteResult result = new WriteResult(productDataMap.get("sku").toString());
-				List<String> optionProductRequest = akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, result, attributes);
+				List<String> optionProductRequest = new ArrayList<>();
+				List<String> priceProductRequest = new ArrayList<>();
+		
+				akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, result, attributes, optionProductRequest, priceProductRequest);
 				System.out.println(optionProductRequest);
 //				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions, attributes);
 				boolean isOptionProductsExists = false;
