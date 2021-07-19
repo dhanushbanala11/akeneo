@@ -45,7 +45,7 @@ public class Bc2akeneoApplication {
 	Map<String, PIMValue> customFields = null;
 	BcAPI bcApi = new BcAPI();
 
-	public Bc2akeneoApplication(){
+	public Bc2akeneoApplication() throws IOException{
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		productapi = new ProductAPI(appProp.getAppProperties());
 		optionAttributes = getPropertyFromCSV(BuilderConstants.ATTRIBUTES_CSV, CSV_FILE_TYPE.ATTRIBUTE_OPTION);
@@ -68,14 +68,14 @@ public class Bc2akeneoApplication {
 		List<String> createdOptions = new ArrayList<String>();
 		try {
 			List<WriteResult> results = new ArrayList<>(); 
-			boolean isNotPageRead = true;
+			boolean isNotPageRead = false;
 			
 			if (isNotPageRead) {
-				List<Object> dataTemp =  getBcData("440"); //9147, 2864, 440
+				List<Object> dataTemp =  getBcData("9147"); //9147, 2864, 440, 375
 				executeProductPage(dataTemp, results, createdOptions);
 			} else {
 				int pageCount = getBcDataPageCount();
-//				pageCount = 50;
+				pageCount = 50;
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  getBcData(i);
@@ -255,6 +255,7 @@ public class Bc2akeneoApplication {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+		System.out.println(record.toString());
 		return record;
 	}
 	

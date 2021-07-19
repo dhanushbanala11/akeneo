@@ -77,6 +77,12 @@ public class RequestUtil {
     	return String.format(PIM_ATTR_BOOLEAN_JSON_PATTERN, key, getValue(locale), getValue(scope), Boolean.valueOf(data));
     }
     
+    private static final String PIM_ATTR_INTEGER_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\": %s}]";
+    public static String createdAttributeIntegerJson(String key, String locale, String scope, String data) {
+    	data = StringEscapeUtils.escapeHtml4(data);
+    	return String.format(PIM_ATTR_INTEGER_JSON_PATTERN, key, getValue(locale), getValue(scope), Integer.parseInt((data)));
+    }
+    
     private static final String PIM_ATTR_ARRAY_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\": %s}]";
     public static String createAttributeArrayJson(String key, String locale, String scope, ArrayList<String> data) {
     	String arrayString = StringUtils.join(data, "\", \"");
@@ -129,12 +135,14 @@ public class RequestUtil {
     	strbuild.append(",").append(createAttributeJson("product_title", null, null, data.get("name").toString()));
     	
     	List<Object> bcCustomFields  =  (List<Object>) data.get("custom_fields");
-    	for (Object obj : bcCustomFields) {
-    		Map<String, String> field = (Map<String, String>)obj;
-    		PIMValue pimValue = customFields.get(field.get("name"));
-    		if (pimValue != null) {
-    			strbuild.append(",").append(getValueJson(pimValue, field.get("value"), optionAttributes));
-    		}
+    	if(bcCustomFields != null) {
+	    	for (Object obj : bcCustomFields) {
+	    		Map<String, String> field = (Map<String, String>)obj;
+	    		PIMValue pimValue = customFields.get(field.get("name"));
+	    		if (pimValue != null) {
+	    			strbuild.append(",").append(getValueJson(pimValue, field.get("value"), optionAttributes));
+	    		}
+	    	}
     	}
     	
     	StringBuilder removedComaResp = new StringBuilder();
@@ -230,6 +238,7 @@ public class RequestUtil {
 						optionMap.put(label, createOptionProduct(displayName, option, family, optionMap));
 						result.incrementOptionsCount();
 					}
+//					createOptionPrice(displayName, option, family, optionMap);
 				}
 			}
 		}
@@ -261,6 +270,50 @@ public class RequestUtil {
 		
 		return strbuild.toString();
 	}
+	
+//	private String createOptionPrice(String displayName, Map<String, Object> data, String family, Map<String, String> optionMap) {
+//		String label = data.get("label").toString();
+//		
+//		Matcher positivePriceRegex = Pattern.compile("\\((\\+\\$.*?)\\)").matcher(label);
+//		Matcher negativePriceRegex = Pattern.compile("\\((\\-\\$.*?)\\)").matcher(label);
+//		String price = null;
+//		while (positivePriceRegex.find()) {
+//			price = positivePriceRegex.group(1);
+//			price = price.replaceAll("[+$]*", "");
+//		}
+//		
+//		if(price == null) {
+//			while (negativePriceRegex.find()) {
+//				price = negativePriceRegex.group(1);
+//				price = price.replaceAll("[-$]*", "");
+//			}
+//		}
+//		
+//		if(price == null) {
+//			return "";
+//		}
+//		
+//		String[] optionsSku = getSKU(getStringFromMap(data, "label"));
+//		String displayCode = optionAttributes.get("display_name"+"-"+displayName);
+//		StringBuilder strbuild = new StringBuilder("");
+//		if (optionsSku.length >=2 ) {
+//			strbuild.append("{");
+//	    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
+//	    	strbuild.append(createKeyValueJson("family", family)).append(",");
+//	    	strbuild.append("\"values\": {");
+//	    	strbuild.append(createAttributeJson("sku_type", null, null, "O")).append(",");
+//	    	strbuild.append(createAttributeJson("display_name", null, null, displayCode));
+//	//    	strbuild.append(createAttributeJson("label", null, null, optionsSku[0].trim())).append(",");
+////	    	strbuild.append(createAttributeImageJson("swatch_file", null, null, "9/1/e/d/91ed04c50887ee44b94bad26c4d4ac7acbd85b28_Sag_Harbor_Dining_Armchair9607__14425.1615580640.1000.1000.jpg", "fileURL"));
+//	    	
+//	    	strbuild.append("}");
+//	    	strbuild.append("}");
+//		}else {
+//			System.out.println(label);
+//		}
+//		
+//		return strbuild.toString();
+//	}
 	
 	public String createProductPrices(String baseSku, Map<String, Object> data, WriteResult result) {
 		
@@ -373,12 +426,16 @@ public class RequestUtil {
 	}
 
 	public String getValueJson(PIMValue pimvalue, String data, Map<String, String> optionAttributes) {
+		System.out.println(optionAttributes.toString()); 
+		if(pimvalue.getCode().equals("item_type")) {
+			System.out.println("item_type");
+		}
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
 			return createAttributeJson(pimvalue.getCode(), null, null, data);
-//		} else if (pimvalue.isNumber()) {
-//			return createAttributeJson(pimvalue.getCode(), null, null, data);
-//		} else if (pimvalue.isMetric()) {
-//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+		} else if (pimvalue.isNumber()) {
+			return createdAttributeIntegerJson(pimvalue.getCode(), null, null, data);
+		} else if (pimvalue.isMetric()) {
+			return createAttributeJson(pimvalue.getCode(), null, null, data);
 		} else if (pimvalue.isBoolean()) {
 			return createdAttributeBooleanJson(pimvalue.getCode(), null, null, data);
 		} else if (pimvalue.isMultiSelect()) {
@@ -387,7 +444,7 @@ public class RequestUtil {
 			newList.add(optionAttributes.get(key));
 			return createAttributeArrayJson(pimvalue.getCode(), null, null, newList);
 		} else if (pimvalue.isSimpleSelect()) {
-			return createAttributeJson(pimvalue.getCode(), null, null, pimvalue.getCode().trim()+"-"+data.trim());
+			return createAttributeJson(pimvalue.getCode(), null, null, optionAttributes.get(pimvalue.getCode().trim()+"-"+data.trim()));
 //		} else if (pimvalue.isImage()) {
 //			return createAttributeJson(pimvalue.getCode(), null, null, data);
 //		} else if (pimvalue.isFile()) {
