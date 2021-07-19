@@ -17,14 +17,36 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.gson.Gson;
 import com.striketru.bc2akeneo.constants.BuilderConstants;
+import com.striketru.bc2akeneo.model.PIMValue;
 import com.striketru.bc2akeneo.model.WriteResult;
 
 public class RequestUtil {
 	public static Gson gson = new Gson();
 	private static final String[] ignoreList = {"Swatch Request Form","Google Shopping Availability","Google Shopping Condition","Google Shopping Identifer exists","Features","Google Shopping Promotion ID","Width Range","Width Unit","Height Unit","Depth Range","Depth Unit","Seath Height Unit","Weight Unit","Descriptor","Base Variant Id","Bin Picking Number","Bulk Pricing Rules","Calculated Price","Categories","Condition","Cost Price","Product Resources Shipping","Seating Width ( in.)","Seating Depth ( in.)","Seating Height ( in.)","Seating Seat Height ( in.)","Seating Arm Height ( in.)","Seating Weight (lbs.)","Seating Material","Dimensions ( in.)","Heat Output/BTUs","Any Other Relevant Info","Gift Wrapping Options List","Gift Wrapping Options Type","Height Range","Url Standard 1","Url Standard 2","Inventory Level","Inventory Tracking","Inventory Warning Level","Is Condition Shown","Is Featured","Is Free Shipping","Is Preorder Only","Layout File","Map Price","Order Quantity Maximum","Order Quantity Minimum","Preorder Message","Preorder Release Date","Primary Image File","Product Tax Code","Reviews Count","Reviews Rating Sum","Total Sold","Type","View Count","Seating Width Range","Umbrellas Width Range","Grills Width Range","Heaters Width Range","Seating Height Range","Umbrellas Height Range","Grills Height Range","Heaters Height Range","Fire Pits Height Range","Seating Depth Range","Umbrellas Depth Range","Grills Depth Range","Heaters Depth Range","Sets","Option Type","Featured Highlight","Specs Highlight","Lead-Time 2","Blacklist", "Brand","Cushions", "Height", "Width","Depth", "Use"};
 	private static long customSKU = 1000000;
+	private Map<String, String> optionAttributes = null;
+	private Map<String, PIMValue> customFields = null;
 	
-    private static final String NULL_OR_VALUE_PATTERN = "\"%s\"";
+    public Map<String, String> getOptionAttributes() {
+		return optionAttributes;
+	}
+
+
+	public void setOptionAttributes(Map<String, String> optionAttributes) {
+		this.optionAttributes = optionAttributes;
+	}
+
+
+	public Map<String, PIMValue> getCustomFields() {
+		return customFields;
+	}
+
+
+	public void setCustomFields(Map<String, PIMValue> customFields) {
+		this.customFields = customFields;
+	}
+
+	private static final String NULL_OR_VALUE_PATTERN = "\"%s\"";
     public static String getValue(String value){
     	if (value != null) {
     		value = String.format(NULL_OR_VALUE_PATTERN, value);
@@ -76,7 +98,7 @@ public class RequestUtil {
     }
     
 
-    public String createUpdateBaseProduct(Map<String, Object> data, boolean isOptionProductsExists, Map<String, String> customFields){
+    public String createUpdateBaseProduct(Map<String, Object> data, String family,  boolean isOptionProductsExists){
     	List<String> categories = (List<String>) data.get("categories");
 
     	String step1 = StringUtils.join(categories, "\", \"");// Join with ", "
@@ -87,7 +109,7 @@ public class RequestUtil {
     	StringBuilder strbuild = new StringBuilder("{");
 //    	strbuild.append(createKeyValueJson("product_title", data.get("name").toString())).append(",");
     	
-    	strbuild.append(createKeyValueJson("family", "Accessories_Lighting"));
+    	strbuild.append(createKeyValueJson("family", family));
 //    	strbuild.append("\"categories\""+":["+step2+"]").append(",");
     	strbuild.append(",").append("\"values\": {");
     	strbuild.append(createAttributeJson("brand", null, null, data.get("brand_id").toString()));
@@ -103,11 +125,10 @@ public class RequestUtil {
     	List<Object> bcCustomFields  =  (List<Object>) data.get("custom_fields");
     	for (Object obj : bcCustomFields) {
     		Map<String, String> field = (Map<String, String>)obj;
-    		String attribute_attrtype = customFields.get(field.get("name"));
-    		if (attribute_attrtype != null) { 
-    			attribute_attrtype.split("##");
-    			
-    			/// continue logic herer 
+    		PIMValue pimValue = customFields.get(field.get("name"));
+    		String value = field.get("name");
+    		if (pimValue != null) { 
+    			strbuild.append(",").append(getValueJson(pimValue, field.get("value")));
     		}
     	}
     	
@@ -167,25 +188,19 @@ public class RequestUtil {
 		return strBuilder;
     }
     
-    
-	
-    
-	List<String> optionProductRequest = new ArrayList<>();
-	List<String> priceProductRequest = new ArrayList<>();
-
-	public void getAllValueOptions(String baseSku, Map<String, Object> data, WriteResult result, Map<String, String> attributes, List<String> optionProductRequest, List<String> priceProductRequest) {
+	public void getAllValueOptions(String baseSku, Map<String, Object> data, String family, WriteResult result, List<String> optionProductRequest, List<String> priceProductRequest) {
 		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get(BuilderConstants.MODIFIERS);
 		List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTIONS);
 		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get(BuilderConstants.VARIANTS);
 		
 		Map<String, String> optionMap = new HashMap<>();
-		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, result, attributes, priceProductRequest, optionMap);
-		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, result, attributes, priceProductRequest, optionMap);
-		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, result, attributes, priceProductRequest, optionMap);
+		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, family, result, priceProductRequest, optionMap);
+		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, family, result, priceProductRequest, optionMap);
+		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, family, result, priceProductRequest, optionMap);
 		optionProductRequest = getRequestList(optionMap);
 	}
 	
-	public void getOptionValuesFromParent(List<Map<String, Object>> movs, String baseSku, String type, WriteResult result, Map<String, String> attributes, List<String> pricesList, Map<String, String> optionMap) {
+	public void getOptionValuesFromParent(List<Map<String, Object>> movs, String baseSku, String type, String family, WriteResult result, List<String> pricesList, Map<String, String> optionMap) {
 		StringBuilder strbuild = new StringBuilder("");
 //		List<String> createdLabels = new ArrayList<String>();
 		for(Map<String, Object> data: movs) {
@@ -207,7 +222,7 @@ public class RequestUtil {
 					}
 					String label = option.get("label").toString();
 					if(checkOptionProductsNotExists(optionMap,label)) {
-						optionMap.put(label, createOptionProduct(displayName, option, attributes, optionMap));
+						optionMap.put(label, createOptionProduct(displayName, option, family, optionMap));
 						result.incrementOptionsCount();
 					}
 				}
@@ -218,15 +233,15 @@ public class RequestUtil {
 //		return optionsList;
 	}
 	
-	private String createOptionProduct(String displayName, Map<String, Object> data, Map<String, String> attributes, Map<String, String> optionMap) {
+	private String createOptionProduct(String displayName, Map<String, Object> data, String family, Map<String, String> optionMap) {
 		String label = data.get("label").toString();
 		String[] optionsSku = getSKU(getStringFromMap(data, "label"));
-		String displayCode = attributes.get("display_name"+"-"+displayName);
+		String displayCode = optionAttributes.get("display_name"+"-"+displayName);
 		StringBuilder strbuild = new StringBuilder("");
 		if (optionsSku.length >=2 ) {
 			strbuild.append("{");
 	    	strbuild.append(createKeyValueJson("identifier", optionsSku[1].trim())).append(",");
-	    	strbuild.append(createKeyValueJson("family", "Accessories_Lighting")).append(",");
+	    	strbuild.append(createKeyValueJson("family", family)).append(",");
 	    	strbuild.append("\"values\": {");
 	    	strbuild.append(createAttributeJson("sku_type", null, null, "O")).append(",");
 	    	strbuild.append(createAttributeJson("display_name", null, null, displayCode));
@@ -352,6 +367,30 @@ public class RequestUtil {
 		return new ArrayList<>();
 	}
 
+	public String getValueJson(PIMValue pimvalue, String data) {
+		if (pimvalue.isTextArea() || pimvalue.isText()) {
+			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isNumber()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isMetric()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isBoolean()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isMultiSelect()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isSimpleSelect()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isImage()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+//		} else if (pimvalue.isFile()) {
+//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+		} else {
+			return "";
+		}
+	}
+	
+	
+	
 	public String[] getSKU(String label) {
 		String[] optionsSku = label.split("--");
 		if (optionsSku.length <2 ) {

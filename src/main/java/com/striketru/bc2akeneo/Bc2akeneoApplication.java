@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -14,9 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Content;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.striketru.bc2akeneo.api.BcAPI;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
-import com.striketru.bc2akeneo.constants.BuilderConstants;
+import com.striketru.bc2akeneo.model.PIMValue;
 import com.striketru.bc2akeneo.model.WriteResult;
 import com.striketru.bc2akeneo.util.RequestUtil;
 
@@ -37,22 +33,25 @@ import com.striketru.bc2akeneo.util.RequestUtil;
 public class Bc2akeneoApplication {
 
 	
-	public enum CSV_FILE_TYPE{ATTRIBUTE_OPTION, FAMILIES, CUSTOM_FIELDS}
+	public enum CSV_FILE_TYPE{ATTRIBUTE_OPTION, FAMILIES}
 	
 	RequestUtil akeneoUtil = new RequestUtil();
 	ObjectMapper mapper = new ObjectMapper();
 	String tempFolderPath = getTempFolderPath();
 	ProductAPI productapi = null;
 	Map<String, String> optionAttributes = null;
-	Map<String, String> famililes = null;
-	Map<String, String> customFields = null;
+	Map<String, String> families = null;
+	Map<String, PIMValue> customFields = null;
 	BcAPI bcApi = new BcAPI();
 
 	public Bc2akeneoApplication(){
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		productapi = new ProductAPI(appProp.getAppProperties());
 		optionAttributes = getPropertyFromCSV("attributes.csv", CSV_FILE_TYPE.ATTRIBUTE_OPTION);
-		customFields = getPropertyFromCSV("attributes.csv", CSV_FILE_TYPE.CUSTOM_FIELDS);
+		families = getPropertyFromCSV("families.csv", CSV_FILE_TYPE.FAMILIES);
+		customFields = getPropertyFromCSV("customfileds.csv");
+		akeneoUtil.setCustomFields(customFields);
+		akeneoUtil.setOptionAttributes(optionAttributes);
 	}
 	
 	public void execute() throws IOException{
@@ -71,14 +70,14 @@ public class Bc2akeneoApplication {
 			
 			if (isNotPageRead) {
 				List<Object> dataTemp =  getBcData("440"); //9147, 2864, 440
-				executeProductPage(dataTemp, results, createdOptions, optionAttributes);
+				executeProductPage(dataTemp, results, createdOptions);
 			} else {
 				int pageCount = getBcDataPageCount();
 //				pageCount = 50;
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  getBcData(i);
-					executeProductPage(data, results, createdOptions, optionAttributes);
+					executeProductPage(data, results, createdOptions);
 				}
 			}
 			displayResults(results);
@@ -87,7 +86,7 @@ public class Bc2akeneoApplication {
 		}
 	}
 	
-	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions, Map<String, String> attributes){
+	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions){
 		ObjectMapper oMapper = new ObjectMapper();
 		for (Object productData : data) {
 			Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
@@ -95,8 +94,9 @@ public class Bc2akeneoApplication {
 				WriteResult result = new WriteResult(productDataMap.get("sku").toString());
 				List<String> optionProductRequest = new ArrayList<>();
 				List<String> priceProductRequest = new ArrayList<>();
-		
-				akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, result, attributes, optionProductRequest, priceProductRequest);
+				String family = getFamilyCode(productDataMap);
+				System.out.println(family);
+				akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, family, result, optionProductRequest, priceProductRequest);
 				System.out.println(optionProductRequest);
 //				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions, attributes);
 				boolean isOptionProductsExists = false;
@@ -112,7 +112,7 @@ public class Bc2akeneoApplication {
 						result.setOptionsResponse(response);
 					}
 				}
-				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, isOptionProductsExists, customFields);
+				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists);
 //				System.out.println("Request : " + baseProductRequest);
 				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
@@ -128,6 +128,18 @@ public class Bc2akeneoApplication {
 			}
 		}
 		
+	}
+	
+	public String getFamilyCode(Map<String, Object> data) {
+		List<Integer> categories = (List<Integer>) data.get("categories");	
+		if (categories!= null && categories.size() >2) {
+			for (Integer code: categories) {
+				if ( families.get(String.valueOf(code)) != null) {
+					return families.get(String.valueOf(code));
+				}
+			}
+		}
+		return null;
 	}
 	
 	public void displayResults(List<WriteResult> results) throws IOException {
@@ -219,26 +231,21 @@ public class Bc2akeneoApplication {
 	
 	private Map<String, String> getPropertyFromCSV(String csvfileName, CSV_FILE_TYPE csvFileType) {
 		Path filePath = Paths.get(csvfileName);
-		Map<String, String> attributes =  new HashMap<>();
+		Map<String, String> record =  new HashMap<>();
 		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
 			String line = br.readLine(); 
 			while (line != null) {
 				if (csvFileType == CSV_FILE_TYPE.ATTRIBUTE_OPTION) { 
-					String[] attributesFromFile = line.split(";");
-					if (attributesFromFile.length >=3) { 
-						attributesFromFile[1] = attributesFromFile[1].replace("\"", "");
-						attributes.put(attributesFromFile[2].trim()+"-"+attributesFromFile[1].trim(), attributesFromFile[0].trim());
+					String[] recordLine = line.split(";");
+					if (recordLine.length >=3) { 
+						recordLine[1] = recordLine[1].replace("\"", "");
+						record.put(recordLine[2].trim()+"-"+recordLine[1].trim(), recordLine[0].trim());
 					}
 				} else if (csvFileType == CSV_FILE_TYPE.FAMILIES) {
-					String[] attributesFromFile = line.split(",");
-					if (attributesFromFile.length >=2) { 
-						attributesFromFile[1] = attributesFromFile[1].replace("\"", "");
-						attributes.put(attributesFromFile[0].trim(), attributesFromFile[1].trim());
-					}
-				} else if (csvFileType == CSV_FILE_TYPE.CUSTOM_FIELDS) {
-					String[] attributesFromFile = line.split(",");
-					if (attributesFromFile.length >=3) { 
-						attributes.put(attributesFromFile[0].trim(), attributesFromFile[1].trim() + "##" + attributesFromFile[2].trim());
+					String[] recordLine = line.split(",");
+					if (recordLine.length >=2) { 
+						recordLine[1] = recordLine[1].replace("\"", "");
+						record.put(recordLine[0].trim(), recordLine[1].trim());
 					}
 				}
 				line = br.readLine(); 
@@ -246,9 +253,26 @@ public class Bc2akeneoApplication {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		return attributes;
+		return record;
 	}
 	
+	private Map<String, PIMValue> getPropertyFromCSV(String csvfileName) {
+		Path filePath = Paths.get(csvfileName);
+		Map<String, PIMValue> record =  new HashMap<>();
+		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
+			String line = br.readLine(); 
+			while (line != null) {
+				String[] recordLine = line.split(",");
+				if (recordLine.length >=3) { 
+					record.put(recordLine[0].trim(), new PIMValue(recordLine[1].trim(), recordLine[2].trim()));
+				}
+				line = br.readLine(); 
+			} 
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		return record;
+	}
 	
 	public List<Object> getBcData(String... ids ) throws IOException {
 		List<Object> listObj = new ArrayList<>();
