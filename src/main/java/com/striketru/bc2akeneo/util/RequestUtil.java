@@ -373,12 +373,6 @@ public class RequestUtil {
 	}
 
 	public String getValueJson(PIMValue pimvalue, String data, Map<String, String> optionAttributes) {
-		if(pimvalue.getCode().equals("item_type")) {
-			pimvalue.getDataType();
-		}
-		if(data.equals("Cushion Required")) {
-			System.out.println(data);
-		}
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
 			return createAttributeJson(pimvalue.getCode(), null, null, data);
 //		} else if (pimvalue.isNumber()) {
