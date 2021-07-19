@@ -71,6 +71,12 @@ public class RequestUtil {
         return String.format(PIM_ATTR_JSON_PATTERN, key, getValue(locale), getValue(scope), data);
     }
     
+    private static final String PIM_ATTR_BOOLEAN_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\": %s}]";
+    public static String createdAttributeBooleanJson(String key, String locale, String scope, String data) {
+    	data = StringEscapeUtils.escapeHtml4(data);
+    	return String.format(PIM_ATTR_BOOLEAN_JSON_PATTERN, key, getValue(locale), getValue(scope), Boolean.valueOf(data));
+    }
+    
     private static final String PIM_ATTR_ARRAY_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\": %s}]";
     public static String createAttributeArrayJson(String key, String locale, String scope, ArrayList<String> data) {
     	String arrayString = StringUtils.join(data, "\", \"");
@@ -98,7 +104,7 @@ public class RequestUtil {
     }
     
 
-    public String createUpdateBaseProduct(Map<String, Object> data, String family,  boolean isOptionProductsExists){
+    public String createUpdateBaseProduct(Map<String, Object> data, String family,  boolean isOptionProductsExists, Map<String, String> optionAttributes2){
     	List<String> categories = (List<String>) data.get("categories");
 
     	String step1 = StringUtils.join(categories, "\", \"");// Join with ", "
@@ -127,7 +133,7 @@ public class RequestUtil {
     		Map<String, String> field = (Map<String, String>)obj;
     		PIMValue pimValue = customFields.get(field.get("name"));
     		if (pimValue != null) {
-    			strbuild.append(",").append(getValueJson(pimValue, field.get("value")));
+    			strbuild.append(",").append(getValueJson(pimValue, field.get("value"), optionAttributes));
     		}
     	}
     	
@@ -366,19 +372,29 @@ public class RequestUtil {
 		return new ArrayList<>();
 	}
 
-	public String getValueJson(PIMValue pimvalue, String data) {
+	public String getValueJson(PIMValue pimvalue, String data, Map<String, String> optionAttributes) {
+		if(pimvalue.getCode().equals("item_type")) {
+			pimvalue.getDataType();
+		}
+		if(data.equals("Cushion Required")) {
+			System.out.println(data);
+		}
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
 			return createAttributeJson(pimvalue.getCode(), null, null, data);
 //		} else if (pimvalue.isNumber()) {
 //			return createAttributeJson(pimvalue.getCode(), null, null, data);
 //		} else if (pimvalue.isMetric()) {
 //			return createAttributeJson(pimvalue.getCode(), null, null, data);
-//		} else if (pimvalue.isBoolean()) {
-//			return createAttributeJson(pimvalue.getCode(), null, null, data);
-//		} else if (pimvalue.isMultiSelect()) {
-//			return createAttributeJson(pimvalue.getCode(), null, null, data);
-//		} else if (pimvalue.isSimpleSelect()) {
-//			return createAttributeJson(pimvalue.getCode(), null, null, data);
+		} else if (pimvalue.isBoolean()) {
+			return createdAttributeBooleanJson(pimvalue.getCode(), null, null, data);
+		} else if (pimvalue.isMultiSelect()) {
+			String key = pimvalue.getCode().trim()+"-"+data.trim();
+			ArrayList<String> newList = new ArrayList<String>();
+			newList.add(optionAttributes.get(key));
+			return createAttributeArrayJson(pimvalue.getCode(), null, null, newList);
+		} else if (pimvalue.isSimpleSelect()) {
+			String key = pimvalue.getCode().trim()+"-"+data.trim();
+			return createAttributeJson(pimvalue.getCode(), null, null, optionAttributes.get(key));
 //		} else if (pimvalue.isImage()) {
 //			return createAttributeJson(pimvalue.getCode(), null, null, data);
 //		} else if (pimvalue.isFile()) {

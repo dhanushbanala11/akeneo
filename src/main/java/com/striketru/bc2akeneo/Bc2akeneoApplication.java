@@ -114,7 +114,7 @@ public class Bc2akeneoApplication {
 						result.setOptionsResponse(response);
 					}
 				}
-				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists);
+				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists, optionAttributes);
 //				System.out.println("Request : " + baseProductRequest);
 				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
