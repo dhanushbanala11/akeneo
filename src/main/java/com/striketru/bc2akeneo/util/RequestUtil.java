@@ -387,8 +387,7 @@ public class RequestUtil {
 			newList.add(optionAttributes.get(key));
 			return createAttributeArrayJson(pimvalue.getCode(), null, null, newList);
 		} else if (pimvalue.isSimpleSelect()) {
-			String key = pimvalue.getCode().trim()+"-"+data.trim();
-			return createAttributeJson(pimvalue.getCode(), null, null, optionAttributes.get(key));
+			return createAttributeJson(pimvalue.getCode(), null, null, pimvalue.getCode().trim()+"-"+data.trim());
 //		} else if (pimvalue.isImage()) {
 //			return createAttributeJson(pimvalue.getCode(), null, null, data);
 //		} else if (pimvalue.isFile()) {
