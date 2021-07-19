@@ -116,7 +116,7 @@ public class Bc2akeneoApplication {
 				}
 				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists);
 //				System.out.println("Request : " + baseProductRequest);
-				String resp = productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
+				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
 //				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
 				
