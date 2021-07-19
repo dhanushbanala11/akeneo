@@ -126,8 +126,7 @@ public class RequestUtil {
     	for (Object obj : bcCustomFields) {
     		Map<String, String> field = (Map<String, String>)obj;
     		PIMValue pimValue = customFields.get(field.get("name"));
-    		String value = field.get("name");
-    		if (pimValue != null) { 
+    		if (pimValue != null) {
     			strbuild.append(",").append(getValueJson(pimValue, field.get("value")));
     		}
     	}
@@ -188,7 +187,7 @@ public class RequestUtil {
 		return strBuilder;
     }
     
-	public void getAllValueOptions(String baseSku, Map<String, Object> data, String family, WriteResult result, List<String> optionProductRequest, List<String> priceProductRequest) {
+	public List<String> getAllValueOptions(String baseSku, Map<String, Object> data, String family, WriteResult result, List<String> optionProductRequest, List<String> priceProductRequest) {
 		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get(BuilderConstants.MODIFIERS);
 		List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTIONS);
 		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get(BuilderConstants.VARIANTS);
@@ -197,7 +196,7 @@ public class RequestUtil {
 		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, family, result, priceProductRequest, optionMap);
 		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, family, result, priceProductRequest, optionMap);
 		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, family, result, priceProductRequest, optionMap);
-		optionProductRequest = getRequestList(optionMap);
+		return getRequestList(optionMap);
 	}
 	
 	public void getOptionValuesFromParent(List<Map<String, Object>> movs, String baseSku, String type, String family, WriteResult result, List<String> pricesList, Map<String, String> optionMap) {

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.striketru.bc2akeneo.api.BcAPI;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
+import com.striketru.bc2akeneo.constants.BuilderConstants;
 import com.striketru.bc2akeneo.model.PIMValue;
 import com.striketru.bc2akeneo.model.WriteResult;
 import com.striketru.bc2akeneo.util.RequestUtil;
@@ -47,10 +48,11 @@ public class Bc2akeneoApplication {
 	public Bc2akeneoApplication(){
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
 		productapi = new ProductAPI(appProp.getAppProperties());
-		optionAttributes = getPropertyFromCSV("attributes.csv", CSV_FILE_TYPE.ATTRIBUTE_OPTION);
-		families = getPropertyFromCSV("families.csv", CSV_FILE_TYPE.FAMILIES);
-		customFields = getPropertyFromCSV("customfileds.csv");
+		optionAttributes = getPropertyFromCSV(BuilderConstants.ATTRIBUTES_CSV, CSV_FILE_TYPE.ATTRIBUTE_OPTION);
+		families = getPropertyFromCSV(BuilderConstants.FAMILIES_CSV, CSV_FILE_TYPE.FAMILIES);
+		customFields = getPropertyFromCSV(BuilderConstants.CUSTOM_FIELDS);
 		akeneoUtil.setCustomFields(customFields);
+		System.out.println(akeneoUtil.getCustomFields());
 		akeneoUtil.setOptionAttributes(optionAttributes);
 	}
 	
@@ -96,7 +98,7 @@ public class Bc2akeneoApplication {
 				List<String> priceProductRequest = new ArrayList<>();
 				String family = getFamilyCode(productDataMap);
 				System.out.println(family);
-				akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, family, result, optionProductRequest, priceProductRequest);
+				optionProductRequest = akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, family, result, optionProductRequest, priceProductRequest);
 				System.out.println(optionProductRequest);
 //				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions, attributes);
 				boolean isOptionProductsExists = false;
@@ -114,7 +116,7 @@ public class Bc2akeneoApplication {
 				}
 				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists);
 //				System.out.println("Request : " + baseProductRequest);
-				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
+				String resp = productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
 //				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
 				
