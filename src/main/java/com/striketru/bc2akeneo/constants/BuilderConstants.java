@@ -13,4 +13,7 @@ public class BuilderConstants {
 	public static final String ATTRIBUTES_CSV = "attributes.csv";
 	public static final String FAMILIES_CSV = "families.csv";
 	public static final String CUSTOM_FIELDS = "customfileds.csv";
+	
+	public static final String BASE_PRODUCT_UPDATED = "Update was successful";
+	public static final String BASE_PRODUCT_CREATED = "Creation was successful";
 }

@@ -71,11 +71,11 @@ public class Bc2akeneoApplication {
 			boolean isNotPageRead = false;
 			
 			if (isNotPageRead) {
-				List<Object> dataTemp =  getBcData("9147"); //9147, 2864, 440, 375
+				List<Object> dataTemp =  getBcData("233"); //9147, 2864, 440, 375  ,"236","8366","5414","6475"
 				executeProductPage(dataTemp, results, createdOptions);
 			} else {
 				int pageCount = getBcDataPageCount();
-				pageCount = 50;
+				pageCount = 10;
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  getBcData(i);
@@ -97,6 +97,7 @@ public class Bc2akeneoApplication {
 				List<String> optionProductRequest = new ArrayList<>();
 				List<String> priceProductRequest = new ArrayList<>();
 				String family = getFamilyCode(productDataMap);
+				family = (family == null)?"no_family":family;
 				System.out.println(family);
 				optionProductRequest = akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, family, result, optionProductRequest, priceProductRequest);
 				System.out.println(optionProductRequest);
@@ -116,12 +117,14 @@ public class Bc2akeneoApplication {
 				}
 				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists, optionAttributes);
 //				System.out.println("Request : " + baseProductRequest);
-				productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
+				String baseProductResponse = productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
 //				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
 //				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
-				
-				String priceRequest = akeneoUtil.createProductPrices(productDataMap.get("sku").toString(), productDataMap, result);
-				productapi.upsertMutipleProducts(priceRequest);
+				result.setBaseProductResp(baseProductResponse);
+				if(baseProductResponse.equals(BuilderConstants.BASE_PRODUCT_CREATED) || baseProductResponse.equals(BuilderConstants.BASE_PRODUCT_UPDATED)) {
+					String priceRequest = akeneoUtil.createProductPrices(productDataMap.get("sku").toString(), productDataMap, result);
+					productapi.upsertMutipleProducts(priceRequest);
+				}
 				
 				results.add(result);
 			}
@@ -138,6 +141,8 @@ public class Bc2akeneoApplication {
 			for (Integer code: categories) {
 				if ( families.get(String.valueOf(code)) != null) {
 					return families.get(String.valueOf(code));
+				}else {
+					return "no_family";
 				}
 			}
 		}
@@ -156,7 +161,7 @@ public class Bc2akeneoApplication {
 		for (WriteResult result: results) {
 			content += "\n SKU : "+ result.getSku()+"|";
 			System.out.println("SKU : "+ result.getSku());
-			content +=  "Options Product: count="+result.getOptionsCount()+"|";
+			content +=  "Merged Product Options="+result.getOptionsCount()+"|";
 			System.out.println("Options_Product_count: "+result.getOptionsCount());
 			content += result.getOptionsResponse()+"|";
 			System.out.println(result.getOptionsResponse());
@@ -168,8 +173,13 @@ public class Bc2akeneoApplication {
 			System.out.println("image: count="+result.getImageCount());
 			
 			content += "Variant :"+ result.isVariants()+"|";
+			content += "VariantsCount :"+ result.getVariantsCount()+"|";
 			content += "Modifiers :"+ result.isModifiers()+"|";
+			content += "ModifiersCount :"+ result.getModifiersCount()+"|";
 			content += "Options :"+ result.isHasOptions()+"|";
+			content += "OptionsCount :"+ result.getOptionsCount()+"|";
+			
+			content += "BaseProResp:"+ result.getBaseProductResp()+"|";
 			
 			content += result.getImageResponse();
 			System.out.println(result.getImageResponse());

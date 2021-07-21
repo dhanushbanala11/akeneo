@@ -13,7 +13,11 @@ public class WriteResult {
 	private boolean isVariants;
 	private boolean isModifiers;
 	private boolean hasOptions;
-	
+	private String baseProductResp;
+	private int variantsCount;
+	private int optionCount;
+	private int modifiersCount;
+
 	public WriteResult(String sku) {
 		this.sku = sku;
 	}
@@ -113,12 +117,44 @@ public class WriteResult {
 	public void setHasOptions(boolean hasOptions) {
 		this.hasOptions = hasOptions;
 	}
+	
+	public String getBaseProductResp() {
+		return baseProductResp;
+	}
+
+	public void setBaseProductResp(String baseProductResp) {
+		this.baseProductResp = baseProductResp;
+	}
+	
+	public int getVariantsCount() {
+		return variantsCount;
+	}
+
+	public void setVariantsCount(int variantsCount) {
+		this.variantsCount = variantsCount;
+	}
+
+	public int getOptionCount() {
+		return optionCount;
+	}
+
+	public void setOptionCount(int optionCount) {
+		this.optionCount = optionCount;
+	}
+
+	public int getModifiersCount() {
+		return modifiersCount;
+	}
+
+	public void setModifiersCount(int modifiersCount) {
+		this.modifiersCount = modifiersCount;
+	}
 
 	@Override
 	public String toString() {
 		return "WriteResult [sku=" + sku + ", optionsCount=" + optionsCount + ", optionsResponse=" + optionsResponse
 				+ ", priceCount=" + priceCount + ", priceResponse=" + priceResponse + ", imageCount=" + imageCount
-				+ ", imageResponse=" + imageResponse + ", variants=" + isVariants + ", isModifiers=" + isModifiers + " hasOptions=" + hasOptions +"]";
+				+ ", imageResponse=" + imageResponse + ", variants=" + isVariants + ", isModifiers=" + isModifiers + " hasOptions=" + hasOptions + ", BaseResponse=" + baseProductResp +"]";
 	}
 	
 
