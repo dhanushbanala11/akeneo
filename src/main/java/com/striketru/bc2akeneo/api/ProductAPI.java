@@ -36,17 +36,17 @@ public class ProductAPI {
 
     
     public String upsertProductBySku(final String sku, final String content) throws IOException {
-//        String output = "In-progress...";
-//        PIMResponse response = pimClient.products.patch(sku, content);        
-//        if(response.getCode() == 204){
-//            output = "Update was successful";
-//        }else if(response.getCode() == 201){
-//            output = "Creation was successful";
-//        }else {
-//        	output = response.getJson();
-//        }
-//        PRODUCTLOGGER.debug("UpdateBySku :::"+output);
-        return "";
+        String output = "In-progress...";
+        PIMResponse response = pimClient.products.patch(sku, content);        
+        if(response.getCode() == 204){
+            output = "Update was successful";
+        }else if(response.getCode() == 201){
+            output = "Creation was successful";
+        }else {
+        	output = response.getJson();
+        }
+        PRODUCTLOGGER.debug("UpdateBySku :::"+output);
+        return output;
     }
 
     public String upsertMutipleProducts(final String content) throws IOException {

@@ -64,7 +64,6 @@ public class RequestUtil {
     public static String createKeyValueListJson(String key, List<String> data) {
         return String.format(PIM_KET_VALUE_LIST_JSON_PATTERN, key, gson.toJson(data));
     }
-
     
 	private static final String PIM_ATTR_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\":\"%s\"}]";
     public static String createAttributeJson(String key, String locale, String scope, String data) {
@@ -72,10 +71,27 @@ public class RequestUtil {
         return String.format(PIM_ATTR_JSON_PATTERN, key, getValue(locale), getValue(scope), data);
     }
     
+    public static String createObjectJson(String key, String locale, String scope, Object data) {
+    	String value = "";
+    	if(data != null)
+    		value = data.toString();
+    		
+    	data = StringEscapeUtils.escapeHtml4(value);
+        return String.format(PIM_ATTR_JSON_PATTERN, key, getValue(locale), getValue(scope), value);
+    }
+    
     private static final String PIM_ATTR_BOOLEAN_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\": %s}]";
     public static String createdAttributeBooleanJson(String key, String locale, String scope, String data) {
     	data = StringEscapeUtils.escapeHtml4(data);
     	return String.format(PIM_ATTR_BOOLEAN_JSON_PATTERN, key, getValue(locale), getValue(scope), Boolean.valueOf(data));
+    }
+    
+    public static String createdObjectBooleanJson(String key, String locale, String scope, Object data) {
+    	String value = "false";
+    	if(data != null)
+    		value = data.toString();
+    	data = StringEscapeUtils.escapeHtml4(value);
+    	return String.format(PIM_ATTR_BOOLEAN_JSON_PATTERN, key, getValue(locale), getValue(scope), Boolean.valueOf(value));
     }
     
     private static final String PIM_ATTR_INTEGER_JSON_PATTERN = "\"%s\":[{\"locale\":%s,\"scope\":%s, \"data\": %s}]";
@@ -125,18 +141,52 @@ public class RequestUtil {
     	StringBuilder strbuild = new StringBuilder("{");
 //    	strbuild.append(createKeyValueJson("product_title", data.get("name").toString())).append(",");
     	
-    	strbuild.append(createKeyValueJson("family", family));
-    	strbuild.append("\"categories\""+":["+step2+"]").append(",");
+    	strbuild.append(createKeyValueJson("family", family)).append(",");
+    	
+    	strbuild.append("\"categories\""+":["+step2+"]");
     	strbuild.append(",").append("\"values\": {");
-    	strbuild.append(createAttributeJson("brand", null, null, data.get("brand_id").toString()));
-    	strbuild.append(",").append(createAttributeJson("sku_type", null, null, "B"));
-//    	strbuild.append(",").append(createAttributeImageJson("image_1", null, null, primaryImage.get("image_file").toString(), primaryImage.get("url_standard").toString())).append(",");
-//    	strbuild.append(",").append(createAttributeUnitJson("depth", null, null, "INCH","27.5000")).append(",");
-//    	strbuild.append(",").append(createAttributeUnitJson("width", null, null, "INCH","23.5000")).append(",");
-//    	strbuild.append(",").append(createAttributeUnitJson("height", null, null, "INCH","35.5000")).append(",");
-//    	strbuild.append(",").append(createAttributeJson("product_description", null, null, data.get("description").toString()));
-    	strbuild.append(",").append(createAttributeJson("bigcommerce_id", null, null, data.get("id").toString()));
-    	strbuild.append(",").append(createAttributeJson("product_title", null, null, data.get("name").toString()));
+    	strbuild.append(createObjectJson("brand", null, null, data.get("brand_id")));
+    	strbuild.append(",").append(createObjectJson("sku_type", null, null, "B"));
+    	strbuild.append(",").append(createObjectJson("manufacturer_part_number", null, null, (String) data.get("mpn")));
+    	strbuild.append(",").append(createdObjectBooleanJson("is_visible",null, null, data.get("is_visible")));
+//    	strbuild.append(",").append(createObjectJson("weight",null, null, data.get("weight")));
+//    	strbuild.append(",").append(createObjectJson("width",null, null, data.get("width")));
+//    	strbuild.append(",").append(createObjectJson("depth",null, null, data.get("depth")));
+//    	strbuild.append(",").append(createObjectJson("height",null, null, data.get("height")));
+//    	strbuild.append(",").append(createObjectJson("seat_height",null, null, (String) data.get("seat_height")));
+    	strbuild.append(",").append(createObjectJson("retail_price",null, null, data.get("retail_price")));
+    	strbuild.append(",").append(createObjectJson("sale_price",null, null, data.get("map_price")));
+    	strbuild.append(",").append(createObjectJson("tax_class_id",null, null, data.get("tax_class_id")));
+    	strbuild.append(",").append(createObjectJson("option_set_id",null, null, data.get("option_set_id")));
+    	strbuild.append(",").append(createObjectJson("option_set_display",null, null, data.get("option_set_display")));
+    	strbuild.append(",").append(createObjectJson("upc",null, null, data.get("upc")));
+    	strbuild.append(",").append(createObjectJson("product_video_url",null, null, data.get("product_video_url")));
+    	strbuild.append(",").append(createAttributeJson("gtin",null, null, data.get("gtin").toString().split("AT")[1]));
+//    	strbuild.append(",").append(createObjectJson("warranty",null, null, data.get("warranty")));
+    	strbuild.append(",").append(createObjectJson("search_keywords",null, null, data.get("search_keywords")));
+    	strbuild.append(",").append(createdObjectBooleanJson("availability",null, null, getBooleanAsStringFromObject(data.get("availability"))));
+    	strbuild.append(",").append(createdObjectBooleanJson("sustainable",null, null, data.get("sustainable")));
+    	strbuild.append(",").append(createdObjectBooleanJson("made_in_the_usa",null, null, data.get("made_in_the_usa")));
+    	strbuild.append(",").append(createdObjectBooleanJson("stacking",null, null, data.get("stacking")));
+    	strbuild.append(",").append(createObjectJson("sort_order",null, null, data.get("sort_order")));
+    	strbuild.append(",").append(createObjectJson("page_title",null, null, data.get("page_title")));
+    	strbuild.append(",").append(createObjectJson("meta_description",null, null, data.get("meta_description")));
+    	strbuild.append(",").append(createdObjectBooleanJson("is_price_hidden",null, null, data.get("is_price_hidden")));
+    	strbuild.append(",").append(createObjectJson("price_hidden_label",null, null, data.get("price_hidden_label")));
+    	strbuild.append(",").append(createObjectJson("open_graph_type",null, null, data.get("open_graph_type")));
+    	strbuild.append(",").append(createObjectJson("open_graph_title",null, null, data.get("open_graph_title")));
+    	strbuild.append(",").append(createObjectJson("open_graph_description",null, null, data.get("open_graph_description")));
+    	strbuild.append(",").append(createdObjectBooleanJson("open_graph_use_meta_description",null, null, data.get("open_graph_use_meta_description")));
+    	strbuild.append(",").append(createdObjectBooleanJson("open_graph_use_product_name",null, null, data.get("open_graph_use_product_name")));
+    	strbuild.append(",").append(createdObjectBooleanJson("open_graph_use_image",null, null, data.get("open_graph_use_image")));
+    	strbuild.append(",").append(createdObjectBooleanJson("rebate",null, null, data.get("rebate")));
+//    	strbuild.append(",").append(createAttributeImageJson("image_1", null, null, primaryImage.get("image_file", primaryImage.get("url_standard")).append(","));
+//    	strbuild.append(",").append(createAttributeUnitJson("depth", null, null, "INCH","27.5000")).append(","));
+//    	strbuild.append(",").append(createAttributeUnitJson("width", null, null, "INCH","23.5000")).append(","));
+//    	strbuild.append(",").append(createAttributeUnitJson("height", null, null, "INCH","35.5000")).append(","));
+//    	strbuild.append(",").append(createObjectJson("product_description", null, null, data.get("description")));
+    	strbuild.append(",").append(createObjectJson("bigcommerce_id", null, null, data.get("id")));
+    	strbuild.append(",").append(createObjectJson("product_title", null, null, data.get("name")));
     	
     	List<Object> bcCustomFields  =  (List<Object>) data.get("custom_fields");
     	List<String> createdCustomFiled = new ArrayList<String>();
@@ -177,6 +227,17 @@ public class RequestUtil {
     	removedComaResp.append("}");
     	System.out.println(removedComaResp);
     	return removedComaResp.toString();
+    }
+    
+    public String getBooleanAsStringFromObject(Object data) {
+    	String value = null;
+    	if(data != null)
+    		value = (String) data.toString().toLowerCase();
+    	
+    	if(value!= null && value.equals("availablity") || value.equals("yes")) {
+    		return "true";
+    	}else
+    		return "false";
     }
     
     public String createUpdateOptionProductsAssociation(Map<String, Object> data) {

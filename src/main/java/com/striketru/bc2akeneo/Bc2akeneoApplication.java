@@ -68,10 +68,10 @@ public class Bc2akeneoApplication {
 		List<String> createdOptions = new ArrayList<String>();
 		try {
 			List<WriteResult> results = new ArrayList<>(); 
-			boolean isNotPageRead = false;
+			boolean isNotPageRead = true;
 			
 			if (isNotPageRead) {
-				List<Object> dataTemp =  getBcData("233"); //9147, 2864, 440, 375  ,"236","8366","5414","6475"
+				List<Object> dataTemp =  getBcData("2864"); //9147, 2864, 440, 375  ,"236","8366","5414","6475"
 				executeProductPage(dataTemp, results, createdOptions);
 			} else {
 				int pageCount = getBcDataPageCount();
@@ -141,12 +141,10 @@ public class Bc2akeneoApplication {
 			for (Integer code: categories) {
 				if ( families.get(String.valueOf(code)) != null) {
 					return families.get(String.valueOf(code));
-				}else {
-					return "no_family";
 				}
 			}
 		}
-		return null;
+		return "no_family";
 	}
 	
 	public void displayResults(List<WriteResult> results) throws IOException {
