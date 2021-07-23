@@ -21,7 +21,7 @@ import com.striketru.bc2akeneo.util.HttpUtil;
  * @author anepolean
  */
 public class ProductAPI {
-    private static final Logger PRODUCTLOGGER = LogManager.getLogger(ProductAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger("ResultLog");
     /**
      * Variable for the pim client.
      */
@@ -31,7 +31,12 @@ public class ProductAPI {
      * Constructor of ProductAPI.
      */
     public ProductAPI(Map<String, String> appProperties) {
-        pimClient = HttpUtil.createPIMClient(appProperties);
+        pimClient = HttpUtil.createPIMClient(appProperties.get("pimurl"), appProperties.get("pimclient"), appProperties.get("pimsecret"),
+        		appProperties.get("pimusername"), appProperties.get("pimpassword"));
+    }
+
+    public ProductAPI(String url, String client, String secret, String username, String password) {
+        pimClient = HttpUtil.createPIMClient(url, client, secret, username,  password);
     }
 
     
@@ -45,11 +50,12 @@ public class ProductAPI {
         }else {
         	output = response.getJson();
         }
-        PRODUCTLOGGER.debug("UpdateBySku :::"+output);
-        return output;
+        LOGGER.debug("UpdateBySku :::"+output);
+        return "";
     }
 
     public String upsertMutipleProducts(final String content) throws IOException {
+    	LOGGER.debug("upsertMutipleProducts REQUEST :::"+content);
         String output = "In-progress...";
         PIMResponse response = pimClient.multiproducts.patch(content);        
         if(response.getCode() == 204){
@@ -59,14 +65,14 @@ public class ProductAPI {
         } else {
         	output = response.getJson();
         }
-        PRODUCTLOGGER.debug("UpdateBySku :::"+output);
+        LOGGER.debug("upsertMutipleProducts RESPONSE :::"+output);
         return output;
     }
 
     public String createMediafile(final String widenurl, String jsonstring) throws IOException{
-        PRODUCTLOGGER.debug("ProductBySku Mediafile:::"+widenurl);
+        LOGGER.debug("ProductBySku Mediafile:::"+widenurl);
     	String response = pimClient.productmedia.post(jsonstring, new File(widenurl));
-    	PRODUCTLOGGER.debug("createMediafile :::"+response);
+    	LOGGER.debug("createMediafile :::"+response);
         return response;
     }
     

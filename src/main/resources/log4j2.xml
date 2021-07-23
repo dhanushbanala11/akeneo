@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+ 
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss:sss} [%thread] %-5level %logger{3} - %msg%n</Property>
+        <Property name="dir.folder">${sys:logdir}</Property>
+        <Property name="env">${sys:env}</Property>
+        <Property name="log.filename">bc2akeneo</Property>
+        <Property name="csvLog.count.fileName">bc2akeneo-sync-counts</Property>
+        <Property name="file-count-header">sku,modifierCount,variantsCount,optionsCount,optionProduct</Property>
+    </Properties>
+ 
+    <Appenders>
+ 
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        <RollingFile name="errorLog" fileName="${dir.folder}\${env}\${log.filename}-error.log" ignoreExceptions="false" append="true"
+            filePattern="${dir.folder}\${env}\${log.filename}-error.log">
+ 
+            <!-- Matches only ERROR level -->
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+ 
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <RollingFile name="ResultLog" fileName="${dir.folder}\${env}\${log.filename}-result.log" ignoreExceptions="false" append="true"
+                     filePattern="${dir.folder}\${env}\${log.filename}-result-%i.log">
+            <Filters>
+                <ThresholdFilter level="INFO"/>
+            </Filters> 
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <RollingFile name="mainlog" fileName="${dir.folder}\${env}\${log.filename}.log" ignoreExceptions="false" append="true"
+            filePattern="${dir.folder}\${env}\${log.filename}-%i.log">
+             <Filters>
+                <ThresholdFilter level="DEBUG"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>     
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <RollingFile name="FileCountAppenderCSV" ignoreExceptions="false" append="true" 
+                     fileName="${dir.folder}/${env}/${csvLog.count.fileName}.csv"
+                     filePattern="${dir.folder}/${env}/${csvLog.count.fileName}.csv" >
+            <CsvParameterLayout delimiter="," header="${file-count-header}%n"/>
+            <Filters>
+                <ThresholdFilter level="INFO"/>
+            </Filters>              
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>    
+    </Appenders>
+ 
+    <Loggers>
+        <Logger name="com.striketru" additivity="false">
+            <AppenderRef ref="Console"  />
+            <AppenderRef ref="errorLog" />
+            <AppenderRef ref="ResultLog" />
+            <AppenderRef ref="mainlog" />
+            <AppenderRef ref="FileCountAppenderCSV"/>
+        </Logger>
+        <Root level="ALL">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileCountAppenderCSV" />  
+            <AppenderRef ref="mainlog" />
+        </Root>
+ 
+    </Loggers>
+ 
+</Configuration>

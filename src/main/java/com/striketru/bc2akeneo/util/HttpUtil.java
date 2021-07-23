@@ -84,13 +84,9 @@ public class HttpUtil {
         return response.toString();
     }
     
-    public static PIMClientAPI createPIMClient(Map<String, String> appProperties) {
+    public static PIMClientAPI createPIMClient(String url, String client, String secret, String username, String password) {
         PIMClientAPI pimClient = PIMClientAPI.builder()
-                .url(appProperties.get("pimurl"))
-                .clientId(appProperties.get("pimclient"))
-                .secret(appProperties.get("pimsecret"))
-                .username(appProperties.get("pimusername"))
-                .password(appProperties.get("pimpassword"))
+        		.url(url).clientId(client).secret(secret).username(username).password(password)
                 .build();
         pimClient.authenticate();
         return pimClient;
