@@ -187,7 +187,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		for (Map<String, Object> modifierObj: modifiers){ 
 				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
 				for (Map<String, Object> optionProduct: optionValues){
-					String label = getStringDataFromMap(data,"label");
+					String label = getStringDataFromMap(optionProduct,"label");
 					String price = getPriceFromLabel(label);
 					if (price != null) {
 						writerData.addPrice(createProductPrice(optionProduct, writerData.getSku(), label, price));	
@@ -211,9 +211,12 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			id = date.toString();
 		}
     	ProductJson prodJson = new ProductJson();
-    	prodJson.setIdentifier(baseSKU+"_"+id);
+    	prodJson.setIdentifier(baseSKU+"_"+id.trim());
     	prodJson.setFamily("product_pricing");
     	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "P"));
+    	if (price.indexOf("$") >0) {
+    		price = price.substring(price.indexOf("$")+1);
+    	}
     	prodJson.addAttributeValues(new AttributeJson("retail_price", null, null, price));
     	prodJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSKU));
     	prodJson.addAttributeValues(new AttributeJson("option_sku", null, null, (optionsSku.length < 2)?id:optionsSku[1]));
