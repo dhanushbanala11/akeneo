@@ -83,6 +83,13 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
     	return strbuild.length() > 2 ? strbuild.toString() : null;	
 	}
 	
-	
+	public void writeImagetoPIM(String imageUrl, String tempFolderPath, String identifier, String attribute,  String locale, String scope) {
+		String destinationPath = downloadFileToTempFolder(imageUrl, tempFolderPath);
+		try {
+			productapi.createMediafile(destinationPath, createMediaProductJson(identifier, attribute, locale, scope));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }
