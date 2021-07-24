@@ -73,6 +73,7 @@ public class BigCommAPI {
 			Content bcResponse = get(String.format(PRODUCT_URL, getStoreHash(), id));
 			LOGGER.debug(bcResponse);
 
+			@SuppressWarnings("unchecked")
 			Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
 			LOGGER.debug(bcResp.get("data"));
 			listObj.add(bcResp.get("data"));

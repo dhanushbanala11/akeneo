@@ -1,13 +1,8 @@
 package com.striketru.bc2akeneo.reader;
 
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.striketru.bc2akeneo.constants.Constants;
-import com.striketru.bc2akeneo.writer.WriterData;
 import com.striketru.conn.base.model.BaseData;
 
 public class ReaderData extends BaseData {

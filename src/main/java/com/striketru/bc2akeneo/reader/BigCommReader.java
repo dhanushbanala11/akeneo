@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.striketru.bc2akeneo.transformer.BC2PIMTransformer;
 import com.striketru.bc2akeneo.writer.PIMWriter;
 import com.striketru.bc2akeneo.writer.WriterData;
@@ -16,7 +15,6 @@ public class BigCommReader extends Reader {
     private static final Logger LOGGER = LogManager.getLogger(BigCommReader.class);
 
 	private static BigCommAPI bigCommAPI = null;
-	private static ObjectMapper objMapper = new ObjectMapper();
 	private static BC2PIMTransformer bc2pimTranformer = new BC2PIMTransformer();
 	private static PIMWriter pimWriter;
 	
@@ -54,7 +52,6 @@ public class BigCommReader extends Reader {
 	
 	public void executeProductPage(List<Object> data){
 		for (Object productData : data) {
-			Map<String, Object> productDataMap = objMapper.convertValue(productData, Map.class);
 			ReaderData reader = new ReaderData(productData);
 			WriterData writerData = bc2pimTranformer.execute(reader);
 			pimWriter.execute(writerData);

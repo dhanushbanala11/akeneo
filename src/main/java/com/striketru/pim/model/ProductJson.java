@@ -26,7 +26,7 @@ public class ProductJson implements PIMRequestUtil{
 		this.family = family;
 	}
 	public List<String> getCategoriesAsString() {
-		List<String> catgoriesStr = new ArrayList(categories.size());
+		List<String> catgoriesStr = new ArrayList<>(categories.size());
 		for (Object obj: categories) {
 			catgoriesStr.add(String.valueOf(obj));
 		}

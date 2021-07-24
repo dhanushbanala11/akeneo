@@ -2,7 +2,6 @@ package com.striketru.conn.base;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.striketru.conn.base.model.BaseData;
 import com.striketru.conn.base.model.Result;

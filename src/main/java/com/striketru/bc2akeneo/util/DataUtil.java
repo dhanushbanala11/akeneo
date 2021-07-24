@@ -22,7 +22,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 public class DataUtil {
     private static final ObjectMapper OM = new ObjectMapper();
 
-    public static Map jsonStringToMap(String jsonString) throws IOException {
+    @SuppressWarnings("rawtypes")
+	public static Map jsonStringToMap(String jsonString) throws IOException {
         return OM.readValue(jsonString, Map.class);
     }
     

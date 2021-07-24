@@ -47,7 +47,8 @@ public class PIMClientAPI {
             this.path = path;
         }
 
-        private boolean isSuccess(HttpResponse response){
+        @SuppressWarnings("unused")
+		private boolean isSuccess(HttpResponse response){
             return statusOf(response) == 204 || statusOf(response) == 200;
         }
 
@@ -98,15 +99,15 @@ public class PIMClientAPI {
             return patchResponse;
         }
         
-        private HttpResponse get(URI resourceUri, boolean retry) throws IOException {
-            Request request = Request.Get(resourceUri).addHeader("Authorization", authHeader);
-            HttpResponse response = request.execute().returnResponse();
-            if (isUnauthenticated(response) && retry) {
-                authenticate();
-                return get(resourceUri, false);
-            }
-            return response;
-        }
+//        private HttpResponse get(URI resourceUri, boolean retry) throws IOException {
+//            Request request = Request.Get(resourceUri).addHeader("Authorization", authHeader);
+//            HttpResponse response = request.execute().returnResponse();
+//            if (isUnauthenticated(response) && retry) {
+//                authenticate();
+//                return get(resourceUri, false);
+//            }
+//            return response;
+//        }
         private HttpResponse patch(URI resourceUri, String content, boolean retry) throws IOException {
         	return patch(resourceUri, content, retry, ContentType.APPLICATION_JSON);
         }

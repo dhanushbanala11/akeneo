@@ -1,33 +1,22 @@
 package com.striketru.bc2akeneo;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
-import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
-import com.striketru.bc2akeneo.model.WriteResult;
 import com.striketru.bc2akeneo.reader.BigCommReader;
 import com.striketru.bc2akeneo.util.RequestUtil;
 
-//@SpringBootApplication
 public class Bc2akeneoApplication {
 
 	private BigCommReader reader;
@@ -46,19 +35,6 @@ public class Bc2akeneoApplication {
 		reader.execute();
 	}
 	
-	public void execute2() throws IOException{
-		
-		Map<String, Object> bcResp = null;
-		System.out.println("Application Properties : " + System.getProperty("APP_PROP"));
-		System.out.println("** Connecting to BC **");
-
-		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
-		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
-//		System.out.println(attributes.toString());
-		List<String> createdOptions = new ArrayList<String>();
-
-	}
-	
 	public void executeImageDownload(){
 //		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg";
 		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg?c=2";
@@ -70,7 +46,7 @@ public class Bc2akeneoApplication {
 	public void imageWritetoPIM(String imageUrl, String tempFolderPath, String identifier, String attribute,  String locale, String scope) {
 		String destinationPath = downloadFileToTempFolder(imageUrl, tempFolderPath);
 		try {
-			productapi.createMediafile(destinationPath, akeneoUtil.createMediaProductJson(identifier, attribute, locale, scope));
+			productapi.createMediafile(destinationPath, RequestUtil.createMediaProductJson(identifier, attribute, locale, scope));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -109,7 +85,6 @@ public class Bc2akeneoApplication {
     }
 	
 	public static void main(String[] args) throws Exception {
-//		new Bc2akeneoApplication2();
 		new Bc2akeneoApplication().execute();
 //		new Bc2akeneoApplication().executeImageDownload();
 	}

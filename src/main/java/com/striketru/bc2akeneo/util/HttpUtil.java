@@ -5,31 +5,32 @@
  */
 package com.striketru.bc2akeneo.util;
 
-import com.striketru.bc2akeneo.api.PIMClientAPI;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.util.List;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URIBuilder;
+
+import com.striketru.bc2akeneo.api.PIMClientAPI;
 
 /**
  *
  * @author anepolean
  */
 public class HttpUtil {
-    private static void downloadUsingStream(String urlStr, String file) throws IOException{
+    @SuppressWarnings("unused")
+	private static void downloadUsingStream(String urlStr, String file) throws IOException{
         URL url = new URL(urlStr);
         BufferedInputStream bis = new BufferedInputStream(url.openStream());
         FileOutputStream fis = new FileOutputStream(file);
@@ -62,7 +63,8 @@ public class HttpUtil {
         return null;
     }
     
-    private static void downloadUsingNIO(String urlStr, String file) throws IOException {
+    @SuppressWarnings("unused")
+	private static void downloadUsingNIO(String urlStr, String file) throws IOException {
         URL url = new URL(urlStr);
         ReadableByteChannel rbc = Channels.newChannel(url.openStream());
         FileOutputStream fos = new FileOutputStream(file);
