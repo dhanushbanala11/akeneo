@@ -36,7 +36,7 @@ public class BigCommReader extends Reader {
 			boolean isNotPageRead = true;
 			
 			if (isNotPageRead) {
-				List<Object> dataTemp =  bigCommAPI.getData("9147", "2864", "440", "375", "233"); //"9147", "2864", "440", "375", "233" 
+				List<Object> dataTemp =  bigCommAPI.getData("9243"); //"9147", "2864", "440", "375", "233" 
 				executeProductPage(dataTemp);
 			} else {
 				int pageCount = bigCommAPI.getDataPageCount();

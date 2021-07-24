@@ -1,9 +1,7 @@
 package com.striketru.bc2akeneo.transformer;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +33,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	private Map<String, String> optionAttributes;
 	private Map<String, String> families;
 	private Map<String, PIMValue> customFields;
+	
 
 	public BC2PIMTransformer(){
 		this.optionAttributes = csvUtil.getPropertyFromCSV(Constants.ATTRIBUTES_CSV, CSV_FILE_TYPE.ATTRIBUTE_OPTION);
@@ -52,7 +51,6 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			processOptionProduct(readerData.getProduct(), BuilderConstants.MODIFIERS, writerData);
 			processOptionProduct(readerData.getProduct(), BuilderConstants.OPTIONS, writerData);
 			processOptionProduct(readerData.getProduct(), BuilderConstants.VARIANTS, writerData);
-			processProductPrices(readerData.getProduct(), writerData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -97,6 +95,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.addAttributeValues(new AttributeJson("sort_order", null, null, getStringDataFromMap(data, "sort_order")));
     	prodJson.addAttributeValues(new AttributeJson("tax_class_id", null, null, getStringDataFromMap(data, "tax_class_id")));
     	prodJson.addAttributeValues(new AttributeJson("upc", null, null, getStringDataFromMap(data, "upc")));
+    	prodJson.addAttributeValues(new AttributeJson("warranty", null, null, getStringDataFromMap(data, "warranty")));
     	prodJson.addAttributeValues(new AttributeJson("weight", null, null, getStringDataFromMap(data, "weight"), "POUND", null));
     	prodJson.addAttributeValues(new AttributeJson("width", null, null, getStringDataFromMap(data, "width"), "INCH", null));
 
@@ -122,6 +121,9 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			    		prodJson.addAttributeValues(attribute);	
 		    		}
 	    		}
+	    	}
+	    	for (String key:getMultiSelectData().keySet()) {
+	    		prodJson.addAttributeValues(new AttributeJson(key, null, null, new ArrayList<>(getMultiSelectData().get(key))));
 	    	}
     	}
     	return prodJson;
@@ -151,6 +153,14 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 						String label = optionVal.get("label").toString();
 						if (StringUtils.equalsIgnoreCase(type, BuilderConstants.VARIANTS)) {
 							displayName = optionVal.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
+						}
+						if (StringUtils.equalsIgnoreCase(type, BuilderConstants.MODIFIERS)) {
+							// Calling the price 
+							String price = getPriceFromLabel(label);
+							if (price != null) {
+								writerData.addPrice(createProductPrice(optionVal, writerData.getSku(), label, price));	
+							}
+
 						}
 						if (writerData.getOptionsProduct().get(label) == null) {
 							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, displayName));
@@ -182,22 +192,6 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	return prodJson;
     }
     
-    public String processProductPrices( Map<String, Object> data, WriterData writerData) {
-		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get("modifiers");
-		for (Map<String, Object> modifierObj: modifiers){ 
-				List<Map<String, Object>> optionValues = (List<Map<String, Object>>) modifierObj.get("option_values");
-				for (Map<String, Object> optionProduct: optionValues){
-					String label = getStringDataFromMap(optionProduct,"label");
-					String price = getPriceFromLabel(label);
-					if (price != null) {
-						writerData.addPrice(createProductPrice(optionProduct, writerData.getSku(), label, price));	
-					}
-				}
-		}
-		return null;
-    }
-
-    
     private ProductJson createProductPrice( Map<String, Object> data, String baseSKU, String label, String price) {
 		String[] gradeFinder = label.split(" ");
 		String[] optionsSku = label.split("--");
@@ -207,8 +201,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}else if(label.contains("--")) {
 			id = optionsSku[1];
 		}else {
-			Date date = new Date();
-			id = date.toString();
+			id = getNextId();
 		}
     	ProductJson prodJson = new ProductJson();
     	prodJson.setIdentifier(baseSKU+"_"+id.trim());
@@ -226,9 +219,6 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	return prodJson;
     }
 	
-    
-    
-	
 	public AttributeJson getValueJson(PIMValue pimvalue, String data) {
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
 			return new AttributeJson(pimvalue.getCode(), null, null, data);
@@ -243,14 +233,9 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 				return new AttributeJson(pimvalue.getCode(), null, null, "false", false);	
 			}
 		} else if (pimvalue.isMultiSelect()) {
-			String key = pimvalue.getCode().trim()+"-"+data.trim();
-			ArrayList<String> newList = new ArrayList<String>();
-			if (StringUtils.isNotEmpty(optionAttributes.get(key))) {
-				newList.add(optionAttributes.get(key));
-				return new AttributeJson(pimvalue.getCode(), null, null, newList);
-			} else {
-				return null;
-			}
+			String newcode = pimvalue.getCode().trim()+"-"+data.trim();
+			addMultiSelectData(pimvalue.getCode(), optionAttributes.get(newcode));
+			return null;
 		} else if (pimvalue.isSimpleSelect()) {
 			String code = optionAttributes.get(pimvalue.getCode().trim()+"-"+data.trim());
 			if(code != null) {
@@ -308,12 +293,14 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	}
 	
 	public String[] getSKU(String label) {
-		String[] optionsSku = label.split("--");
-		if (optionsSku.length <2 ) {
-//			optionsSku = String[2];
-			Date date = new Date();
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			optionsSku = new String[] {new String(optionsSku[0].trim()), String.valueOf(new Timestamp(date.getTime()))};
+		String[] optionsSku = new String[2];
+		int index = label.indexOf("--"); 
+		if (index > -1){
+			optionsSku[0] = label.substring(0, index);
+			optionsSku[1] = label.substring(index+2);
+		} else {
+			optionsSku[0] = label;
+			optionsSku[1] = getNextId();
 		}
 		return optionsSku;
 	}

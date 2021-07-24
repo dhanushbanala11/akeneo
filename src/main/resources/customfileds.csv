@@ -12,6 +12,7 @@ Base SKU,base_sku,pim_catalog_text
 Beaufort Scale,beaufort_scale,pim_catalog_number
 Bench Style,bench_style,pim_catalog_multiselect
 Blacklist,blacklist,pim_catalog_boolean
+Brand,brand,pim_catalog_simpleselect
 BTU Range,btu_range,pim_catalog_simpleselect
 BTUs,btus,pim_catalog_text
 Burner Pan Size ( in.),burner_pan_size,pim_catalog_metric
@@ -50,6 +51,7 @@ Fire Tool Style,fire_tool_style,pim_catalog_simpleselect
 Formats,formats,pim_catalog_text
 Frame Material,frame_material,pim_catalog_simpleselect
 Frame Rate,frame_rate,pim_catalog_text
+Free Shipping Icon,free_shipping_icon,pim_catalog_boolean
 Material,furniture_material,pim_catalog_multiselect
 Grill Size Range,grill_size_range,pim_catalog_multiselect
 HDBaseT Connections,hdbaset_connections,pim_catalog_text
