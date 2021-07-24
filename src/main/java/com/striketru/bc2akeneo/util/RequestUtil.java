@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.gson.Gson;
-import com.striketru.bc2akeneo.constants.BuilderConstants;
+import com.striketru.bc2akeneo.constants.Constants;
 import com.striketru.bc2akeneo.model.PIMValue;
 import com.striketru.bc2akeneo.model.WriteResult;
 
@@ -276,14 +276,14 @@ public class RequestUtil {
     }
     
 	public List<String> getAllValueOptions(String baseSku, Map<String, Object> data, String family, WriteResult result, List<String> optionProductRequest, List<String> priceProductRequest) {
-		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get(BuilderConstants.MODIFIERS);
-		List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTIONS);
-		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get(BuilderConstants.VARIANTS);
+		List<Map<String, Object>> modifiers = (List<Map<String, Object>>) data.get(Constants.MODIFIERS);
+		List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(Constants.OPTIONS);
+		List<Map<String, Object>> variants = (List<Map<String, Object>>) data.get(Constants.VARIANTS);
 		
 		Map<String, String> optionMap = new HashMap<>();
-		getOptionValuesFromParent(modifiers, baseSku, BuilderConstants.MODIFIERS, result, priceProductRequest, optionMap);
-		getOptionValuesFromParent(options, baseSku, BuilderConstants.OPTIONS, result, priceProductRequest, optionMap);
-		getOptionValuesFromParent(variants, baseSku, BuilderConstants.VARIANTS, result, priceProductRequest, optionMap);
+		getOptionValuesFromParent(modifiers, baseSku, Constants.MODIFIERS, result, priceProductRequest, optionMap);
+		getOptionValuesFromParent(options, baseSku, Constants.OPTIONS, result, priceProductRequest, optionMap);
+		getOptionValuesFromParent(variants, baseSku, Constants.VARIANTS, result, priceProductRequest, optionMap);
 		return getRequestList(optionMap);
 	}
 	
@@ -294,21 +294,21 @@ public class RequestUtil {
 		for(Map<String, Object> data: movs) {
 			String displayName = StringUtils.EMPTY;
 			String optionType = (String) data.get("type");
-			if(!type.equals(BuilderConstants.VARIANTS)) {
-				displayName = data.get(BuilderConstants.DISPLAY_NAME).toString();
+			if(!type.equals(Constants.VARIANTS)) {
+				displayName = data.get(Constants.DISPLAY_NAME).toString();
 			}
-			if(type.equals(BuilderConstants.VARIANTS) && StringUtils.equals(baseSku, data.get(BuilderConstants.SKU).toString())) {
+			if(type.equals(Constants.VARIANTS) && StringUtils.equals(baseSku, data.get(Constants.SKU).toString())) {
 				break;
 			}
 			if(!displayName.equalsIgnoreCase("not_an_option")) {
-				List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(BuilderConstants.OPTION_VALUES);
+				List<Map<String, Object>> options = (List<Map<String, Object>>) data.get(Constants.OPTION_VALUES);
 				for(Map<String, Object>option: options) {
 					count++;
-					if(!type.equals(BuilderConstants.VARIANTS) && option.get(BuilderConstants.SKU)!= null && StringUtils.equals(baseSku, option.get(BuilderConstants.SKU).toString())) {
+					if(!type.equals(Constants.VARIANTS) && option.get(Constants.SKU)!= null && StringUtils.equals(baseSku, option.get(Constants.SKU).toString())) {
 						break;
 					}
-					if(type.equals(BuilderConstants.VARIANTS)) {
-						displayName = option.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
+					if(type.equals(Constants.VARIANTS)) {
+						displayName = option.get(Constants.OPTION_DISPLAY_NAME).toString();
 					}
 					String label = option.get("label").toString();
 					if(checkOptionProductsNotExists(optionMap,label)) {
@@ -326,17 +326,17 @@ public class RequestUtil {
 	}
 	
 	private void setMovsCount(String type, int count, WriteResult result) {
-		if(type.equals(BuilderConstants.MODIFIERS)) {
+		if(type.equals(Constants.MODIFIERS)) {
 			result.setModifiersCount(count);
 			if(count > 0)
 				result.setModifiers(true);
 		}
-		else if(type.equals(BuilderConstants.OPTIONS)) {
+		else if(type.equals(Constants.OPTIONS)) {
 			result.setOptionCount(count);
 			if(count > 0)
 				result.setHasOptions(true);
 		}
-		else if(type.equals(BuilderConstants.VARIANTS)) {
+		else if(type.equals(Constants.VARIANTS)) {
 			result.setVariantsCount(count);
 			if(count > 0)
 				result.setVariants(true);

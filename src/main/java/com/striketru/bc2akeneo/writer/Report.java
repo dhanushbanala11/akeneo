@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.striketru.bc2akeneo.constants.BuilderConstants;
+import com.striketru.bc2akeneo.constants.Constants;
 
 public class Report {
 	private static final Logger LOGGER = LogManager.getLogger("ResultLog");
@@ -78,11 +78,11 @@ public class Report {
 	}
 	
 	public void addCount(String type, int count) {
-		if (StringUtils.equalsIgnoreCase(type, BuilderConstants.MODIFIERS)) {
+		if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS)) {
 			setReadModifierCount(count);
-		} else if (StringUtils.equalsIgnoreCase(type, BuilderConstants.OPTIONS)) {
+		} else if (StringUtils.equalsIgnoreCase(type, Constants.OPTIONS)) {
 			setReadOptionsCount(count);
-		} else if (StringUtils.equalsIgnoreCase(type, BuilderConstants.VARIANTS)) {
+		} else if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS)) {
 			setReadVariantsCount(count);
 		}
 	}

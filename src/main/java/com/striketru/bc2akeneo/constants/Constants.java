@@ -1,6 +1,6 @@
 package com.striketru.bc2akeneo.constants;
 
-public class BuilderConstants {
+public class Constants {
 	
 	public static final String MODIFIERS = "modifiers";
 	public static final String OPTIONS = "options";

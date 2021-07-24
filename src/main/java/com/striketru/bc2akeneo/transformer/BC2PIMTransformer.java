@@ -12,8 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.striketru.bc2akeneo.common.Constants;
-import com.striketru.bc2akeneo.constants.BuilderConstants;
+import com.striketru.bc2akeneo.constants.Constants;
 import com.striketru.bc2akeneo.model.PIMValue;
 import com.striketru.bc2akeneo.reader.ReaderData;
 import com.striketru.bc2akeneo.util.CSVUtil;
@@ -48,9 +47,9 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		try {
 			String family = getFamilyCode(readerData.getProduct());
 			writerData.setBaseProduct(processBaseProduct(readerData.getProduct(), family));
-			processOptionProduct(readerData.getProduct(), BuilderConstants.MODIFIERS, writerData);
-			processOptionProduct(readerData.getProduct(), BuilderConstants.OPTIONS, writerData);
-			processOptionProduct(readerData.getProduct(), BuilderConstants.VARIANTS, writerData);
+			processOptionProduct(readerData.getProduct(), Constants.MODIFIERS, writerData);
+			processOptionProduct(readerData.getProduct(), Constants.OPTIONS, writerData);
+			processOptionProduct(readerData.getProduct(), Constants.VARIANTS, writerData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -132,29 +131,29 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	public void processOptionProduct(Map<String, Object> data, String type, WriterData writerData){
 		List<Map<String, Object>> optionsBCList = null;
 		String displayName = null;
-		if (StringUtils.equalsIgnoreCase(type, BuilderConstants.MODIFIERS)) {
-			optionsBCList = (List<Map<String, Object>>) data.get(BuilderConstants.MODIFIERS);
-		} else if (StringUtils.equalsIgnoreCase(type, BuilderConstants.OPTIONS)) {
-			optionsBCList = (List<Map<String, Object>>) data.get(BuilderConstants.OPTIONS);
-		} else if (StringUtils.equalsIgnoreCase(type, BuilderConstants.VARIANTS)) {
-			optionsBCList = (List<Map<String, Object>>) data.get(BuilderConstants.VARIANTS);
+		if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS)) {
+			optionsBCList = (List<Map<String, Object>>) data.get(Constants.MODIFIERS);
+		} else if (StringUtils.equalsIgnoreCase(type, Constants.OPTIONS)) {
+			optionsBCList = (List<Map<String, Object>>) data.get(Constants.OPTIONS);
+		} else if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS)) {
+			optionsBCList = (List<Map<String, Object>>) data.get(Constants.VARIANTS);
 		}
 		int count = 0;
 		if (optionsBCList != null) { 
 			for(Map<String, Object> optionsBC: optionsBCList) {
-				if (StringUtils.equalsIgnoreCase(type, BuilderConstants.VARIANTS) && isVariantNotBaseSku(optionsBC, writerData.getSku())) {
+				if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS) && isVariantNotBaseSku(optionsBC, writerData.getSku())) {
 					continue;
 				} else {
-					displayName = getStringDataFromMap(optionsBC, BuilderConstants.DISPLAY_NAME);
+					displayName = getStringDataFromMap(optionsBC, Constants.DISPLAY_NAME);
 				}
 				if(!StringUtils.equalsIgnoreCase(displayName, "not_an_option")) {
-					List<Map<String, Object>> optionValues = (List<Map<String, Object>>) optionsBC.get(BuilderConstants.OPTION_VALUES);
+					List<Map<String, Object>> optionValues = (List<Map<String, Object>>) optionsBC.get(Constants.OPTION_VALUES);
 					for(Map<String, Object> optionVal: optionValues) {
 						String label = optionVal.get("label").toString();
-						if (StringUtils.equalsIgnoreCase(type, BuilderConstants.VARIANTS)) {
-							displayName = optionVal.get(BuilderConstants.OPTION_DISPLAY_NAME).toString();
+						if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS)) {
+							displayName = optionVal.get(Constants.OPTION_DISPLAY_NAME).toString();
 						}
-						if (StringUtils.equalsIgnoreCase(type, BuilderConstants.MODIFIERS)) {
+						if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS)) {
 							// Calling the price 
 							String price = getPriceFromLabel(label);
 							if (price != null) {

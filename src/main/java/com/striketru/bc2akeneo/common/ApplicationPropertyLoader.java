@@ -6,16 +6,18 @@
 package com.striketru.bc2akeneo.common;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.striketru.bc2akeneo.model.Config;
 
 /**
  *
@@ -30,7 +32,6 @@ public class ApplicationPropertyLoader  {
      * Map to save the properties of the application.
      */
     private final Map<String, String> appProperties;
-    private final Config config;
 
 
 
@@ -39,7 +40,6 @@ public class ApplicationPropertyLoader  {
      */
     public ApplicationPropertyLoader() {
         appProperties = loadAppProperties();
-        config = getYamlProperties();
     }
 
     /**
@@ -51,37 +51,46 @@ public class ApplicationPropertyLoader  {
         return appProperties;
     }
 
-    public Config getConfig() {
-        return config;
-    }
-
     /**
      * Adds properties to map applicationProperties.
      */
     private Map<String, String> loadAppProperties() {
         Map<String, String> appProperties = new HashMap<>();
-//        try {
-//            Properties propertiesPidam = LoaderProperties.getInstance().readFile("bc2akeneo.properties");
-        	appProperties.put("pimurl", "https://authenteak-production.cloud.akeneo.com");
-        	appProperties.put("pimclient", "1_18kxcawvycm8ckgso84osccskgg8480w8ogsc004cooww48w0w");
-        	appProperties.put("pimsecret", "52ch16awca04cks4scg0ks4oc40s4ocgww0oks00kwskksg8o4");
-        	appProperties.put("pimusername", "api_8251");
-        	appProperties.put("pimpassword", "a00ec065c");
-//            propertiesPidam.forEach((key, value) -> appProperties.put(key.toString(), value.toString()));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            LOGGER.error("Exceptions in Application Property file: " +e);
-//        }
+        try {
+            Properties propertiesPidam = readFile("bc2akeneo.properties");
+            propertiesPidam.forEach((key, value) -> appProperties.put(key.toString(), value.toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Exceptions in Application Property file: " +e);
+        }
         return appProperties;
     }
 
-    public Config getYamlProperties() {
-        String filename = System.getProperty("env") + appProperties.get("config_file");
-        Config config = null;
+    /**
+     * Loads a property file.
+     *
+     * @param path of properties.
+     * @return the properties.
+     */
+    public Properties readFile(String path) {
+        Properties prop = new Properties();
+        try {
+            InputStream input = new FileInputStream(path);            
+            prop.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return prop;
+    }
+    
+    @SuppressWarnings("unchecked")
+	public Map<String, Object> getYamlProperties() {
+        String filename = System.getProperty("env") + "-config.yml";
+        Map<String, Object> config = null;
         LOGGER.debug("Configuration file: {" + filename + "}");
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
-            config = mapper.readValue(new File(filename), Config.class);
+            config = mapper.readValue(new File(filename), Map.class);
         } catch (IOException  e) {
             LOGGER.error("Not able to read the Config " + filename + " file");
         } catch (Exception e) {

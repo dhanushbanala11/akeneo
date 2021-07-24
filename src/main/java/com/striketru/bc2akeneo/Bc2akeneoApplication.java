@@ -18,45 +18,35 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.fluent.Content;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.striketru.bc2akeneo.api.BcAPI;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
-import com.striketru.bc2akeneo.constants.BuilderConstants;
-import com.striketru.bc2akeneo.model.PIMValue;
+import com.striketru.bc2akeneo.common.ApplicationPropertyLoader;
 import com.striketru.bc2akeneo.model.WriteResult;
+import com.striketru.bc2akeneo.reader.BigCommReader;
 import com.striketru.bc2akeneo.util.RequestUtil;
 
 //@SpringBootApplication
 public class Bc2akeneoApplication {
 
-	
-	public enum CSV_FILE_TYPE{ATTRIBUTE_OPTION, FAMILIES}
+	private BigCommReader reader;
 	
 	RequestUtil akeneoUtil = new RequestUtil();
 	ObjectMapper mapper = new ObjectMapper();
 	String tempFolderPath = getTempFolderPath();
 	ProductAPI productapi = null;
-	Map<String, String> optionAttributes = null;
-	Map<String, String> families = null;
-	Map<String, PIMValue> customFields = null;
-	BcAPI bcApi = new BcAPI();
 
 	public Bc2akeneoApplication() throws IOException{
 		ApplicationPropertyLoader appProp = new ApplicationPropertyLoader();
-		productapi = new ProductAPI(appProp.getAppProperties());
-		optionAttributes = getPropertyFromCSV(BuilderConstants.ATTRIBUTES_CSV, CSV_FILE_TYPE.ATTRIBUTE_OPTION);
-		families = getPropertyFromCSV(BuilderConstants.FAMILIES_CSV, CSV_FILE_TYPE.FAMILIES);
-		customFields = getPropertyFromCSV(BuilderConstants.CUSTOM_FIELDS);
-		akeneoUtil.setCustomFields(customFields);
-		System.out.println(akeneoUtil.getCustomFields());
-		akeneoUtil.setOptionAttributes(optionAttributes);
+		reader = new BigCommReader(appProp.getAppProperties());
 	}
 	
 	public void execute() throws IOException{
+		reader.execute();
+	}
+	
+	public void execute2() throws IOException{
 		
 		Map<String, Object> bcResp = null;
 		System.out.println("Application Properties : " + System.getProperty("APP_PROP"));
@@ -66,239 +56,9 @@ public class Bc2akeneoApplication {
 		ProductAPI productapi = new ProductAPI(appProp.getAppProperties());
 //		System.out.println(attributes.toString());
 		List<String> createdOptions = new ArrayList<String>();
-		try {
-			List<WriteResult> results = new ArrayList<>(); 
-			boolean isNotPageRead = true;
-			
-			if (isNotPageRead) {
-				List<Object> dataTemp =  getBcData("2864"); //9147, 2864, 440, 375  ,"236","8366","5414","6475"
-				executeProductPage(dataTemp, results, createdOptions);
-			} else {
-				int pageCount = getBcDataPageCount();
-				pageCount = 10;
-				List<Object> data = null;
-				for (int i= 1; i <= pageCount; i++) {
-					data =  getBcData(i);
-					executeProductPage(data, results, createdOptions);
-				}
-			}
-			displayResults(results);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void executeProductPage(List<Object> data, List<WriteResult> results, List<String> createdOptions){
-		ObjectMapper oMapper = new ObjectMapper();
-		for (Object productData : data) {
-			Map<String, Object> productDataMap = oMapper.convertValue(productData, Map.class);
-			try {
-				WriteResult result = new WriteResult(productDataMap.get("sku").toString());
-				List<String> optionProductRequest = new ArrayList<>();
-				List<String> priceProductRequest = new ArrayList<>();
-				String family = getFamilyCode(productDataMap);
-				family = (family == null)?"no_family":family;
-				System.out.println(family);
-				optionProductRequest = akeneoUtil.getAllValueOptions(productDataMap.get("sku").toString(), productDataMap, family, result, optionProductRequest, priceProductRequest);
-				System.out.println(optionProductRequest);
-//				List<String> optionProductRequest = akeneoUtil.createUpdateOptionProducts(productDataMap.get("sku").toString(), productDataMap, result, createdOptions, attributes);
-				boolean isOptionProductsExists = false;
-				List<Map<String, Object>> options = (List<Map<String, Object>>) productDataMap.get("options");
-				if(options.size() > 0) {
-					result.setHasOptions(true);
-				}
-				for (String request: optionProductRequest)  {
-//					System.out.println(request);
-					if (StringUtils.isNotEmpty(request)){
-						isOptionProductsExists = true;
-						String response = productapi.upsertMutipleProducts(request);
-						result.setOptionsResponse(response);
-					}
-				}
-				String baseProductRequest = akeneoUtil.createUpdateBaseProduct(productDataMap, family, isOptionProductsExists, optionAttributes);
-//				System.out.println("Request : " + baseProductRequest);
-				String baseProductResponse = productapi.upsertProductBySku(productDataMap.get("sku").toString(), baseProductRequest);
-//				String primaryImageUrl = (String)((Map<String, Object>)productDataMap.get("primary_image")).get("url_standard");
-//				imageWritetoPIM(primaryImageUrl, tempFolderPath, productDataMap.get("sku").toString(),"primary_image", null, null);
-				result.setBaseProductResp(baseProductResponse);
-				if(baseProductResponse.equals(BuilderConstants.BASE_PRODUCT_CREATED) || baseProductResponse.equals(BuilderConstants.BASE_PRODUCT_UPDATED)) {
-					String priceRequest = akeneoUtil.createProductPrices(productDataMap.get("sku").toString(), productDataMap, result);
-					productapi.upsertMutipleProducts(priceRequest);
-				}
-				
-				results.add(result);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-	}
-	
-	public String getFamilyCode(Map<String, Object> data) {
-		List<Integer> categories = (List<Integer>) data.get("categories");	
-		if (categories!= null && categories.size() >2) {
-			for (Integer code: categories) {
-				if ( families.get(String.valueOf(code)) != null) {
-					return families.get(String.valueOf(code));
-				}
-			}
-		}
-		return "no_family";
-	}
-	
-	public void displayResults(List<WriteResult> results) throws IOException {
-		FileWriter myWriter = new FileWriter("akeneo_logs.txt");	
-//		String content = "**** start **** \n";
-//		for (WriteResult result: results) {
-//			content += result.countString() + "\n";
-//			System.out.println(result.countString());
-//		}
-//		content += "**** End **** \n";
-		String content = "";
-		for (WriteResult result: results) {
-			content += "\n SKU : "+ result.getSku()+"|";
-			System.out.println("SKU : "+ result.getSku());
-			content +=  "Merged Product Options="+result.getOptionsCount()+"|";
-			System.out.println("Options_Product_count: "+result.getOptionsCount());
-			content += result.getOptionsResponse()+"|";
-			System.out.println(result.getOptionsResponse());
-			content += "price_count: "+result.getPriceCount()+"|";
-			System.out.println("price: count="+result.getPriceCount());
-			content += result.getPriceResponse()+"|";
-			System.out.println(result.getPriceResponse());
-			content += "image: count="+result.getImageCount()+"|";
-			System.out.println("image: count="+result.getImageCount());
-			
-			content += "Variant :"+ result.isVariants()+"|";
-			content += "VariantsCount :"+ result.getVariantsCount()+"|";
-			content += "Modifiers :"+ result.isModifiers()+"|";
-			content += "ModifiersCount :"+ result.getModifiersCount()+"|";
-			content += "Options :"+ result.isHasOptions()+"|";
-			content += "OptionsCount :"+ result.getOptionsCount()+"|";
-			
-			content += "BaseProResp:"+ result.getBaseProductResp()+"|";
-			
-			content += result.getImageResponse();
-			System.out.println(result.getImageResponse());
-		}
-			myWriter.write(content);
-			myWriter.close();
-		
-	}
-	
-	public int getBcDataPageCount() throws IOException {
-		BcAPI bcApi = new BcAPI();
-		String pages = "";
-		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
-		Content bcResponse = bcApi.get(url);
-		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
-		if (bcResp.get("meta") != null) {
-			Map<String, Object> meta = (Map<String, Object>)bcResp.get("meta");
-			Map<String, Object> pagination = (Map<String, Object>)meta.get("pagination");
-			pages = pagination.get("total_pages").toString();
-			System.out.println(pages);
-		}
-		System.out.println(bcResp.get("meta"));
-		return  StringUtils.isNotEmpty(pages) ? Integer.valueOf(pages) : 0;
-	}
-	
-	
-	
-	/**
-	 * 
-	 * @throws IOException
-	 */
-	public List<Object> getBcData(int pageNum) throws IOException {
-		String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products?include=variants,modifiers,options&page="+pageNum+"&limit=10";
-		Content bcResponse = bcApi.get(url);
-		Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
-		//System.out.println(bcResp.get("data"));
-		return  (List<Object>) bcResp.get("data");
-	}
-	
-	public Map<String, String> getPIMattributes() throws IOException {
-		Path filePath = Paths.get("attributes.csv");
-		Map<String, String> attributes =  new HashMap<>();
-		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
-			String line = br.readLine(); 
-			int count = 1;
-			while (line != null) {
-				String[] attributesFromFile = line.split(";");
-				if(count == 668) {
-					System.out.println(attributesFromFile);
-				}
-				count++;
-				attributesFromFile[1] = attributesFromFile[1].replace("\"", "");
-				attributes.put(attributesFromFile[2].trim()+"-"+attributesFromFile[1].trim(), attributesFromFile[0].trim());
-				line = br.readLine(); 
-				} 
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		return attributes;
-	}
-	
-	private Map<String, String> getPropertyFromCSV(String csvfileName, CSV_FILE_TYPE csvFileType) {
-		Path filePath = Paths.get(csvfileName);
-		Map<String, String> record =  new HashMap<>();
-		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
-			String line = br.readLine(); 
-			while (line != null) {
-				if (csvFileType == CSV_FILE_TYPE.ATTRIBUTE_OPTION) { 
-					String[] recordLine = line.split(";");
-					if (recordLine.length >=3) { 
-						recordLine[1] = recordLine[1].replace("\"", "");
-						record.put(recordLine[2].trim()+"-"+recordLine[1].trim(), recordLine[0].trim());
-					}
-				} else if (csvFileType == CSV_FILE_TYPE.FAMILIES) {
-					String[] recordLine = line.split(",");
-					if (recordLine.length >=2) { 
-						recordLine[1] = recordLine[1].replace("\"", "");
-						record.put(recordLine[0].trim(), recordLine[1].trim());
-					}
-				}
-				line = br.readLine(); 
-			} 
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		System.out.println(record.toString());
-		return record;
-	}
-	
-	private Map<String, PIMValue> getPropertyFromCSV(String csvfileName) {
-		Path filePath = Paths.get(csvfileName);
-		Map<String, PIMValue> record =  new HashMap<>();
-		try (BufferedReader br = Files.newBufferedReader(filePath, StandardCharsets.US_ASCII)) { 
-			String line = br.readLine(); 
-			while (line != null) {
-				String[] recordLine = line.split(",");
-				if (recordLine.length >=3) { 
-					record.put(recordLine[0].trim(), new PIMValue(recordLine[1].trim(), recordLine[2].trim()));
-				}
-				line = br.readLine(); 
-			} 
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		return record;
-	}
-	
-	public List<Object> getBcData(String... ids ) throws IOException {
-		List<Object> listObj = new ArrayList<>();
-		for (String id : ids) {
-			String url = "https://api.bigcommerce.com/stores/r14v4z7cjw/v3/catalog/products/"+ id + "?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
-			Content bcResponse = bcApi.get(url);
-			Map<String, Object> bcResp = mapper.readValue(bcResponse.toString(), Map.class);
-			System.out.println(bcResp.get("data"));
-			listObj.add(bcResp.get("data"));
-		}
-		return listObj;
-	}
-	
-	
 
+	}
+	
 	public void executeImageDownload(){
 //		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg";
 		String imageUrl = "https://cdn11.bigcommerce.com/s-r14v4z7cjw/products/9147/images/83114/PP-R1043-97-X_main__00695.1624995417.500.500.jpg?c=2";
@@ -349,6 +109,7 @@ public class Bc2akeneoApplication {
     }
 	
 	public static void main(String[] args) throws Exception {
+//		new Bc2akeneoApplication2();
 		new Bc2akeneoApplication().execute();
 //		new Bc2akeneoApplication().executeImageDownload();
 	}
