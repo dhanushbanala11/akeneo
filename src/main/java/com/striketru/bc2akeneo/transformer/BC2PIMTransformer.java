@@ -20,6 +20,7 @@ import com.striketru.bc2akeneo.util.CSVUtil.CSV_FILE_TYPE;
 import com.striketru.bc2akeneo.writer.WriterData;
 import com.striketru.conn.base.Transformer;
 import com.striketru.pim.model.AttributeJson;
+import com.striketru.pim.model.ImageJson;
 import com.striketru.pim.model.ProductJson;
 
 public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
@@ -46,7 +47,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		WriterData writerData = new WriterData(getStringDataFromMap(readerData.getProduct(),"sku")); 
 		try {
 			String family = getFamilyCode(readerData.getProduct());
-			writerData.setBaseProduct(processBaseProduct(readerData.getProduct(), family));
+			processBaseProduct(readerData.getProduct(), family, writerData);
 			processOptionProduct(readerData.getProduct(), Constants.MODIFIERS, writerData);
 			processOptionProduct(readerData.getProduct(), Constants.OPTIONS, writerData);
 			processOptionProduct(readerData.getProduct(), Constants.VARIANTS, writerData);
@@ -57,8 +58,9 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		return writerData;
 	}
 
-    public ProductJson processBaseProduct(Map<String, Object> data, String family){
-    	ProductJson prodJson = new ProductJson();
+    public void processBaseProduct(Map<String, Object> data, String family, WriterData writerData){
+    	writerData.setBaseProduct(new ProductJson());
+    	ProductJson prodJson = writerData.getBaseProduct();
     	prodJson.setIdentifier(getStringDataFromMap(data,"sku"));
     	prodJson.setFamily(family);
     	prodJson.setCategories((List<Object>) data.get("categories"));
@@ -125,9 +127,26 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	    		prodJson.addAttributeValues(new AttributeJson(key, null, null, new ArrayList<>(getMultiSelectData().get(key))));
 	    	}
     	}
-    	return prodJson;
+    	
+    	List<Map<String, Object>> imageList = (List<Map<String, Object>>) data.get(Constants.IMAGES);
+    	if (imageList != null) { 
+			for(Map<String, Object> imageInfo: imageList) {
+				String orderNo = getStringDataFromMap(imageInfo, "sort_order");
+				if (orderNo.equals("0")) {
+					writerData.getBaseProduct().addAttributeValues(new AttributeJson("primary_image_description", null, null, getStringDataFromMap(imageInfo, "description")));
+				} else {
+					writerData.getBaseProduct().addAttributeValues(new AttributeJson("image_description_"+orderNo, null, null, getStringDataFromMap(imageInfo, "url_standard")));
+				}
+				processImages(prodJson.getIdentifier(), getStringDataFromMap(imageInfo, "url_standard"), orderNo, writerData);
+			}
+    	}
     }
-	
+	/**
+	 * 
+	 * @param data
+	 * @param type
+	 * @param writerData
+	 */
 	public void processOptionProduct(Map<String, Object> data, String type, WriterData writerData){
 		List<Map<String, Object>> optionsBCList = null;
 		String displayName = null;
@@ -150,6 +169,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 					List<Map<String, Object>> optionValues = (List<Map<String, Object>>) optionsBC.get(Constants.OPTION_VALUES);
 					for(Map<String, Object> optionVal: optionValues) {
 						String label = optionVal.get("label").toString();
+						String[] optionsSku = getSKU(getStringDataFromMap(optionVal, "label"));
 						if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS)) {
 							displayName = optionVal.get(Constants.OPTION_DISPLAY_NAME).toString();
 						}
@@ -159,10 +179,12 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 							if (price != null) {
 								writerData.addPrice(createProductPrice(optionVal, writerData.getSku(), label, price));	
 							}
-
+							if (optionVal.get("value_data") != null) {
+								processImages(optionsSku[1].trim(), getStringDataFromMap((Map<String, Object>)optionVal.get("value_data"), "image_url"), "-1", writerData);
+							}
 						}
 						if (writerData.getOptionsProduct().get(label) == null) {
-							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, displayName));
+							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, optionsSku, displayName));
 						}
 						count++;
 					}
@@ -172,9 +194,8 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}
     }
 
-    private ProductJson createOptionProduct(Map<String, Object> data, String displayName) {
+    private ProductJson createOptionProduct(Map<String, Object> data, String[] optionsSku, String displayName) {
     	ProductJson prodJson = new ProductJson();
-    	String[] optionsSku = getSKU(getStringDataFromMap(data, "label"));
     	String displayCode = optionAttributes.get("display_name"+"-"+displayName);
     	if (optionsSku.length >=2 ) {
 	    	prodJson.setIdentifier(optionsSku[1].trim());
@@ -218,6 +239,20 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	return prodJson;
     }
 	
+    private void processImages(String sku, String url, String sort_order, WriterData writerData) {
+    	if (StringUtils.isNotEmpty(url)) { 
+    		String attributeCode = null;
+			if (sort_order.equals("-1")) { 
+				attributeCode = "swatch_file";
+			} else if (sort_order.equals("0")) { 
+				attributeCode = "primary_image";
+			} else {
+				attributeCode = "image_"+sort_order;
+			}
+	    	writerData.getImages().add(new ImageJson(sku, url, attributeCode, null, null));
+    	}
+    }
+    
 	public AttributeJson getValueJson(PIMValue pimvalue, String data) {
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
 			return new AttributeJson(pimvalue.getCode(), null, null, data);
@@ -267,7 +302,6 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	}
     	return priceString;
     }
-    
     
 	public String getFamilyCode(Map<String, Object> data) {
 		List<Integer> categories = (List<Integer>) data.get("categories");	

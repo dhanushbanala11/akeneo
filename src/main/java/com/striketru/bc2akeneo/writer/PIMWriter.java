@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.conn.base.Writer;
+import com.striketru.pim.model.ImageJson;
 import com.striketru.pim.model.ProductJson;
 import com.striketru.pim.util.PIMRequestUtil;
 
@@ -65,6 +66,14 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 		
 	}
 
+	@Override
+	public void executeMediaFiles(WriterData writeData, boolean isLoadImage, boolean isLoadDocs) {
+		if (isLoadImage) { 
+			for (ImageJson imageJson: writeData.getImages()) {
+				writeImagetoPIM(imageJson);
+			}
+		}
+	}
 	
 	public String createAssociationRequest(ProductJson productJson, Map<String, ProductJson> optionsProduct) {
     	StringBuilder strbuild = new StringBuilder("{");
@@ -83,13 +92,23 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
     	return strbuild.length() > 2 ? strbuild.toString() : null;	
 	}
 	
-	public void writeImagetoPIM(String imageUrl, String tempFolderPath, String identifier, String attribute,  String locale, String scope) {
-		String destinationPath = downloadFileToTempFolder(imageUrl, tempFolderPath);
+	public void writeImagetoPIM(ImageJson imageJson) {
+		String destinationPath = downloadFileToTempFolder(imageJson.getUrl(), TEMP_FOLDER);
+		try {
+			productapi.createMediafile(destinationPath, createMediaProductJson(imageJson.getIdentifier(), imageJson.getAttribute_code(), 
+					imageJson.getLocale(), imageJson.getScope()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public void writeImagetoPIM(String imageUrl, String identifier, String attribute,  String locale, String scope) {
+		String destinationPath = downloadFileToTempFolder(imageUrl, TEMP_FOLDER);
 		try {
 			productapi.createMediafile(destinationPath, createMediaProductJson(identifier, attribute, locale, scope));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 
 }

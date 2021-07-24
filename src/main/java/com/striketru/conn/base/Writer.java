@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.striketru.bc2akeneo.writer.WriterData;
 import com.striketru.conn.base.model.BaseData;
 import com.striketru.conn.base.model.Result;
 import com.striketru.pim.model.ProductJson;
@@ -27,6 +28,7 @@ public abstract class Writer<W extends BaseData> {
 	
 	public abstract void execute(W writeData);
 	
+	public abstract void executeMediaFiles(W writeData, boolean isLoadImage, boolean isLoadDocs);
 	
 	public List<String> getRequestList(List<ProductJson> productJsonList) {
 

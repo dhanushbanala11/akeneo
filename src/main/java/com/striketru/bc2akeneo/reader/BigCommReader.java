@@ -12,13 +12,13 @@ import com.striketru.bc2akeneo.writer.WriterData;
 import com.striketru.conn.base.Reader;
 
 public class BigCommReader extends Reader {
-    private static final Logger LOGGER = LogManager.getLogger(BigCommReader.class);
+	public static final Logger LOGGER = LogManager.getLogger(BigCommReader.class);
 
-	private static BigCommAPI bigCommAPI = null;
-	private static BC2PIMTransformer bc2pimTranformer = new BC2PIMTransformer();
-	private static PIMWriter pimWriter;
-	
-
+	public static BigCommAPI bigCommAPI = null;
+	public static BC2PIMTransformer bc2pimTranformer = new BC2PIMTransformer();
+	public static PIMWriter pimWriter;
+	public static final int LOAD_VISIBLE_COUNT = 500;
+	public static int currentVisibleCount = 0;
 
 	public BigCommReader(Map<String, String> appProp ){
 		String url = appProp.get("bigComm_url");
@@ -31,18 +31,23 @@ public class BigCommReader extends Reader {
 	@Override
 	public void execute() {
 		try {
-			boolean isNotPageRead = true;
-			
+			boolean isNotPageRead = false;
+			boolean isLoadImage = false;
+			boolean isLoadDocs = false;
 			if (isNotPageRead) {
 				List<Object> dataTemp =  bigCommAPI.getData("9243"); //"9147", "2864", "440", "375", "233" 
-				executeProductPage(dataTemp);
+				executeProductPage(dataTemp, isLoadImage, isLoadDocs);
 			} else {
 				int pageCount = bigCommAPI.getDataPageCount();
-				pageCount = 50;
+				//pageCount = 50; // temp statement
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
 					data =  bigCommAPI.getDataByPage(i);
-					executeProductPage(data);
+					boolean isContinue = executeProductPage(data, isLoadImage, isLoadDocs);
+					if (!isContinue) {
+						break;
+					}
+					
 				}
 			}
 		} catch(Exception e) {
@@ -50,15 +55,29 @@ public class BigCommReader extends Reader {
 		}
 	}
 	
-	public void executeProductPage(List<Object> data){
+	public boolean executeProductPage(List<Object> data, boolean isLoadImage, boolean isLoadDocs){
 		for (Object productData : data) {
 			ReaderData reader = new ReaderData(productData);
-			WriterData writerData = bc2pimTranformer.execute(reader);
-			pimWriter.execute(writerData);
+			if (isLoadNextData(reader)) {
+				WriterData writerData = bc2pimTranformer.execute(reader);
+				pimWriter.execute(writerData);
+				pimWriter.executeMediaFiles(writerData, isLoadImage, isLoadDocs);
+			} else {
+				return false;
+			}
 		}
-
+		return true;
 	}
 
+	private boolean isLoadNextData(ReaderData reader) {
+		if (currentVisibleCount < LOAD_VISIBLE_COUNT) {
+			if (reader.getProduct().get("is_visible") != null && reader.getProduct().get("is_visible").toString().equalsIgnoreCase("true")  ) {
+				currentVisibleCount++;
+			}
+			return true;
+		}
+		return false;
+	}
 
 	
 
