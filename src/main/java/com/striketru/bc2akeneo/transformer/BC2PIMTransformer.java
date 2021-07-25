@@ -132,11 +132,13 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	if (imageList != null) { 
 			for(Map<String, Object> imageInfo: imageList) {
 				String orderNo = getStringDataFromMap(imageInfo, "sort_order");
+				String identifier = "";
 				if (orderNo.equals("0")) {
-					writerData.getBaseProduct().addAttributeValues(new AttributeJson("primary_image_description", null, null, getStringDataFromMap(imageInfo, "description")));
+					identifier = "primary_image_description";
 				} else {
-					writerData.getBaseProduct().addAttributeValues(new AttributeJson("image_description_"+orderNo, null, null, getStringDataFromMap(imageInfo, "url_standard")));
+					identifier = "image_description_"+orderNo;
 				}
+				writerData.getBaseProduct().addAttributeValues(new AttributeJson(identifier, null, null, getStringDataFromMap(imageInfo, "description")));
 				processImages(prodJson.getIdentifier(), getStringDataFromMap(imageInfo, "url_standard"), orderNo, writerData);
 			}
     	}
