@@ -20,9 +20,6 @@ public abstract class Transformer<R extends BaseData, W extends BaseData> {
 	}
 	
 	protected void addMultiSelectData(String key, String Value) {
-		if (multiSelectData == null) {
-			multiSelectData = new HashMap<>();
-		}
 		if (Value != null) { 
 			if (multiSelectData.get(key) != null) {
 				multiSelectData.get(key).add(Value);
@@ -36,6 +33,10 @@ public abstract class Transformer<R extends BaseData, W extends BaseData> {
 		return multiSelectData;
 	}
 	
+	public void setMultiSelectData(Map<String, Set<String>> multiSelectData) {
+		this.multiSelectData = multiSelectData;
+	}
+
 	protected String getStringDataFromMap(Map<String, Object> data, String key) {
 		if (data != null & key != null) {
 			return (data.get(key)!= null)? data.get(key).toString() : null;

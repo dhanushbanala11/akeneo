@@ -11,7 +11,7 @@ public class Constants {
 	public static final String SKU = "sku";
 	public static final String OPTION_DISPLAY_NAME = "option_display_name";
 	
-	public static final String ATTRIBUTES_CSV = "attributes.csv";
+	public static final String ATTRIBUTES_CSV = "attribute_options.csv";
 	public static final String FAMILIES_CSV = "families.csv";
 	public static final String CUSTOM_FIELDS = "customfileds.csv";
 	

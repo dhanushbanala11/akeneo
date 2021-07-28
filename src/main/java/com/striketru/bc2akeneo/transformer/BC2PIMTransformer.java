@@ -33,7 +33,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	private Map<String, String> optionAttributes;
 	private Map<String, String> families;
 	private Map<String, PIMValue> customFields;
-	
+	private WriterData writerData; 
 
 	public BC2PIMTransformer(){
 		this.optionAttributes = csvUtil.getPropertyFromCSV(Constants.ATTRIBUTES_CSV, CSV_FILE_TYPE.ATTRIBUTE_OPTION);
@@ -44,7 +44,8 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	
 	@Override
 	public WriterData execute(ReaderData readerData) {
-		WriterData writerData = new WriterData(getStringDataFromMap(readerData.getProduct(),"sku")); 
+		writerData = new WriterData(getStringDataFromMap(readerData.getProduct(),"sku"));
+		setMultiSelectData(new HashMap<>());
 		try {
 			String family = getFamilyCode(readerData.getProduct());
 			processBaseProduct(readerData.getProduct(), family, writerData);
@@ -79,7 +80,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.addAttributeValues(new AttributeJson("bigcommerce_id", null, null, getStringDataFromMap(data, "id")));
     	prodJson.addAttributeValues(new AttributeJson("is_price_hidden", null, null, getStringDataFromMap(data, "is_price_hidden"), false));
     	prodJson.addAttributeValues(new AttributeJson("is_visible", null, null, getStringDataFromMap(data, "is_visible"), false));
-    	prodJson.addAttributeValues(new AttributeJson("sale_price", null, null, getStringDataFromMap(data, "map_price")));
+    	prodJson.addAttributeValues(new AttributeJson("sale_price", null, null, getStringDataFromMap(data, "sale_price")));
     	prodJson.addAttributeValues(new AttributeJson("meta_description", null, null, getStringDataFromMap(data, "meta_description")));
     	prodJson.addAttributeValues(new AttributeJson("manufacturer_part_number", null, null, getStringDataFromMap(data, "mpn")));
     	prodJson.addAttributeValues(new AttributeJson("product_title", null, null, getStringDataFromMap(data, "name")));
@@ -92,6 +93,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.addAttributeValues(new AttributeJson("page_title", null, null, getStringDataFromMap(data, "page_title")));
     	prodJson.addAttributeValues(new AttributeJson("price_hidden_label", null, null, getStringDataFromMap(data, "price_hidden_label")));
     	prodJson.addAttributeValues(new AttributeJson("retail_price", null, null, getStringDataFromMap(data, "retail_price")));
+    	prodJson.addAttributeValues(new AttributeJson("price", null, null, getStringDataFromMap(data, "price")));
     	prodJson.addAttributeValues(new AttributeJson("search_keywords", null, null, getStringDataFromMap(data, "search_keywords")));
     	prodJson.addAttributeValues(new AttributeJson("sort_order", null, null, getStringDataFromMap(data, "sort_order")));
     	prodJson.addAttributeValues(new AttributeJson("tax_class_id", null, null, getStringDataFromMap(data, "tax_class_id")));
@@ -151,7 +153,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	 */
 	public void processOptionProduct(Map<String, Object> data, String type, WriterData writerData){
 		List<Map<String, Object>> optionsBCList = null;
-		String displayName = null;
+		
 		if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS)) {
 			optionsBCList = (List<Map<String, Object>>) data.get(Constants.MODIFIERS);
 		} else if (StringUtils.equalsIgnoreCase(type, Constants.OPTIONS)) {
@@ -162,11 +164,14 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		int count = 0;
 		if (optionsBCList != null) { 
 			for(Map<String, Object> optionsBC: optionsBCList) {
+				String displayName = null;
 				if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS) && isVariantNotBaseSku(optionsBC, writerData.getSku())) {
 					continue;
 				} else {
 					displayName = getStringDataFromMap(optionsBC, Constants.DISPLAY_NAME);
 				}
+				String optionType = getStringDataFromMap(optionsBC, "type");
+
 				if(!StringUtils.equalsIgnoreCase(displayName, "not_an_option")) {
 					List<Map<String, Object>> optionValues = (List<Map<String, Object>>) optionsBC.get(Constants.OPTION_VALUES);
 					for(Map<String, Object> optionVal: optionValues) {
@@ -186,7 +191,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 							}
 						}
 						if (writerData.getOptionsProduct().get(label) == null) {
-							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, optionsSku, displayName));
+							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, optionsSku, displayName, optionType));
 						}
 						count++;
 					}
@@ -196,12 +201,16 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}
     }
 
-    private ProductJson createOptionProduct(Map<String, Object> data, String[] optionsSku, String displayName) {
+    private ProductJson createOptionProduct(Map<String, Object> data, String[] optionsSku, String displayName, String optionType) {
     	ProductJson prodJson = new ProductJson();
-    	String displayCode = optionAttributes.get("display_name"+"-"+displayName);
+    	String displayCode = getAttributeCode("display_name", "display_name"+"-"+displayName);
     	if (optionsSku.length >=2 ) {
 	    	prodJson.setIdentifier(optionsSku[1].trim());
-	    	prodJson.setFamily(getFamilyCodeOptions(data));
+	    	String family  = "options_swatches";
+	    	if(StringUtils.equalsIgnoreCase(optionType, "dropdown")) {
+	    		family = "options_dropdown";
+	    	}		
+	    	prodJson.setFamily(family);
 	    	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "O"));
 	    	prodJson.addAttributeValues(new AttributeJson("display_name", null, null, displayCode));
 	    	if(prodJson.getFamily().equals("options_swatches")) {
@@ -230,7 +239,11 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.setFamily("product_pricing");
     	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "P"));
     	if (price.indexOf("$") >0) {
-    		price = price.substring(price.indexOf("$")+1);
+    		if (price.indexOf("-") >0) {
+    			price = "-" + price.substring(price.indexOf("$")+1);
+    		} else {
+    			price = price.substring(price.indexOf("$")+1);
+    		}
     	}
     	prodJson.addAttributeValues(new AttributeJson("retail_price", null, null, price));
     	prodJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSKU));
@@ -261,7 +274,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		} else if (pimvalue.isNumber()) {
 			return new AttributeJson(pimvalue.getCode(), null, null, data);
 		} else if (pimvalue.isMetric()) {
-			return new AttributeJson(pimvalue.getCode(), null, null, data);
+			return new AttributeJson(pimvalue.getCode(), null, null, data, pimvalue.getMetric(), null);
 		} else if (pimvalue.isBoolean()) {
 			if (data.equalsIgnoreCase("yes")) {
 				return new AttributeJson(pimvalue.getCode(), null, null, "true", false);	
@@ -270,10 +283,10 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			}
 		} else if (pimvalue.isMultiSelect()) {
 			String newcode = pimvalue.getCode().trim()+"-"+data.trim();
-			addMultiSelectData(pimvalue.getCode(), optionAttributes.get(newcode));
+			addMultiSelectData(pimvalue.getCode(), getAttributeCode(pimvalue.getCode(), newcode));
 			return null;
 		} else if (pimvalue.isSimpleSelect()) {
-			String code = optionAttributes.get(pimvalue.getCode().trim()+"-"+data.trim());
+			String code = getAttributeCode(pimvalue.getCode(), pimvalue.getCode().trim()+"-"+data.trim());
 			if(code != null) {
 				return new AttributeJson(pimvalue.getCode(), null, null, code);
 			} else {
@@ -284,6 +297,12 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}
 	}
 
+	public String getAttributeCode(String attribute, String label) {
+		if (optionAttributes.get(label) == null) {
+			LOGGER.error(String.format("SKU: %s , Attribute: %s,  Option label %s not found in PIM ", writerData.getSku(), attribute, label));
+		}
+		return optionAttributes.get(label);
+	}
 
 	public boolean isVariantNotBaseSku(Map<String, Object> data, String baseSKU) {
 		String varSKU = getStringDataFromMap(data, "sku");
@@ -317,8 +336,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		return "no_family";
 	}
 	
-	public String getFamilyCodeOptions(Map<String, Object> data) {
-    	String family = getStringDataFromMap(data, "type");
+	public String getFamilyCodeOptions(String family) {
     	if(StringUtils.equalsIgnoreCase(family, "dropdown")) {
     		family = "options_dropdown";
     	}else {

@@ -2,14 +2,15 @@ package com.striketru.bc2akeneo.model;
 
 public class PIMValue {
 	
-	public PIMValue(String code, String type) {
+	public PIMValue(String code, String type,String metric) {
 		this.code = code;
 		this.dataType = type;
+		this.metric = metric;
 	}
 	
 	private String code;
 	private String dataType;
-
+	private String metric;
 	
 	public String getCode() {
 		return code;
@@ -24,6 +25,12 @@ public class PIMValue {
 		this.dataType = dataType;
 	}
 	
+	public String getMetric() {
+		return metric;
+	}
+	public void setMetric(String metric) {
+		this.metric = metric;
+	}
 	public boolean isText() {
 		return getDataType().endsWith("text");
 	}

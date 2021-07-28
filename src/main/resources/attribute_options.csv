@@ -209,7 +209,7 @@ rotational_tilt;"Rotational Tilt";tilt;0
 crank_lift;"Crank Lift";lift_method;0
 manual_lift;"Manual Lift";lift_method;0
 pulley_lift;"Pulley Lift";lift_method;0
-1_5_inor_less;"1.5  in. or less";pole_diameter;0
+1_5_inor_less;"1.5 in. or less";pole_diameter;0
 1_525_to_2_in;"1.525 to 2  in.";pole_diameter;0
 2_25_inor_more;"2.25  in. or more";pole_diameter;0
 50_sq_ft_or_less;"50 sq. ft. or less";heat_coverage_area;0
@@ -851,6 +851,10 @@ select_wicker_color;"Select Wicker Color";display_name;0
 select_optional_armrests;"Select Optional Armrests";display_name;0
 select_oven_cover;"Select Oven Cover";display_name;0
 select_alfa_tools;"Select ALFA Tools";display_name;0
+no_thanks;"No thanks";display_name;1
+base_product;"Base Product";sku_type;0
 B;"Base Product";sku_type;0
+product_option;"Product Option";sku_type;1
 O;"Product Option";sku_type;1
+price;Price;sku_type;2
 P;Price;sku_type;2

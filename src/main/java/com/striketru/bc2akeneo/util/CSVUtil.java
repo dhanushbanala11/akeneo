@@ -54,8 +54,12 @@ public class CSVUtil {
 			String line = reader.readLine(); 
 			while (line != null) {
 				String[] recordLine = line.split(",");
-				if (recordLine.length >=3) { 
-					record.put(recordLine[0].trim(), new PIMValue(recordLine[1].trim(), recordLine[2].trim()));
+				if (recordLine.length >=3) {
+					String metric = null;
+					if(recordLine.length == 4) {
+						metric = recordLine[3].trim();
+					}
+					record.put(recordLine[0].trim(), new PIMValue(recordLine[1].trim(), recordLine[2].trim(), metric));
 				}
 				line = reader.readLine(); 
 			} 

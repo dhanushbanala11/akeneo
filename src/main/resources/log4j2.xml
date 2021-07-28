@@ -6,6 +6,7 @@
         <Property name="dir.folder">${sys:logdir}</Property>
         <Property name="env">${sys:env}</Property>
         <Property name="log.filename">bc2akeneo</Property>
+        <Property name="log.timestamp">%d${date:MM-dd-yy-HH-mm-ss}</Property>
         <Property name="csvLog.count.fileName">bc2akeneo-sync-counts</Property>
         <Property name="file-count-header">sku,modifierCount,variantsCount,optionsCount,optionProduct</Property>
     </Properties>
@@ -16,7 +17,7 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
         <RollingFile name="errorLog" fileName="${dir.folder}\${env}\${log.filename}-error.log" ignoreExceptions="false" append="true"
-            filePattern="${dir.folder}\${env}\${log.filename}-error.log">
+            filePattern="${dir.folder}\${env}\${log.filename}-error-%i.log">
  
             <!-- Matches only ERROR level -->
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -24,16 +25,7 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-        <RollingFile name="ResultLog" fileName="${dir.folder}\${env}\${log.filename}-result.log" ignoreExceptions="false" append="true"
-                     filePattern="${dir.folder}\${env}\${log.filename}-result-%i.log">
-            <Filters>
-                <ThresholdFilter level="INFO"/>
-            </Filters> 
-            <Policies>
-                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="5 MB" />
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
@@ -46,6 +38,7 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
@@ -58,19 +51,20 @@
             </Filters>              
             <Policies>
                 <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                
             </Policies>
             <DefaultRolloverStrategy max="10" />
         </RollingFile>    
     </Appenders>
  
     <Loggers>
-        <Logger name="com.striketru" additivity="false">
+        <AsyncLogger  name="com.striketru" additivity="false">
             <AppenderRef ref="Console"  />
             <AppenderRef ref="errorLog" />
-            <AppenderRef ref="ResultLog" />
             <AppenderRef ref="mainlog" />
             <AppenderRef ref="FileCountAppenderCSV"/>
-        </Logger>
+        </AsyncLogger>
         <Root level="ALL">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="FileCountAppenderCSV" />  
