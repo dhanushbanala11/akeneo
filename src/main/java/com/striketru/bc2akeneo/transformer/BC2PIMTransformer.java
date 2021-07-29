@@ -33,7 +33,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	private Map<String, String> families;
 	private Map<String, PIMValue> customFields;
 	private WriterData writerData; 
-//	private HelperTransformer helperTransformer;
+	private DescriptionTransformer descripTransformer;
 	
 	private Map<String, Set<String>> multiValueTextArea;
 	private Set<String> priceSkus;
@@ -48,7 +48,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	@Override
 	public WriterData execute(ReaderData readerData) {
 		writerData = new WriterData(getStringDataFromMap(readerData.getProduct(),"sku"));
-//		helperTransformer = new HelperTransformer(getStringDataFromMap(readerData.getProduct(),"description"));
+		descripTransformer = new DescriptionTransformer(getStringDataFromMap(readerData.getProduct(),"description"));
 		multiValueTextArea = new HashMap<>();
 		priceSkus = new HashSet<>();
 		setMultiSelectData(new HashMap<>());
@@ -76,7 +76,13 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	String availability = "available".equals(getStringDataFromMap(data, "availability"))? "true": "false";
     	prodJson.addAttributeValues(new AttributeJson("availability", null, null, availability, false));
     	prodJson.addAttributeValues(new AttributeJson("depth", null, null, getStringDataFromMap(data, "depth"), "INCH", null));
-    	prodJson.addAttributeValues(new AttributeJson("product_description", null, null, getStringDataFromMap(data, "description")));
+    	prodJson.addAttributeValues(new AttributeJson("product_description", null, null, descripTransformer.getProductDescription()));
+    	prodJson.addAttributeValues(new AttributeJson("care_info", null, null, descripTransformer.getCareInfo()));
+    	prodJson.addAttributeValues(new AttributeJson("specs_info", null, null, descripTransformer.getSpecsInfo()));
+    	prodJson.addAttributeValues(new AttributeJson("shipping_info", null, null, descripTransformer.getShipInfo()));
+    	prodJson.addAttributeValues(new AttributeJson("pdf_info", null, null, descripTransformer.getPdfInfo()));
+    	
+    	
     	String gtin = getStringDataFromMap(data, "gtin");
     	if (StringUtils.isNotEmpty(gtin) && gtin.indexOf("AT") >= 0 ) { 
     		String newgtin = gtin.substring(gtin.indexOf("AT") + 2);
