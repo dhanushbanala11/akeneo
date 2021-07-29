@@ -21,12 +21,10 @@ public abstract class Transformer<R extends BaseData, W extends BaseData> {
 	
 	protected void addMultiSelectData(String key, String Value) {
 		if (Value != null) { 
-			if (multiSelectData.get(key) != null) {
-				multiSelectData.get(key).add(Value);
-			} else {
+			if (multiSelectData.get(key) == null) {
 				multiSelectData.put(key, new HashSet<>());
-				multiSelectData.get(key).add(Value);
 			}
+			multiSelectData.get(key).add(Value);
 		}
 	}
 	protected Map<String, Set<String>> getMultiSelectData(){

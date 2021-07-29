@@ -26,7 +26,7 @@ public class CSVUtil {
 					String[] recordLine = line.split(";");
 					if (recordLine.length >=3) { 
 						recordLine[1] = recordLine[1].replace("\"", "");
-						record.put(recordLine[2].trim()+"-"+recordLine[1].trim(), recordLine[0].trim());
+						record.put((recordLine[2].trim()+"-"+recordLine[1].trim()).toLowerCase(), recordLine[0].trim());
 					}
 				} else if (csvFileType == CSV_FILE_TYPE.FAMILIES) {
 					String[] recordLine = line.split(",");
@@ -59,7 +59,7 @@ public class CSVUtil {
 					if(recordLine.length == 4) {
 						metric = recordLine[3].trim();
 					}
-					record.put(recordLine[0].trim(), new PIMValue(recordLine[1].trim(), recordLine[2].trim(), metric));
+					record.put(recordLine[0].trim().toLowerCase(), new PIMValue(recordLine[1].trim(), recordLine[2].trim(), metric));
 				}
 				line = reader.readLine(); 
 			} 

@@ -1,7 +1,6 @@
 package com.striketru.bc2akeneo.transformer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +33,11 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	private Map<String, String> families;
 	private Map<String, PIMValue> customFields;
 	private WriterData writerData; 
-
+//	private HelperTransformer helperTransformer;
+	
+	private Map<String, Set<String>> multiValueTextArea;
+	private Set<String> priceSkus;
+	
 	public BC2PIMTransformer(){
 		this.optionAttributes = csvUtil.getPropertyFromCSV(Constants.ATTRIBUTES_CSV, CSV_FILE_TYPE.ATTRIBUTE_OPTION);
 		this.families = csvUtil.getPropertyFromCSV(Constants.FAMILIES_CSV, CSV_FILE_TYPE.FAMILIES);
@@ -45,6 +48,9 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	@Override
 	public WriterData execute(ReaderData readerData) {
 		writerData = new WriterData(getStringDataFromMap(readerData.getProduct(),"sku"));
+//		helperTransformer = new HelperTransformer(getStringDataFromMap(readerData.getProduct(),"description"));
+		multiValueTextArea = new HashMap<>();
+		priceSkus = new HashSet<>();
 		setMultiSelectData(new HashMap<>());
 		try {
 			String family = getFamilyCode(readerData.getProduct());
@@ -82,7 +88,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.addAttributeValues(new AttributeJson("is_visible", null, null, getStringDataFromMap(data, "is_visible"), false));
     	prodJson.addAttributeValues(new AttributeJson("sale_price", null, null, getStringDataFromMap(data, "sale_price")));
     	prodJson.addAttributeValues(new AttributeJson("meta_description", null, null, getStringDataFromMap(data, "meta_description")));
-    	prodJson.addAttributeValues(new AttributeJson("manufacturer_part_number", null, null, getStringDataFromMap(data, "mpn")));
+//    	prodJson.addAttributeValues(new AttributeJson("manufacturer_part_number", null, null, getStringDataFromMap(data, "mpn")));
     	prodJson.addAttributeValues(new AttributeJson("product_title", null, null, getStringDataFromMap(data, "name")));
     	prodJson.addAttributeValues(new AttributeJson("open_graph_description", null, null, getStringDataFromMap(data, "open_graph_description")));
     	prodJson.addAttributeValues(new AttributeJson("open_graph_title", null, null, getStringDataFromMap(data, "open_graph_title")));
@@ -116,7 +122,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	if(bcCustomFields != null) {
 	    	for (Object obj : bcCustomFields) {
 	    		Map<String, String> field = (Map<String, String>)obj;
-	    		PIMValue pimValue = customFields.get(field.get("name"));
+	    		PIMValue pimValue = customFields.get(field.get("name").toLowerCase());
 	    		if (field.get("value")!=null && pimValue != null && !processedCustomField.contains(field.get("name"))) {
 		    		AttributeJson attribute = getValueJson(pimValue, field.get("value"));
 		    		if (attribute != null) { 
@@ -127,6 +133,13 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	    	}
 	    	for (String key:getMultiSelectData().keySet()) {
 	    		prodJson.addAttributeValues(new AttributeJson(key, null, null, new ArrayList<>(getMultiSelectData().get(key))));
+	    	}
+	    	for (String key: multiValueTextArea.keySet()) {
+	    		StringBuilder strBuild = new StringBuilder();
+	    		for(String value: multiValueTextArea.get(key)) {
+	    			strBuild.append(value).append("|");
+	    		}
+	    		prodJson.addAttributeValues(new AttributeJson(key, null, null, strBuild.substring(0, strBuild.lastIndexOf("|"))));
 	    	}
     	}
     	
@@ -175,23 +188,30 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 				if(!StringUtils.equalsIgnoreCase(displayName, "not_an_option")) {
 					List<Map<String, Object>> optionValues = (List<Map<String, Object>>) optionsBC.get(Constants.OPTION_VALUES);
 					for(Map<String, Object> optionVal: optionValues) {
-						String label = optionVal.get("label").toString();
-						String[] optionsSku = getSKU(getStringDataFromMap(optionVal, "label"));
+						String label = getStringDataFromMap(optionVal, "label");
+						// Calling the price 
+						String[] labelInfo = parseLabel(label);
+						String price = getPriceFromLabel(label);
+						if (price != null ) {
+							String identifier = writerData.getSku()+"_"+labelInfo[3].trim();
+					    	if (StringUtils.isNotEmpty(labelInfo[0])) {
+					    		identifier = writerData.getSku()+"_"+labelInfo[0].trim();
+					    	}
+					    	if (!priceSkus.contains(identifier)) {
+					    		writerData.addPrice(createProductPrice(optionVal, writerData.getSku(), identifier, labelInfo, price));
+					    		priceSkus.add(identifier);
+					    	}
+						}
 						if (StringUtils.equalsIgnoreCase(type, Constants.VARIANTS)) {
 							displayName = optionVal.get(Constants.OPTION_DISPLAY_NAME).toString();
 						}
-						if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS)) {
-							// Calling the price 
-							String price = getPriceFromLabel(label);
-							if (price != null) {
-								writerData.addPrice(createProductPrice(optionVal, writerData.getSku(), label, price));	
-							}
+						if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS) || StringUtils.equalsIgnoreCase(type, Constants.OPTIONS)) {
 							if (optionVal.get("value_data") != null) {
-								processImages(optionsSku[1].trim(), getStringDataFromMap((Map<String, Object>)optionVal.get("value_data"), "image_url"), "-1", writerData);
+								processImages(labelInfo[3].trim(), getStringDataFromMap((Map<String, Object>)optionVal.get("value_data"), "image_url"), "-1", writerData);
 							}
 						}
 						if (writerData.getOptionsProduct().get(label) == null) {
-							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, optionsSku, displayName, optionType));
+							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, labelInfo, displayName, optionType));
 						}
 						count++;
 					}
@@ -201,55 +221,47 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}
     }
 
-    private ProductJson createOptionProduct(Map<String, Object> data, String[] optionsSku, String displayName, String optionType) {
+    private ProductJson createOptionProduct(Map<String, Object> data, String[] labelInfo, String displayName, String optionType) {
     	ProductJson prodJson = new ProductJson();
     	String displayCode = getAttributeCode("display_name", "display_name"+"-"+displayName);
-    	if (optionsSku.length >=2 ) {
-	    	prodJson.setIdentifier(optionsSku[1].trim());
-	    	String family  = "options_swatches";
-	    	if(StringUtils.equalsIgnoreCase(optionType, "dropdown")) {
-	    		family = "options_dropdown";
-	    	}		
-	    	prodJson.setFamily(family);
-	    	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "O"));
-	    	prodJson.addAttributeValues(new AttributeJson("display_name", null, null, displayCode));
-	    	if(prodJson.getFamily().equals("options_swatches")) {
-		    	prodJson.addAttributeValues(new AttributeJson("marketing_color", null, null, optionsSku[0].trim()));
-	    	} else {
-		    	prodJson.addAttributeValues(new AttributeJson("option_value", null, null, optionsSku[0].trim()));
-	    	}
-
+    	prodJson.setIdentifier(labelInfo[3].trim());
+    	String family  = "options_swatches";
+    	if(StringUtils.equalsIgnoreCase(optionType, "dropdown")) {
+    		family = "options_dropdown";
+    	}		
+    	prodJson.setFamily(family);
+    	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "O"));
+    	prodJson.addAttributeValues(new AttributeJson("display_name", null, null, displayCode));
+    	if(prodJson.getFamily().equals("options_swatches")) {
+	    	prodJson.addAttributeValues(new AttributeJson("grade", null, null, labelInfo[0].trim().toLowerCase()));
+	    	prodJson.addAttributeValues(new AttributeJson("manufacturer_name", null, null, labelInfo[1].trim().toLowerCase()));
+	    	prodJson.addAttributeValues(new AttributeJson("marketing_color", null, null, labelInfo[2].trim()));
+    	} else {
+	    	prodJson.addAttributeValues(new AttributeJson("option_value", null, null, labelInfo[2].trim()));
     	}
+
     	return prodJson;
     }
     
-    private ProductJson createProductPrice( Map<String, Object> data, String baseSKU, String label, String price) {
-		String[] gradeFinder = label.split(" ");
-		String[] optionsSku = label.split("--");
-		String id = null;
-		if(Arrays.asList(gradeFinder).contains("Grade") && gradeFinder.length > 0) {
-			id = gradeFinder[1];
-		}else if(label.contains("--")) {
-			id = optionsSku[1];
-		}else {
-			id = getNextId();
-		}
+    private ProductJson createProductPrice( Map<String, Object> data, String baseSku, String identifier, String[] labelInfo, String price) {
+    	
     	ProductJson prodJson = new ProductJson();
-    	prodJson.setIdentifier(baseSKU+"_"+id.trim());
+    	prodJson.setIdentifier(identifier);
     	prodJson.setFamily("product_pricing");
     	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "P"));
     	if (price.indexOf("$") >0) {
-    		if (price.indexOf("-") >0) {
+    		if (price.indexOf("-") > -1) {
     			price = "-" + price.substring(price.indexOf("$")+1);
     		} else {
     			price = price.substring(price.indexOf("$")+1);
     		}
     	}
     	prodJson.addAttributeValues(new AttributeJson("retail_price", null, null, price));
-    	prodJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSKU));
-    	prodJson.addAttributeValues(new AttributeJson("option_sku", null, null, (optionsSku.length < 2)?id:optionsSku[1]));
-    	if(Arrays.asList(gradeFinder).contains("Grade") && gradeFinder.length > 0) {
-    		prodJson.addAttributeValues(new AttributeJson("grade", null, null, gradeFinder[1]));
+    	prodJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSku));
+    	if (StringUtils.isNotEmpty(labelInfo[0])) {
+    		prodJson.addAttributeValues(new AttributeJson("grade", null, null, labelInfo[0]));
+    	} else {
+        	prodJson.addAttributeValues(new AttributeJson("option_sku", null, null, labelInfo[3]));
     	}
     	return prodJson;
     }
@@ -270,7 +282,8 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     
 	public AttributeJson getValueJson(PIMValue pimvalue, String data) {
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
-			return new AttributeJson(pimvalue.getCode(), null, null, data);
+			addMultiValueTextArea(pimvalue.getCode(), data);
+			return null;
 		} else if (pimvalue.isNumber()) {
 			return new AttributeJson(pimvalue.getCode(), null, null, data);
 		} else if (pimvalue.isMetric()) {
@@ -298,10 +311,10 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	}
 
 	public String getAttributeCode(String attribute, String label) {
-		if (optionAttributes.get(label) == null) {
+		if (optionAttributes.get(label.toLowerCase()) == null) {
 			LOGGER.error(String.format("SKU: %s , Attribute: %s,  Option label %s not found in PIM ", writerData.getSku(), attribute, label));
 		}
-		return optionAttributes.get(label);
+		return optionAttributes.get(label.toLowerCase());
 	}
 
 	public boolean isVariantNotBaseSku(Map<String, Object> data, String baseSKU) {
@@ -357,4 +370,49 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}
 		return optionsSku;
 	}
+	
+	protected void addMultiValueTextArea(String key, String Value) {
+		if (Value != null) { 
+			if (multiValueTextArea.get(key) == null) {
+				multiValueTextArea.put(key, new HashSet<>());
+			}
+			multiValueTextArea.get(key).add(Value);
+		}
+	}
+	
+	private String[] parseLabel(String label) {
+		String[] labelArr = new String[]{"", "", "", ""};
+		if (label.indexOf("Grade") > -1) {
+			String[] gradeLabel = label.split(" ");
+			if (gradeLabel.length >= 3) { 
+				labelArr[0] = gradeLabel[1];
+				labelArr[1] = gradeLabel[2];
+				for (int i=3; i<gradeLabel.length; i++ ) {
+					if (gradeLabel[i].indexOf("(") > -1 || gradeLabel[i].indexOf("--") > -1) {
+						break;
+					}
+					labelArr[2] = labelArr[2] + gradeLabel[i] + " ";
+				}
+				labelArr[3] = label.substring(label.indexOf("--") + 2);
+			}
+		} else if (label.indexOf("--") >-1){
+			if (label.indexOf("(") > -1) { 
+				labelArr[2] = label.substring(0,label.indexOf("("));
+			} else {
+				labelArr[2] = label.substring(0,label.indexOf("--"));
+			}
+			labelArr[3] = label.substring(label.indexOf("--") + 2);
+		} else {
+			if (label.indexOf("(") > -1) { 
+				labelArr[2] = label.substring(0,label.indexOf("("));
+			} else {
+				labelArr[2] = label;
+			}
+			labelArr[3] = getNextId();
+		}
+		
+		return labelArr;
+	}
 }
+
+

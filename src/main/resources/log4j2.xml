@@ -16,8 +16,8 @@
         <Console name="Console" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
-        <RollingFile name="errorLog" fileName="${dir.folder}\${env}\${log.filename}-error.log" ignoreExceptions="false" append="true"
-            filePattern="${dir.folder}\${env}\${log.filename}-error-%i.log">
+        <RollingFile name="errorLog" fileName="${dir.folder}/${env}/${log.filename}-error.log" ignoreExceptions="false" append="true"
+            filePattern="${dir.folder}/${env}/${log.filename}-error-%i.log">
  
             <!-- Matches only ERROR level -->
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -29,8 +29,8 @@
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-        <RollingFile name="mainlog" fileName="${dir.folder}\${env}\${log.filename}.log" ignoreExceptions="false" append="true"
-            filePattern="${dir.folder}\${env}\${log.filename}-%i.log">
+        <RollingFile name="mainlog" fileName="${dir.folder}/${env}/${log.filename}.log" ignoreExceptions="false" append="true"
+            filePattern="${dir.folder}/${env}/${log.filename}-%i.log">
              <Filters>
                 <ThresholdFilter level="DEBUG"/>
                 <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
