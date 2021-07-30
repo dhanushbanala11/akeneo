@@ -14,10 +14,10 @@ public abstract class Transformer<R extends BaseData, W extends BaseData> {
 	private static int newId = 1000000;
 	private Map<String, Set<String>> multiSelectData;
 	
-	protected static String getNextId() {
-		newId++;
-		return String.valueOf(newId);
-	}
+//	protected static String getNextId() {
+//		newId++;
+//		return String.valueOf(newId);
+//	}
 	
 	protected void addMultiSelectData(String key, String Value) {
 		if (Value != null) { 

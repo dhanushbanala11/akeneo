@@ -3,8 +3,8 @@
  
     <Properties>
         <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss:sss} [%thread] %-5level %logger{3} - %msg%n</Property>
-        <Property name="dir.folder">${sys:logdir}</Property>
-        <Property name="env">${sys:env}</Property>
+        <Property name="dir.folder">/home/maadmin/authenteak/logs</Property>
+        <Property name="env">dev</Property>
         <Property name="log.filename">bc2akeneo</Property>
         <Property name="log.timestamp">%d${date:MM-dd-yy-HH-mm-ss}</Property>
         <Property name="csvLog.count.fileName">bc2akeneo-sync-counts</Property>
@@ -42,7 +42,19 @@
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-        <RollingFile name="FileCountAppenderCSV" ignoreExceptions="false" append="true" 
+        <RollingFile name="responseDetailedlog" fileName="${dir.folder}/${env}/${log.filename}-response.log" ignoreExceptions="false" append="true"
+            filePattern="${dir.folder}/${env}/${log.filename}-response-%i.log">
+             <Filters>
+                <ThresholdFilter level="DEBUG"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>     
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="5 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>        
+        <RollingFile name="fileCountAppenderCSV" ignoreExceptions="false" append="true" 
                      fileName="${dir.folder}/${env}/${csvLog.count.fileName}.csv"
                      filePattern="${dir.folder}/${env}/${csvLog.count.fileName}.csv" >
             <CsvParameterLayout delimiter="," header="${file-count-header}%n"/>
@@ -51,7 +63,7 @@
             </Filters>              
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB" />
+                <SizeBasedTriggeringPolicy size="5 MB" />
                 
             </Policies>
             <DefaultRolloverStrategy max="10" />
@@ -63,11 +75,15 @@
             <AppenderRef ref="Console"  />
             <AppenderRef ref="errorLog" />
             <AppenderRef ref="mainlog" />
-            <AppenderRef ref="FileCountAppenderCSV"/>
+        </AsyncLogger>
+        <AsyncLogger  name="responselog" additivity="false">
+        	<AppenderRef ref="responseDetailedlog"/>
+        </AsyncLogger>
+        <AsyncLogger  name="fileCountCSV" additivity="false">
+            <AppenderRef ref="fileCountAppenderCSV"/>
         </AsyncLogger>
         <Root level="ALL">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="FileCountAppenderCSV" />  
             <AppenderRef ref="mainlog" />
         </Root>
  

@@ -11,7 +11,8 @@ import com.striketru.bc2akeneo.constants.Constants;
 
 public class Report {
 	private static final Logger LOGGER = LogManager.getLogger("ResultLog");
-    private static final Logger CSVLOGGER = LogManager.getLogger("FileCountAppenderCSV");
+    private static final Logger CSVLOGGER = LogManager.getLogger("fileCountCSV");
+    private static final Logger RESP_LOGGER = LogManager.getLogger("responselog");
     private static final String SKU_STR = "SKU->%s:  ";
     private String sku;
 	private int readModifierCount;
@@ -71,10 +72,16 @@ public class Report {
 				getReadOptionsCount(), getWriteProductOptionsCount());
 	}
 	public void writeResponse() {
-//		String logString = String.format(SKU_STR, sku);
-//		for (String response: getResponses()) {
-//			LOGGER.info(logString + response);
-//		}
+		for (String response: getResponses()) {
+			if (response.indexOf("}") > -1) {
+				String[] singleResponse = response.split("}");
+				for (String resp:  singleResponse) { 
+					RESP_LOGGER.info(resp);
+				}
+			} else {
+				RESP_LOGGER.info(response);
+			}
+		}
 	}
 	
 	public void addCount(String type, int count) {

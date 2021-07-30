@@ -59,7 +59,7 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 				}
 			}
 			writeData.getReport().writeLog();
-//			writeData.getReport().writeResponse();
+			writeData.getReport().writeResponse();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

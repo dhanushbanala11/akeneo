@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Content;
@@ -67,7 +68,7 @@ public class BigCommAPI {
 	/*
 	 * Temp method
 	 */
-	public List<Object> getData(String... ids ) throws IOException {
+	public List<Object> getData(Set<String> ids ) throws IOException {
 		List<Object> listObj = new ArrayList<>();
 		for (String id : ids) {
 			Content bcResponse = get(String.format(PRODUCT_URL, getStoreHash(), id));

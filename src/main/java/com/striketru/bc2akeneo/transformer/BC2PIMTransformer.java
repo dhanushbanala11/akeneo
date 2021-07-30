@@ -196,7 +196,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 					for(Map<String, Object> optionVal: optionValues) {
 						String label = getStringDataFromMap(optionVal, "label");
 						// Calling the price 
-						String[] labelInfo = parseLabel(label);
+						String[] labelInfo = parseLabel(label, getStringDataFromMap(optionVal, "id"));
 						String price = getPriceFromLabel(label);
 						if (price != null ) {
 							String identifier = writerData.getSku()+"_"+labelInfo[3].trim();
@@ -364,19 +364,6 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		return family;
 	}
 	
-	public String[] getSKU(String label) {
-		String[] optionsSku = new String[2];
-		int index = label.indexOf("--"); 
-		if (index > -1){
-			optionsSku[0] = label.substring(0, index);
-			optionsSku[1] = label.substring(index+2);
-		} else {
-			optionsSku[0] = label;
-			optionsSku[1] = getNextId();
-		}
-		return optionsSku;
-	}
-	
 	protected void addMultiValueTextArea(String key, String Value) {
 		if (Value != null) { 
 			if (multiValueTextArea.get(key) == null) {
@@ -386,7 +373,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 		}
 	}
 	
-	private String[] parseLabel(String label) {
+	private String[] parseLabel(String label, String id) {
 		String[] labelArr = new String[]{"", "", "", ""};
 		if (label.indexOf("Grade") > -1) {
 			String[] gradeLabel = label.split(" ");
@@ -414,7 +401,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			} else {
 				labelArr[2] = label;
 			}
-			labelArr[3] = getNextId();
+			labelArr[3] = id;
 		}
 		
 		return labelArr;
