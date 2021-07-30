@@ -40,7 +40,7 @@
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="10 MB" />
             </Policies>
-            <DefaultRolloverStrategy max="10"/>
+            <DefaultRolloverStrategy max="100"/>
         </RollingFile>
         <RollingFile name="responseDetailedlog" fileName="${dir.folder}/${env}/${log.filename}-response.log" ignoreExceptions="false" append="true"
             filePattern="${dir.folder}/${env}/${log.filename}-response-%i.log">
@@ -50,7 +50,7 @@
             </Filters>     
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="5 MB" />
+                <SizeBasedTriggeringPolicy size="2 MB" />
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>        
@@ -63,7 +63,7 @@
             </Filters>              
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="5 MB" />
+                <SizeBasedTriggeringPolicy size="2 MB" />
                 
             </Policies>
             <DefaultRolloverStrategy max="10" />
