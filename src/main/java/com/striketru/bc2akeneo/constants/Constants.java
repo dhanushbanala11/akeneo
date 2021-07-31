@@ -7,6 +7,13 @@ public class Constants {
 	public static final String VARIANTS = "variants";
 	public static final String OPTION_VALUES = "option_values";
 	public static final String IMAGES = "images";
+	public static final String VIDEOS = "videos";
+	public static final String VIDEO_URL = "https://www.youtube.com/watch?v=";
+	
+    public static final int IMAGE_MAX_SUFFIX = 10;
+    public static final int VIDEO_MAX_SUFFIX = 3;
+    public static final int RESOURCE_MAX_SUFFIX = 5;
+	
 	public static final String DISPLAY_NAME = "display_name";
 	public static final String SKU = "sku";
 	public static final String OPTION_DISPLAY_NAME = "option_display_name";

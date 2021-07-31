@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.striketru.conn.base.model.BaseData;
-import com.striketru.pim.model.ImageJson;
+import com.striketru.pim.model.MediaJson;
 import com.striketru.pim.model.ProductJson;
 
 public class WriterData extends  BaseData {
@@ -15,7 +15,8 @@ public class WriterData extends  BaseData {
 	private Map<String, ProductJson> optionsProduct = new HashMap<>();
 	private ProductJson productAssociation;
 	private List<ProductJson> price = new ArrayList<>();
-	private List<ImageJson> images = new ArrayList<>();
+	private List<MediaJson> images = new ArrayList<>();
+	private List<MediaJson> documents = new ArrayList<>();
 	private Report report;
 	
 	public WriterData(String sku) {
@@ -50,12 +51,20 @@ public class WriterData extends  BaseData {
 	public void addPrice(ProductJson product) {
 		price.add(product);
 	}
-	public List<ImageJson> getImages() {
+	public List<MediaJson> getImages() {
 		return images;
 	}
-	public void setImages(List<ImageJson> images) {
+	public void setImages(List<MediaJson> images) {
 		this.images = images;
 	}
+	public List<MediaJson> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(List<MediaJson> documents) {
+		this.documents = documents;
+	}
+
 	public Report getReport() {
 		return report;
 	}

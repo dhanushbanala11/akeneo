@@ -2,14 +2,14 @@ package com.striketru.pim.model;
 
 import com.striketru.pim.util.PIMRequestUtil;
 
-public class ImageJson implements PIMRequestUtil {
+public class MediaJson implements PIMRequestUtil {
 	private String identifier;
 	private String url;
 	private String attribute_code;
 	private String locale;
 	private String scope;
 	
-	public ImageJson(String identifier, String url, String attribute_code, String locale, String scope) {
+	public MediaJson(String identifier, String url, String attribute_code, String locale, String scope) {
 		this.identifier = identifier;
 		this.url = url;
 		this.attribute_code = attribute_code;

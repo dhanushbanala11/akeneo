@@ -19,7 +19,7 @@ import com.striketru.bc2akeneo.util.CSVUtil.CSV_FILE_TYPE;
 import com.striketru.bc2akeneo.writer.WriterData;
 import com.striketru.conn.base.Transformer;
 import com.striketru.pim.model.AttributeJson;
-import com.striketru.pim.model.ImageJson;
+import com.striketru.pim.model.MediaJson;
 import com.striketru.pim.model.ProductJson;
 
 public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
@@ -27,7 +27,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     private static final Logger LOGGER = LogManager.getLogger(BC2PIMTransformer.class);
 
     enum OPTIONS{MODIFIERS, OPTIONS, VARIANTS}
-	
+   
 	private CSVUtil csvUtil = new CSVUtil();
 	private Map<String, String> optionAttributes;
 	private Map<String, String> families;
@@ -130,7 +130,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	    		Map<String, String> field = (Map<String, String>)obj;
 	    		PIMValue pimValue = customFields.get(field.get("name").toLowerCase());
 	    		if (field.get("value")!=null && pimValue != null && !processedCustomField.contains(field.get("name"))) {
-		    		AttributeJson attribute = getValueJson(pimValue, field.get("value"));
+		    		AttributeJson attribute = getAttributeJson(pimValue, field.get("value"));
 		    		if (attribute != null) { 
 			    		processedCustomField.add(field.get("name"));
 			    		prodJson.addAttributeValues(attribute);	
@@ -148,21 +148,38 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	    		prodJson.addAttributeValues(new AttributeJson(key, null, null, strBuild.substring(0, strBuild.lastIndexOf("|"))));
 	    	}
     	}
+    	List<Map<String, Object>> videoList = (List<Map<String, Object>>) data.get(Constants.VIDEOS);
+    	if (videoList != null) { 
+    		int count =1;
+			for(Map<String, Object> videoInfo: videoList) {
+				String videoUrl = Constants.VIDEO_URL + getStringDataFromMap(videoInfo, "video_id");
+				if (count == 1) { 
+					prodJson.addAttributeValues(new AttributeJson("product_video_url", null, null, videoUrl));
+				} else if (count <= Constants.VIDEO_MAX_SUFFIX) {
+					prodJson.addAttributeValues(new AttributeJson("product_video_url" + count, null, null, videoUrl));
+				} 
+				count++;
+			}
+    	}
+    	
     	
     	List<Map<String, Object>> imageList = (List<Map<String, Object>>) data.get(Constants.IMAGES);
     	if (imageList != null) { 
 			for(Map<String, Object> imageInfo: imageList) {
 				String orderNo = getStringDataFromMap(imageInfo, "sort_order");
 				String identifier = "";
-				if (orderNo.equals("0")) {
-					identifier = "primary_image_description";
-				} else {
-					identifier = "image_description_"+orderNo;
+				if (Integer.valueOf(orderNo) <= Constants.IMAGE_MAX_SUFFIX) {
+					if (orderNo.equals("0")) {
+						identifier = "primary_image_description";
+					} else {
+						identifier = "image_description_"+orderNo;
+					}
+					writerData.getBaseProduct().addAttributeValues(new AttributeJson(identifier, null, null, getStringDataFromMap(imageInfo, "description")));
+					processImages(prodJson.getIdentifier(), getStringDataFromMap(imageInfo, "url_standard"), orderNo, writerData);
 				}
-				writerData.getBaseProduct().addAttributeValues(new AttributeJson(identifier, null, null, getStringDataFromMap(imageInfo, "description")));
-				processImages(prodJson.getIdentifier(), getStringDataFromMap(imageInfo, "url_standard"), orderNo, writerData);
 			}
     	}
+    	processDocuments(prodJson.getIdentifier(), writerData);
     }
 	/**
 	 * 
@@ -282,11 +299,32 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			} else {
 				attributeCode = "image_"+sort_order;
 			}
-	    	writerData.getImages().add(new ImageJson(sku, url, attributeCode, null, null));
+	    	writerData.getImages().add(new MediaJson(sku, url, attributeCode, null, null));
+    	}
+    }
+
+    private void processDocuments(String sku, WriterData writerData) {
+    	if (StringUtils.isNotEmpty(descripTransformer.getProductResourceCare())){
+        	writerData.getDocuments().add(new MediaJson(sku, descripTransformer.getProductResourceCare(), "product_resources_care", null, null));
+    	} 
+    	if (StringUtils.isNotEmpty(descripTransformer.getProductResourceCatalog())){
+        	writerData.getDocuments().add(new MediaJson(sku, descripTransformer.getProductResourceCatalog(), "product_resources_catalog", null, null));
+    	}
+    	if (StringUtils.isNotEmpty(descripTransformer.getProductResourceSpecification())){
+        	writerData.getDocuments().add(new MediaJson(sku, descripTransformer.getProductResourceSpecification(), "product_resources_specifications", null, null));
+    	}
+    	int counter = 2;
+    	if (descripTransformer.getProductResources() != null) { 
+	    	for (String resource: descripTransformer.getProductResources()) {
+	    		if (counter <= Constants.RESOURCE_MAX_SUFFIX) {
+	        	writerData.getDocuments().add(new MediaJson(sku, resource, "product_resources_pdf_"+counter, null, null));
+	    		}
+	        	counter++;
+	    	}
     	}
     }
     
-	public AttributeJson getValueJson(PIMValue pimvalue, String data) {
+	public AttributeJson getAttributeJson(PIMValue pimvalue, String data) {
 		if (pimvalue.isTextArea() || pimvalue.isText()) {
 			addMultiValueTextArea(pimvalue.getCode(), data);
 			return null;
@@ -337,8 +375,14 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     
     public String getPriceFromLabel(String label) {
     	String priceString = null;
-    	if (StringUtils.isNotEmpty(label) && (label.indexOf("(+$") >0 || label.indexOf("(-$") >0) && label.indexOf(")") > 0 ) {
-    		priceString = label.substring(label.indexOf("(") +1, label.indexOf(")"));
+    	if (StringUtils.isNotEmpty(label)) {
+	    	if (label.indexOf("(+$") > 0) {
+	    		priceString = label.substring(label.indexOf("(+$")+1);
+	    		priceString = priceString.substring(0, priceString.indexOf(")"));
+	    	} else if (label.indexOf("(-$") >0) {
+	    		priceString = label.substring(label.indexOf("(-$")+1);
+	    		priceString = priceString.substring(0, priceString.indexOf(")"));
+	    	}
     	}
     	return priceString;
     }
@@ -394,7 +438,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			} else {
 				labelArr[2] = label.substring(0,label.indexOf("--"));
 			}
-			labelArr[3] = label.substring(label.indexOf("--") + 2);
+			labelArr[3] = label.substring(label.indexOf("--") + 2) + "_" + id;
 		} else {
 			if (label.indexOf("(") > -1) { 
 				labelArr[2] = label.substring(0,label.indexOf("("));

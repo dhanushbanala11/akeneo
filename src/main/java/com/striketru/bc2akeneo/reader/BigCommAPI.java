@@ -18,7 +18,7 @@ public class BigCommAPI {
 
     private static final Logger LOGGER = LogManager.getLogger(BigCommAPI.class);
 
-    private static final String PRODUCT_URL= "https://api.bigcommerce.com/stores/%s/v3/catalog/products/%s?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options";
+    private static final String PRODUCT_URL= "https://api.bigcommerce.com/stores/%s/v3/catalog/products/%s?include=variants,images,custom_fields,bulk_pricing_rules,primary_image,modifiers,options,videos";
 	private String authClient;
 	private String authToken;
 	private String storeHash;

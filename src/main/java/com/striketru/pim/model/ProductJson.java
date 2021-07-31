@@ -3,6 +3,8 @@ package com.striketru.pim.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.striketru.pim.util.PIMRequestUtil;
 
 public class ProductJson implements PIMRequestUtil{
@@ -78,11 +80,13 @@ public class ProductJson implements PIMRequestUtil{
     	if (getValues() != null) { 
     		boolean isFirstIteration = true;
     		for (AttributeJson attributeJson : getValues()) {
-    			if (isFirstIteration) {
-    				isFirstIteration = false;
-    				strbuild.append(attributeJson.createJson());
-    			} else {
-    				strbuild.append(",").append(attributeJson.createJson());
+    			if (StringUtils.isNotEmpty(attributeJson.getData()) || (attributeJson.getDataList() != null && attributeJson.getDataList().size() >0) ) {
+	    			if (isFirstIteration) {
+	    				isFirstIteration = false;
+	    				strbuild.append(attributeJson.createJson());
+	    			} else {
+	    				strbuild.append(",").append(attributeJson.createJson());
+	    			}
     			}
     		}
     	}

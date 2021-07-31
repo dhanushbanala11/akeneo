@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.conn.base.Writer;
-import com.striketru.pim.model.ImageJson;
+import com.striketru.pim.model.MediaJson;
 import com.striketru.pim.model.ProductJson;
 import com.striketru.pim.util.PIMRequestUtil;
 
@@ -69,8 +69,13 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 	@Override
 	public void executeMediaFiles(WriterData writeData, boolean isLoadImage, boolean isLoadDocs) {
 		if (isLoadImage) { 
-			for (ImageJson imageJson: writeData.getImages()) {
-				writeImagetoPIM(imageJson);
+			for (MediaJson mediaJson: writeData.getImages()) {
+				writeImagetoPIM(mediaJson);
+			}
+		}
+		if (isLoadDocs) { 
+			for (MediaJson mediaJson: writeData.getDocuments()) {
+				writeImagetoPIM(mediaJson);
 			}
 		}
 	}
@@ -92,7 +97,7 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
     	return strbuild.length() > 2 ? strbuild.toString() : null;	
 	}
 	
-	public void writeImagetoPIM(ImageJson imageJson) {
+	public void writeImagetoPIM(MediaJson imageJson) {
 		String destinationPath = downloadFileToTempFolder(imageJson.getUrl(), TEMP_FOLDER);
 		try {
 			productapi.createMediafile(destinationPath, createMediaProductJson(imageJson.getIdentifier(), imageJson.getAttribute_code(), 

@@ -1,10 +1,7 @@
 package com.striketru.bc2akeneo.transformer;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 public class DescriptionTransformer {
 	private static final Logger LOGGER = LogManager.getLogger(BC2PIMTransformer.class);
-	
+	private static String GLOBAL_ShopPathSSL = "http://www.authenteak.com";
 	private String productDescription;
 	private String careInfo;
 	private String specsInfo;
@@ -24,22 +21,11 @@ public class DescriptionTransformer {
 	private List<String> productResources;
 	
 	public DescriptionTransformer(String description) {
-		parsefield(description);
+		parseTabInfo(description);
+		parseDocuments();
 	}
 	
-	private void parsefield(String description) {
-		getTabInfo(description);
-//		LOGGER.info(productDescription);
-//		LOGGER.info(pdfInfo);
-//		LOGGER.info(specsInfo);
-//		LOGGER.info(getSpecsInfo());
-//		LOGGER.info(careInfo);
-//		LOGGER.info(getCareInfo());
-//		LOGGER.info(shipInfo);
-//		LOGGER.info(getShipInfo());
-	}
-
-	private void getTabInfo(String description) {
+	private void parseTabInfo(String description) {
 		String tempArray[] = description.split("<div");
 		
 		if (tempArray.length > 0 ) {
@@ -54,6 +40,32 @@ public class DescriptionTransformer {
 				} else if (line.indexOf("id=\"careTab\"") > -1 ) { 
 					careInfo = line;
 				}				
+			}
+		}
+	}
+	
+	private void parseDocuments() {
+		if (StringUtils.isNotEmpty(pdfInfo)) {
+			String tempArray[] = pdfInfo.split("<a href=\"");
+			if (tempArray.length > 0 ) {
+				for (String line: tempArray) {
+					if (line.indexOf(".pdf") > -1) {
+						String url = line.substring(0, line.indexOf("\""));
+						url = url.replace("%%GLOBAL_ShopPathSSL%%", GLOBAL_ShopPathSSL);
+						if (line.indexOf("Catalog") > -1 ) {
+							productResourceCatalog = url;
+						} else if (line.indexOf("Care") > -1) { 
+							productResourceCare = url;
+						} else if (line.indexOf("Specification") > -1 ) { 
+							productResourceSpecification = url;
+						} else {
+							if (productResources == null) {
+								productResources = new ArrayList();
+							}
+							productResources.add(url);
+						}
+					}
+				}
 			}
 		}
 	}
