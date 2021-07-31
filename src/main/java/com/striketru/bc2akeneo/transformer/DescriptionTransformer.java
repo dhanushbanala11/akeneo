@@ -45,16 +45,15 @@ public class DescriptionTransformer {
 		if (tempArray.length > 0 ) {
 			productDescription = tempArray[0];
 			for (String line: tempArray) {
-				if (line.indexOf("id=\\\"pdfTab\\\"") > -1 ) {
+				if (line.indexOf("id=\"pdfTab\"") > -1 ) {
 					pdfInfo = line;
-				} else if (line.indexOf("id=\\\"specsTab\\\"") > -1) { 
+				} else if (line.indexOf("id=\"specsTab\"") > -1) { 
 					specsInfo = line;
-				} else if (line.indexOf("id=\\\"shipTab\\\"") > -1 ) { 
+				} else if (line.indexOf("id=\"shipTab\"") > -1 ) { 
 					shipInfo = line;
-				} else if (line.indexOf("id=\\\"careTab\\\"") > -1 ) { 
+				} else if (line.indexOf("id=\"careTab\"") > -1 ) { 
 					careInfo = line;
-				}
-				
+				}				
 			}
 		}
 	}

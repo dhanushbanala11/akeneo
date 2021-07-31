@@ -337,7 +337,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     
     public String getPriceFromLabel(String label) {
     	String priceString = null;
-    	if (StringUtils.isNotEmpty(label) && label.indexOf("(") >0 && label.indexOf(")") > 0 ) {
+    	if (StringUtils.isNotEmpty(label) && (label.indexOf("(+$") >0 || label.indexOf("(-$") >0) && label.indexOf(")") > 0 ) {
     		priceString = label.substring(label.indexOf("(") +1, label.indexOf(")"));
     	}
     	return priceString;
