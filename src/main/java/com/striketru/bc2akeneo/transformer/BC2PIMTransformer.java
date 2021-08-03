@@ -156,7 +156,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 				if (count == 1) { 
 					prodJson.addAttributeValues(new AttributeJson("product_video_url", null, null, videoUrl));
 				} else if (count <= Constants.VIDEO_MAX_SUFFIX) {
-					prodJson.addAttributeValues(new AttributeJson("product_video_url" + count, null, null, videoUrl));
+					prodJson.addAttributeValues(new AttributeJson("product_video_url_" + count, null, null, videoUrl));
 				} 
 				count++;
 			}
@@ -256,7 +256,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "O"));
     	prodJson.addAttributeValues(new AttributeJson("display_name", null, null, displayCode));
     	if(prodJson.getFamily().equals("options_swatches")) {
-	    	prodJson.addAttributeValues(new AttributeJson("grade", null, null, labelInfo[0].trim().toLowerCase()));
+		prodJson.addAttributeValues(new AttributeJson("grade", null, null, getAttributeCode("grade", "grade"+"-"+labelInfo[0].toLowerCase().trim())));
 	    	prodJson.addAttributeValues(new AttributeJson("manufacturer_name", null, null, labelInfo[1].trim().toLowerCase()));
 	    	prodJson.addAttributeValues(new AttributeJson("marketing_color", null, null, labelInfo[2].trim()));
     	} else {
@@ -274,15 +274,15 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "P"));
     	if (price.indexOf("$") >0) {
     		if (price.indexOf("-") > -1) {
-    			price = "-" + price.substring(price.indexOf("$")+1);
+    			price = "-" + price.substring(price.indexOf("$")+1).trim();
     		} else {
-    			price = price.substring(price.indexOf("$")+1);
+    			price = price.substring(price.indexOf("$")+1).trim();
     		}
     	}
     	prodJson.addAttributeValues(new AttributeJson("retail_price", null, null, price));
     	prodJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSku));
     	if (StringUtils.isNotEmpty(labelInfo[0])) {
-    		prodJson.addAttributeValues(new AttributeJson("grade", null, null, labelInfo[0]));
+    		prodJson.addAttributeValues(new AttributeJson("grade", null, null, getAttributeCode("grade", "grade"+"-"+labelInfo[0].toLowerCase().trim())));
     	} else {
         	prodJson.addAttributeValues(new AttributeJson("option_sku", null, null, labelInfo[3]));
     	}
@@ -343,7 +343,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 			addMultiSelectData(pimvalue.getCode(), getAttributeCode(pimvalue.getCode(), newcode));
 			return null;
 		} else if (pimvalue.isSimpleSelect()) {
-			String code = getAttributeCode(pimvalue.getCode(), pimvalue.getCode().trim()+"-"+data.trim());
+			String code = getAttributeCode(pimvalue.getCode(), pimvalue.getCode().trim()+"-"+data.toLowerCase().trim());
 			if(code != null) {
 				return new AttributeJson(pimvalue.getCode(), null, null, code);
 			} else {
@@ -356,7 +356,7 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 
 	public String getAttributeCode(String attribute, String label) {
 		if (optionAttributes.get(label.toLowerCase()) == null) {
-			LOGGER.error(String.format("SKU: %s , Attribute: %s,  Option label %s not found in PIM ", writerData.getSku(), attribute, label));
+			LOGGER.debug(String.format("SKU: %s , Attribute: %s,  Option label %s not found in PIM ", writerData.getSku(), attribute, label));
 		}
 		return optionAttributes.get(label.toLowerCase());
 	}

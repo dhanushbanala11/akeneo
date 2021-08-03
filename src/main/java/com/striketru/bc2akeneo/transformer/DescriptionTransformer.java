@@ -79,7 +79,7 @@ public class DescriptionTransformer {
 	}
 
 	public String getCareInfo() {
-		return careInfo == null? "": careInfo.substring(careInfo.indexOf(">") +1, careInfo.indexOf("</div>"));
+		return getTabInfo(careInfo);
 	}
 
 	public void setCareInfo(String careInfo) {
@@ -87,7 +87,7 @@ public class DescriptionTransformer {
 	}
 
 	public String getSpecsInfo() {
-		return specsInfo == null? "": specsInfo.substring(specsInfo.indexOf(">") +1, specsInfo.indexOf("</div>"));
+		return getTabInfo(specsInfo);
 	}
 
 	public void setSpecsInfo(String specsInfo) {
@@ -95,7 +95,7 @@ public class DescriptionTransformer {
 	}
 
 	public String getShipInfo() {
-		return shipInfo == null? "": shipInfo.substring(shipInfo.indexOf(">") +1, shipInfo.indexOf("</div>"));
+		return getTabInfo(shipInfo);
 	}
 
 	public void setShipInfo(String shipInfo) {
@@ -103,13 +103,24 @@ public class DescriptionTransformer {
 	}
 
 	public String getPdfInfo() {
-		return pdfInfo == null? "": pdfInfo.substring(pdfInfo.indexOf(">") +1, pdfInfo.indexOf("</div>"));
+		return getTabInfo(pdfInfo);
 	}
 
 	public void setPdfInfo(String pdfInfo) {
 		this.pdfInfo = pdfInfo;
 	}
 
+	private String getTabInfo(String tabInfo) {
+		if (tabInfo == null) {
+			return "";
+		} else if (tabInfo.indexOf("</div>") > -1) {
+			return tabInfo.substring(tabInfo.indexOf(">") +1, tabInfo.indexOf("</div>"));
+		} else {
+			return tabInfo;
+		}
+	}
+	
+	
 	public String getProductResourceCatalog() {
 		return productResourceCatalog;
 	}

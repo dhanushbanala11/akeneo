@@ -36,13 +36,14 @@ public class BigCommReader extends Reader {
 	@Override
 	public void execute() {
 		try {
-			boolean isLoadImage = false;
-			boolean isLoadDocs = false;
-			RUN_TYPE currentRun = RUN_TYPE.PAGE; 
+			boolean isLoadImage = true;
+			boolean isLoadDocs = true;
+			RUN_TYPE currentRun = RUN_TYPE.PAGE;
 			
 			if (currentRun == RUN_TYPE.INV_TEST) {
-				Set<String> customerList = new HashSet<>(Arrays.asList("8075", "4448", "3265"));
-				List<Object> dataTemp =  bigCommAPI.getData(customerList); //"9147", "2864", "440", "375", "233" 
+//				Set<String> customerList = new HashSet<>(Arrays.asList("4812","4814","4876","4877","4879","4880","4881","4884","4885","4886","4887","4888","4889","4890","4891","4892","4893","4894","4895","4896","5092","5097","5126","5128","5129","5130","5131","5141","5145","5146","5150","5156","5202","5203","5204","5205","6069","6310","6311","6312","6444","6613","6615","6616","6909","6911","6978","7115","7295","7680","8027","8345","8368","2023","9250"));
+				Set<String> customerList = new HashSet<>(Arrays.asList("8618"));
+				List<Object> dataTemp =  bigCommAPI.getData(customerList); //"9147", "2864", "440", "375", "233", "7834","7079","7790",
 				executeProductPage(dataTemp, isLoadImage, isLoadDocs);
 			} else if (currentRun == RUN_TYPE.CUSTOMER_SPECIFIC) {
 				Set<String> customerList = getCustomerListOfIds();
@@ -72,9 +73,11 @@ public class BigCommReader extends Reader {
 		for (Object productData : data) {
 			ReaderData reader = new ReaderData(productData);
 			if (isLoadNextData(reader)) {
-				WriterData writerData = bc2pimTranformer.execute(reader);
-				pimWriter.execute(writerData);
-				pimWriter.executeMediaFiles(writerData, isLoadImage, isLoadDocs);
+				if (isPermanentHidden(reader)) { 
+					WriterData writerData = bc2pimTranformer.execute(reader);
+					pimWriter.execute(writerData);
+					pimWriter.executeMediaFiles(writerData, isLoadImage, isLoadDocs);
+				}
 			} else {
 				return false;
 			}
@@ -82,6 +85,14 @@ public class BigCommReader extends Reader {
 		return true;
 	}
 
+	private boolean isPermanentHidden(ReaderData reader) {
+		if (reader.getProduct().get("categories") != null ) { 
+			Set<Integer> categories = new HashSet((List<Object>)reader.getProduct().get("categories"));
+			return !categories.contains(769);
+		}
+		return false;
+	}
+	
 	private boolean isLoadNextData(ReaderData reader) {
 		if (currentVisibleCount < LOAD_VISIBLE_COUNT) {
 			if (reader.getProduct().get("is_visible") != null && reader.getProduct().get("is_visible").toString().equalsIgnoreCase("true")  ) {

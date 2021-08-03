@@ -17,6 +17,7 @@ import com.striketru.pim.util.PIMRequestUtil;
 
 public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
     private static final Logger LOGGER = LogManager.getLogger(PIMWriter.class);
+    private static final Logger FILE_LOGGER = LogManager.getLogger("ftpFile");
 
 	private ProductAPI productapi = null;
 	
@@ -75,7 +76,12 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 		}
 		if (isLoadDocs) { 
 			for (MediaJson mediaJson: writeData.getDocuments()) {
-				writeImagetoPIM(mediaJson);
+				String inputFilename = mediaJson.getUrl().substring(mediaJson.getUrl().lastIndexOf("/") + 1);
+				if (inputFilename.contains("?")) {
+					inputFilename = inputFilename.substring(0, inputFilename.indexOf("?"));
+				} 
+				FILE_LOGGER.info(String.format("%s|%s|%s|%s", mediaJson.getIdentifier(), mediaJson.getAttribute_code(),  inputFilename, mediaJson.getUrl()));
+//				writeImagetoPIM(mediaJson);
 			}
 		}
 	}

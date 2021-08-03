@@ -42,6 +42,18 @@
             </Policies>
             <DefaultRolloverStrategy max="100"/>
         </RollingFile>
+        <RollingFile name="ftpFilelog" fileName="${dir.folder}/${env}/${log.filename}_FILES.log" ignoreExceptions="false" append="true"
+            filePattern="${dir.folder}/${env}/${log.filename}_FILES-%i.log">
+             <Filters>
+                <ThresholdFilter level="DEBUG"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>     
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
         <RollingFile name="responseDetailedlog" fileName="${dir.folder}/${env}/${log.filename}-response.log" ignoreExceptions="false" append="true"
             filePattern="${dir.folder}/${env}/${log.filename}-response-%i.log">
              <Filters>
@@ -81,6 +93,9 @@
         </AsyncLogger>
         <AsyncLogger  name="fileCountCSV" additivity="false">
             <AppenderRef ref="fileCountAppenderCSV"/>
+        </AsyncLogger>
+        <AsyncLogger  name="ftpFile" additivity="false">
+            <AppenderRef ref="ftpFilelog"/>
         </AsyncLogger>
         <Root level="ALL">
             <AppenderRef ref="Console"/>
