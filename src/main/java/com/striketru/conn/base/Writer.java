@@ -23,7 +23,8 @@ import com.striketru.pim.model.ProductJson;
 public abstract class Writer<W extends BaseData> {
     private static final Logger LOGGER = LogManager.getLogger(Writer.class);
 	public static final int MAX_PRODUCT_COUNT = 50;
-	public static final String TEMP_FOLDER = getTempFolderPath();
+	public static String TEMP_FOLDER;
+	public static final String JSON_FOLDER = getJsonFolderPath();
 	List<Result> result;
 	
 	public abstract void execute(W writeData);
@@ -64,6 +65,20 @@ public abstract class Writer<W extends BaseData> {
         return tmpFile.getAbsolutePath();
     }
     
+    protected static String getJsonFolderPath() {
+    	File jsonFile = new File(FileSystems.getDefault().getPath("").toAbsolutePath().toString().concat(File.separator+"/logs/dev/json/bc"));
+        if(jsonFile.exists()) {
+			try {
+				FileUtils.cleanDirectory(jsonFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        } else {
+        	jsonFile.mkdir();
+        }
+        return jsonFile.getAbsolutePath();
+    }
+    
     protected static String downloadFileToTempFolder(String imageUrl, String tmpFolderPath)    {
 		String inputFilename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 		if (inputFilename.contains("?")) {
@@ -80,5 +95,12 @@ public abstract class Writer<W extends BaseData> {
 			e.printStackTrace();
 		}
         return destinationPath;
+    }
+    
+    protected  static String getTempFolder() {
+    	if(TEMP_FOLDER == null) {
+    		TEMP_FOLDER = getTempFolderPath();
+    	}
+    	return TEMP_FOLDER;
     }
 }
