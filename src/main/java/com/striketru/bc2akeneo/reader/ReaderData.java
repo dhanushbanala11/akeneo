@@ -13,7 +13,6 @@ public class ReaderData extends BaseData {
 	public ReaderData(Object obj) {
 		this.product = objMapper.convertValue(obj, Map.class);
 		this.setSku(product.get("sku").toString());
-		this.setBcId(product.get("id").toString());
 	}
 
 	public Map<String, Object> getProduct() {

@@ -23,7 +23,7 @@ public class BigCommReader extends Reader {
 	public static final int LOAD_VISIBLE_COUNT = 50000;
 	public static int currentVisibleCount = 0;
 
-	public enum RUN_TYPE {INV_TEST, CUSTOMER_SPECIFIC, PAGE, JSON, PAGELIMIT}
+	public enum RUN_TYPE {INV_TEST, CUSTOMER_SPECIFIC, PAGE}
 	
 	public BigCommReader(Map<String, String> appProp ){
 		String url = appProp.get("bigComm_url");
@@ -36,9 +36,9 @@ public class BigCommReader extends Reader {
 	@Override
 	public void execute() {
 		try {
-			boolean isLoadImage = false;
-			boolean isLoadDocs = false;
-			RUN_TYPE currentRun = RUN_TYPE.JSON;
+			boolean isLoadImage = true;
+			boolean isLoadDocs = true;
+			RUN_TYPE currentRun = RUN_TYPE.PAGE;
 			
 			if (currentRun == RUN_TYPE.INV_TEST) {
 //				Set<String> customerList = new HashSet<>(Arrays.asList("4812","4814","4876","4877","4879","4880","4881","4884","4885","4886","4887","4888","4889","4890","4891","4892","4893","4894","4895","4896","5092","5097","5126","5128","5129","5130","5131","5141","5145","5146","5150","5156","5202","5203","5204","5205","6069","6310","6311","6312","6444","6613","6615","6616","6909","6911","6978","7115","7295","7680","8027","8345","8368","2023","9250"));
@@ -51,34 +51,11 @@ public class BigCommReader extends Reader {
 				ourList.addAll(customerList);
 				List<Object> dataTemp =  bigCommAPI.getData(ourList); //"9147", "2864", "440", "375", "233" 
 				executeProductPage(dataTemp, isLoadImage, isLoadDocs);
-			} else if(currentRun == RUN_TYPE.PAGE) {
+			} else {
 				int pageCount = bigCommAPI.getDataPageCount();
 				//pageCount = 50; // temp statement
 				List<Object> data = null;
 				for (int i= 1; i <= pageCount; i++) {
-					data =  bigCommAPI.getDataByPage(i);
-					boolean isContinue = executeProductPage(data, isLoadImage, isLoadDocs);
-					if (!isContinue) {
-						break;
-					}
-					
-				}
-			}else if(currentRun == RUN_TYPE.JSON) {
-				int pageCount = bigCommAPI.getDataPageCount();
-				List<Object> data = null;
-				for (int i= 1; i <= pageCount; i++) {
-					data =  bigCommAPI.getDataByPage(i);
-					boolean isContinue = getProductPageJson(data);
-					if (!isContinue) {
-						break;
-					}
-				}
-			}else {
-				int pageCount = bigCommAPI.getDataPageCount();
-				int StartPageCount = 20;
-				int EndPageCount = 22;
-				List<Object> data = null;
-				for (int i= StartPageCount; i <= EndPageCount; i++) {
 					data =  bigCommAPI.getDataByPage(i);
 					boolean isContinue = executeProductPage(data, isLoadImage, isLoadDocs);
 					if (!isContinue) {
@@ -104,14 +81,6 @@ public class BigCommReader extends Reader {
 			} else {
 				return false;
 			}
-		}
-		return true;
-	}
-	
-	public boolean getProductPageJson(List<Object> data){
-		for (Object productData : data) {
-			ReaderData reader = new ReaderData(productData);
-				pimWriter.writeJsonToFile(productData, reader.getBcId());
 		}
 		return true;
 	}

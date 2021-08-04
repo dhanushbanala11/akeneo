@@ -5,7 +5,6 @@ public abstract class BaseData {
 
 	protected String storeId;
 	protected String sku;
-	protected String bcId;
 	
 	public String getStoreId() {
 		return storeId;
@@ -18,12 +17,6 @@ public abstract class BaseData {
 	}
 	public void setSku(String sku) {
 		this.sku = sku;
-	}
-	public String getBcId() {
-		return bcId;
-	}
-	public void setBcId(String bcId) {
-		this.bcId = bcId;
 	}
 
 }
