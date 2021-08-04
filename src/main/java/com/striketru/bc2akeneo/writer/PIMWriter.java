@@ -1,5 +1,7 @@
 package com.striketru.bc2akeneo.writer;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.striketru.bc2akeneo.api.ProductAPI;
 import com.striketru.conn.base.Writer;
 import com.striketru.pim.model.MediaJson;
@@ -18,7 +24,7 @@ import com.striketru.pim.util.PIMRequestUtil;
 public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
     private static final Logger LOGGER = LogManager.getLogger(PIMWriter.class);
     private static final Logger FILE_LOGGER = LogManager.getLogger("ftpFile");
-
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	private ProductAPI productapi = null;
 	
 	
@@ -104,7 +110,7 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 	}
 	
 	public void writeImagetoPIM(MediaJson imageJson) {
-		String destinationPath = downloadFileToTempFolder(imageJson.getUrl(), TEMP_FOLDER);
+		String destinationPath = downloadFileToTempFolder(imageJson.getUrl(), getTempFolder());
 		try {
 			productapi.createMediafile(destinationPath, createMediaProductJson(imageJson.getIdentifier(), imageJson.getAttribute_code(), 
 					imageJson.getLocale(), imageJson.getScope()));
@@ -113,11 +119,22 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 		}
 	}
 	public void writeImagetoPIM(String imageUrl, String identifier, String attribute,  String locale, String scope) {
-		String destinationPath = downloadFileToTempFolder(imageUrl, TEMP_FOLDER);
+		String destinationPath = downloadFileToTempFolder(imageUrl, getTempFolder());
 		try {
 			productapi.createMediafile(destinationPath, createMediaProductJson(identifier, attribute, locale, scope));
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void writeJsonToFile(Object productData, String bcId) {
+		String destinationPath = JSON_FOLDER;
+		try {
+			FileWriter file = new FileWriter(destinationPath+"/"+bcId+".json");
+			gson.toJson(productData, file);
+			file.close();
+		}catch (Exception e) {
+			LOGGER.error(bcId+"|"+e.getStackTrace());
 		}
 	}
 
