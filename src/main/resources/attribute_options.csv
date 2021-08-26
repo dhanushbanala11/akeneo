@@ -64,20 +64,25 @@ no_cushion;"No Cushion";cushions;0
 1001_1500;"$1001 - $1500";price_range;0
 1501_2000;"$1501 - $2000";price_range;0
 2001_and_up;"$2001 and up";price_range;0
-blue;Blue;color_family;0
-red;Red;color_family;0
-yellow;Yellow;color_family;0
-orange;Orange;color_family;0
-green;Green;color_family;0
-purple;Purple;color_family;0
-gray;Gray;color_family;0
+2000_and_up;"$2000 and up";price_range;0
 black;Black;color_family;0
-white;White;color_family;0
-neutral;Neutral;color_family;0
-multi;Multi;color_family;0
-bronze;Bronze;color_family;0
-silver;Silver;color_family;0
-gold;Gold;color_family;0
+brown;Brown;color_family;0
+gold_yellow;Gold/Yellow;color_family;0
+orange_rust;Orange/Rust;color_family;0
+turquoise_teal;Turquoise/Teal;color_family;0
+blue;Blue;color_family;1
+bronze;Bronze;color_family;2
+gold;Gold;color_family;4
+gray;Gray;color_family;5
+green;Green;color_family;6
+multi;Multi;color_family;7
+neutral;Neutral;color_family;8
+orange;Orange;color_family;9
+purple;Purple;color_family;10
+red;Red;color_family;11
+silver;Silver;color_family;12
+white;White;color_family;13
+yellow;Yellow;color_family;14
 with_back;"With Back";daybed_style;0
 backless;Backless;daybed_style;0
 with_wheels;"With Wheels";wheels;0
@@ -181,22 +186,27 @@ with_back;"With Back";bench_style;0
 144;"Woodline Shade Solutions";brand;0
 107;"Zachary A. Design";brand;0
 108;ZEE;brand;0
-2_4_people;"2 - 4 people";seating_capacity;0
-4_6_people;"4 - 6 people";seating_capacity;0
-6_8_people;"6 - 8 people";seating_capacity;0
-8_10_people;"8 - 10 people";seating_capacity;0
-10_people_or_more;"10 people or more";seating_capacity;0
+2_people;"2 people";seating_capacity;0
+seating_capacity_2;seating_capacity-2;seating_capacity;0
+2_4_people;"2 - 4 people";seating_capacity;1
+4_6_people;"4 - 6 people";seating_capacity;2
+6_8_people;"6 - 8 people";seating_capacity;3
+8_10_people;"8 - 10 people";seating_capacity;4
+10_people_or_more;"10 people or more";seating_capacity;5
 rectangular;Rectangular;canopy_shape;0
 round;Round;canopy_shape;0
 square;Square;canopy_shape;0
 octagonal;Octagonal;canopy_shape;0
 oval;Oval;canopy_shape;0
 novelty;Novelty;canopy_shape;0
-wood;Wood;frame_material;0
-bamboo;Bamboo;frame_material;0
-metal;Metal;frame_material;0
-stone;Stone;frame_material;0
-plastic;Plastic;frame_material;0
+aluminum;Aluminum;frame_material;0
+iron;Iron;frame_material;0
+steel;Steel;frame_material;0
+bamboo;Bamboo;frame_material;1
+metal;Metal;frame_material;3
+plastic;Plastic;frame_material;4
+stone;Stone;frame_material;6
+wood;Wood;frame_material;7
 single_wind_vent;"Single Wind Vent";vent_style;0
 double_wind_vent;"Double Wind Vent";vent_style;0
 auto_tilt;"Auto Tilt";tilt;0
@@ -211,7 +221,9 @@ manual_lift;"Manual Lift";lift_method;0
 pulley_lift;"Pulley Lift";lift_method;0
 1_5_inor_less;"1.5 in. or less";pole_diameter;0
 1_525_to_2_in;"1.525 to 2  in.";pole_diameter;0
-2_25_inor_more;"2.25  in. or more";pole_diameter;0
+2_25_inor_more;"2.25 in. or more";pole_diameter;0
+2_25_in_or_more;"2.25 in. or more";pole_diameter;0
+pole_diameter_2_25_in_or_more;"pole_diameter-2.25 in. or more";pole_diameter;0
 50_sq_ft_or_less;"50 sq. ft. or less";heat_coverage_area;0
 51_100_sq_ft_;"51 - 100 sq. ft.";heat_coverage_area;0
 101_sq_ft_or_more;"101 sq. ft. or more";heat_coverage_area;0
@@ -251,7 +263,7 @@ machine_woven;Machine-Woven;construction;0
 hand_hooked;Hand-Hooked;construction;0
 braided;Braided;construction;0
 hand_woven;Hand-Woven;construction;0
-hand_tufted;Hand-Tufted;construction;0
+hand_tufted;"Hand Tufted";construction;0
 oval;Oval;shape;0
 rectangular;Rectangular;shape;0
 round;Round;shape;0
@@ -265,6 +277,15 @@ hedges;Hedges;plant_type;0
 garlands;Garlands;plant_type;0
 garden_accents;"Garden Accents";plant_type;0
 columns;Columns;plant_type;0
+boxwood;Boxwood;plant_type;0
+cypress;Cypress;plant_type;0
+alocasia;Alocasia;plant_type;1
+ficus_lyrata;"Ficus Lyrata";plant_type;4
+grass;Grass;plant_type;5
+monstera;Monstera;plant_type;6
+philodendron;Philodendron;plant_type;7
+sansevieria;Sansevieria;plant_type;8
+zamioculcas;Zamioculcas;plant_type;9
 20_5_24_5_in;"20.5 - 24.5 in.";dining_tables_width_range;0
 25_30_in;"25 - 30 in.";dining_tables_width_range;0
 30_5_42_in;"30.5 - 42 in.";dining_tables_width_range;0
@@ -393,11 +414,101 @@ ii;II;grade;0
 nn;NN;grade;0
 lx;LX;grade;0
 mo;MO;grade;0
-sunbrella;Sunbrella;manufacturer_name;0
-outdura;Outdura;manufacturer_name;0
-spuncrylic;Spuncrylic;manufacturer_name;0
-tempotest;Tempotest;manufacturer_name;0
-obravia;Obravia;manufacturer_name;0
+cast;Cast;grade;0
+grade;Grade;grade;0
+a_plus;A+;grade;1
+dd;DD;grade;2
+bliss;Bliss;manufacturer_name;0
+alloy;Alloy;manufacturer_name;0
+aqua;Aqua;manufacturer_name;0
+atlantis;Atlantis;manufacturer_name;0
+baja;Baja;manufacturer_name;0
+bark;Bark;manufacturer_name;0
+beacon;Beacon;manufacturer_name;0
+black;Black;manufacturer_name;0
+boulder;Boulder;manufacturer_name;0
+breeze;Breeze;manufacturer_name;0
+bristol;Bristol;manufacturer_name;0
+bruno;Bruno;manufacturer_name;0
+coastline;Coastline;manufacturer_name;0
+cobalt;Cobalt;manufacturer_name;0
+fiesta;Fiesta;manufacturer_name;0
+forest;Forest;manufacturer_name;0
+harper;Harper;manufacturer_name;0
+james;James;manufacturer_name;0
+jay;Jay;manufacturer_name;0
+limelite;Limelite;manufacturer_name;0
+lime;Lime;manufacturer_name;0
+mavi;Mavi;manufacturer_name;0
+mocha;Mocha;manufacturer_name;0
+natural;Natural;manufacturer_name;0
+navy;Navy;manufacturer_name;0
+newport;Newport;manufacturer_name;0
+nickel;Nickel;manufacturer_name;0
+night;Night;manufacturer_name;0
+parchment;Parchment;manufacturer_name;0
+red;Red;manufacturer_name;0
+silver;Silver;manufacturer_name;0
+sky;Sky;manufacturer_name;0
+stocked;Stocked;manufacturer_name;0
+tangerine;Tangerine;manufacturer_name;0
+tan;Tan;manufacturer_name;0
+teak;Teak;manufacturer_name;0
+titanium;Titanium;manufacturer_name;0
+tweed;Tweed;manufacturer_name;0
+white;White;manufacturer_name;0
+yellow;Yellow;manufacturer_name;0
+degradee;Degradee;manufacturer_name;0
+special;Special;manufacturer_name;0
+furniture;Furniture;manufacturer_name;0
+aruba;Aruba;manufacturer_name;0
+ashbee;Ashbee;manufacturer_name;0
+atlantic;Atlantic;manufacturer_name;0
+avocado;Avocado;manufacturer_name;0
+azure;Azure;manufacturer_name;0
+bailey;Bailey;manufacturer_name;0
+betsy;Betsy;manufacturer_name;0
+blue;Blue;manufacturer_name;0
+cast;Cast;manufacturer_name;0
+champagne;Champagne;manufacturer_name;0
+clarity;Clarity;manufacturer_name;0
+crimson;Crimson;manufacturer_name;0
+dazzle;Dazzle;manufacturer_name;0
+denmark;Denmark;manufacturer_name;0
+grey;Grey;manufacturer_name;0
+greystone;Greystone;manufacturer_name;0
+huskie;Huskie;manufacturer_name;0
+indigo;Indigo;manufacturer_name;0
+linen;Linen;manufacturer_name;0
+mango;Mango;manufacturer_name;0
+mineral;Mineral;manufacturer_name;0
+mist;Mist;manufacturer_name;0
+paris;Paris;manufacturer_name;0
+peacock;Peacock;manufacturer_name;0
+pecan;Pecan;manufacturer_name;0
+piper;Piper;manufacturer_name;0
+ripple;Ripple;manufacturer_name;0
+ross;Ross;manufacturer_name;0
+sahara;Sahara;manufacturer_name;0
+salt;Salt;manufacturer_name;0
+sand;Sand;manufacturer_name;0
+slate;Slate;manufacturer_name;0
+sparrow;Sparrow;manufacturer_name;0
+stone;Stone;manufacturer_name;0
+stucco;Stucco;manufacturer_name;0
+surf;Surf;manufacturer_name;0
+sutton;Sutton;manufacturer_name;0
+swell;Swell;manufacturer_name;0
+wren;Wren;manufacturer_name;0
+docril;Docril;manufacturer_name;1
+obravia;Obravia;manufacturer_name;2
+outdura;Outdura;manufacturer_name;3
+spuncrylic;Spuncrylic;manufacturer_name;4
+sunbrella;Sunbrella;manufacturer_name;5
+tempotest;Tempotest;manufacturer_name;6
+zelda;Zelda;manufacturer_name;7
+brisa;Brisa;manufacturer_name;8
+awning;Awning;manufacturer_name;9
 stripes;Stripes;pattern;0
 solids;Solids;pattern;0
 patterns;Patterns;pattern;0
@@ -569,292 +680,642 @@ bathmat;Bathmat;item_type;0
 stands;Stands;item_type;0
 dining_chairs;"Dining Chairs";item_type;0
 footstools;Footstools;item_type;0
-select_cushion;"Select Cushion";display_name;0
-select_optional_cushion;"Select Optional Cushion";display_name;0
-select_frame;"Select Frame";display_name;0
-select_finish;"Select Finish";display_name;0
-select_sling;"Select Sling";display_name;0
-select_fabric;"Select Fabric";display_name;0
-select_optional_protective_cover;"Select Optional Protective Cover";display_name;0
-select_size;"Select Size";display_name;0
-select_drainage_holes;"Select Drainage Holes";display_name;0
-select_canopy;"Select Canopy";display_name;0
-select_base;"Select Base";display_name;0
-select_vent;"Select Vent";display_name;0
-select_bottom_pole_height;"Select Bottom Pole Height";display_name;0
-select_base_weight;"Select Base Weight";display_name;0
-select_model;"Select Model";display_name;0
-select_fuel_type;"Select Fuel Type";display_name;0
-select_style;"Select Style";display_name;0
-select_frame_cushion;"Select Frame/Cushion";display_name;0
-select_frame_sling;"Select Frame/Sling";display_name;0
-select_table_size;"Select Table Size";display_name;0
-select_base_size;"Select Base Size";display_name;0
-select_bottle_size;"Select Bottle Size";display_name;0
-select_burner_size;"Select Burner Size";display_name;0
-select_color_and_size;"Select Color and Size";display_name;0
-select_corresponding_parasol_model_and_size;"Select Corresponding Parasol Model and Size";display_name;0
-select_cover_size;"Select Cover Size";display_name;0
-select_door_size;"Select Door Size";display_name;0
-select_frame_size;"Select Frame Size";display_name;0
-select_grill_size;"Select Grill Size";display_name;0
-select_heater_size;"Select Heater Size";display_name;0
-select_holder_size;"Select Holder Size";display_name;0
-select_oven_size;"Select Oven Size";display_name;0
-select_pan_size;"Select Pan Size";display_name;0
-select_pan_size_and_finish;"Select Pan Size and Finish";display_name;0
-select_ring_size;"Select Ring Size";display_name;0
-select_size_and_btus;"Select Size and BTUs";display_name;0
-select_size_and_finish;"Select Size and Finish";display_name;0
-select_size_and_number_of_canopies;"Select Size and Number of Canopies";display_name;0
-select_size_and_shape;"Select Size and Shape";display_name;0
-select_size_and_style;"Select Size and Style";display_name;0
-select_soundbar_size;"Select Soundbar Size";display_name;0
-select_color;"Select Color";display_name;0
-select_chair_color;"Select Chair Color";display_name;0
-select_cord_color;"Select Cord Color";display_name;0
-select_fabric_color;"Select Fabric Color";display_name;0
-select_lounger_color;"Select Lounger Color";display_name;0
-select_mount_speaker_color;"Select Mount Speaker Color";display_name;0
-select_rope_color;"Select Rope Color";display_name;0
-select_table_color;"Select Table Color";display_name;0
-select_table_stand_color;"Select Table Stand Color";display_name;0
-select_weave_color;"Select Weave Color";display_name;0
-select_shape;"Select Shape";display_name;0
-select_canopy_shape;"Select Canopy Shape";display_name;0
-select_optional_tank_cover_shape;"Select Optional Tank Cover Shape";display_name;0
-select_screen_shape;"Select Screen Shape";display_name;0
-select_add_on_umbrella;"Select Add-On Umbrella";display_name;0
-select_tools;"Select Tools";display_name;0
-select_aluminum_bottom_finish;"Select Aluminum Bottom Finish";display_name;0
-select_aluminum_finish;"Select Aluminum Finish";display_name;0
-select_analog_control;"Select Analog Control";display_name;0
-select_arm_facing;"Select Arm Facing";display_name;0
-select_armrests;"Select Armrests";display_name;0
-select_back_cushion;"Select Back Cushion";display_name;0
-select_back_plate;"Select Back Plate";display_name;0
-select_back_sling;"Select Back Sling";display_name;0
-select_base_cushion;"Select Base Cushion";display_name;0
-select_base_finish;"Select Base Finish";display_name;0
-select_base_stone;"Select Base Stone";display_name;0
-select_bench_frame;"Select Bench Frame";display_name;0
-select_bench_optional_cushion;"Select Bench Optional Cushion";display_name;0
-select_blanet_throw_pillow_fabric;"Select Blanet & Throw Pillow Fabric";display_name;0
-select_blower_motor;"Select Blower Motor";display_name;0
-select_body_fabric;"Select Body Fabric";display_name;0
-select_bottom_aluminum_finish;"Select Bottom Aluminum Finish";display_name;0
-select_brackets;"Select Brackets";display_name;0
-select_burner_configuration;"Select Burner Configuration";display_name;0
-select_burner_type;"Select Burner Type";display_name;0
-select_canopies;"Select Canopies";display_name;0
-select_cap_stone;"Select Cap Stone";display_name;0
-select_capacity;"Select Capacity";display_name;0
-select_cart_finish;"Select Cart Finish";display_name;0
-select_ceramic_top;"Select Ceramic Top";display_name;0
-select_chair_frame;"Select Chair Frame";display_name;0
-select_chair_frame_sling;"Select Chair Frame/Sling";display_name;0
-select_chair_optional_cushion;"Select Chair Optional Cushion";display_name;0
-select_chair_optional_shell_cushion;"Select Chair Optional Shell Cushion";display_name;0
-select_chaise_facing;"Select Chaise Facing";display_name;0
-select_configuration;"Select Configuration";display_name;0
-select_control_switch;"Select Control Switch";display_name;0
-select_corresponding_parasol_model;"Select Corresponding Parasol Model";display_name;0
-select_cushion_type;"Select Cushion Type";display_name;0
-select_cutout_for_switch;"Select Cutout for Switch";display_name;0
-select_design;"Select Design";display_name;0
-select_diameter;"Select Diameter";display_name;0
-select_dining_furniture_collection;"Select Dining Furniture Collection";display_name;0
-select_direction;"Select Direction";display_name;0
-select_door_hinge;"Select Door Hinge";display_name;0
-select_drawer_type;"Select Drawer Type";display_name;0
-select_finish_and_canopy;"Select Finish and Canopy";display_name;0
-select_footrest;"Select Footrest";display_name;0
-select_frame_ceramic_top;"Select Frame/Ceramic Top";display_name;0
-select_frame_material;"Select Frame/Material";display_name;0
-select_frame_table_top;"Select Frame/Table Top";display_name;0
-select_furniture;"Select Furniture";display_name;0
-select_gas_and_ignition_type;"Select Gas and Ignition Type";display_name;0
-select_gear_operation;"Select Gear Operation";display_name;0
-select_hanging_system;"Select Hanging System";display_name;0
-select_heater;"Select Heater";display_name;0
-select_height;"Select Height";display_name;0
-select_hinge;"Select Hinge";display_name;0
-select_hose_kit;"Select Hose Kit";display_name;0
-select_ignition_type;"Select Ignition Type";display_name;0
-select_leg_finish;"Select Leg Finish";display_name;0
-select_legs;"Select Legs";display_name;0
-select_lumber_top_finish;"Select Lumber Top Finish";display_name;0
-select_metal_frame_finish;"Select Metal Frame Finish";display_name;0
-select_mgp_arm_accent_finish;"Select MGP Arm/Accent Finish";display_name;0
-select_mgp_top_finish;"Select MGP Top Finish";display_name;0
-select_mgp_top_of_frame_accent;"Select MGP Top of Frame Accent";display_name;0
-select_mgp_top_slat_finish;"Select MGP Top Slat Finish";display_name;0
-select_mounting_option;"Select Mounting Option";display_name;0
-select_number_of_chairs;"Select Number of Chairs";display_name;0
-select_optional_arm_pair;"Select Optional Arm Pair";display_name;0
-select_optional_arms;"Select Optional Arms";display_name;0
-select_optional_back_and_seat_cushion;"Select Optional Back and Seat Cushion";display_name;0
-select_optional_back_pillow;"Select Optional Back Pillow";display_name;0
-select_optional_bar_height_pole;"Select Optional Bar Height Pole";display_name;0
-select_optional_base;"Select Optional Base";display_name;0
-select_optional_base_plate;"Select Optional Base Plate";display_name;0
-select_optional_base_weight;"Select Optional Base Weight";display_name;0
-select_optional_bowl_lid;"Select Optional Bowl Lid";display_name;0
-select_optional_brackets;"Select Optional Brackets";display_name;0
-select_optional_canopy;"Select Optional Canopy";display_name;0
-select_optional_cart;"Select Optional Cart";display_name;0
-select_optional_cart_mount;"Select Optional Cart Mount";display_name;0
-select_optional_ceiling_mount_pole;"Select Optional Ceiling Mount Pole";display_name;0
-select_optional_configuration;"Select Optional Configuration";display_name;0
-select_optional_control_unit;"Select Optional Control Unit";display_name;0
-select_optional_countertop;"Select Optional Countertop";display_name;0
-select_optional_cover;"Select Optional Cover";display_name;0
-select_optional_curtain;"Select Optional Curtain";display_name;0
-select_optional_cushion_length;"Select Optional Cushion Length";display_name;0
-select_optional_cushions;"Select Optional Cushions";display_name;0
-select_optional_deck_installation_kit;"Select Optional Deck Installation Kit";display_name;0
-select_optional_drain_pump;"Select Optional Drain Pump";display_name;0
-select_optional_drapes;"Select Optional Drapes";display_name;0
-select_optional_faux_down_insert;"Select Optional Faux Down Insert";display_name;0
-select_optional_fire_bowl_lid;"Select Optional Fire Bowl Lid";display_name;0
-select_optional_folio_rocking_kit;"Select Optional Folio Rocking Kit";display_name;0
-select_optional_fountain_water_pump;"Select Optional Fountain Water Pump";display_name;0
-select_optional_freestanding_cart;"Select Optional Freestanding Cart";display_name;0
-select_optional_glass_top;"Select Optional Glass Top";display_name;0
-select_optional_grill_cart;"Select Optional Grill Cart";display_name;0
-select_optional_gripper_pad;"Select Optional Gripper Pad";display_name;0
-select_optional_height_lifting_system;"Select Optional Height Lifting System";display_name;0
-select_optional_hood;"Select Optional Hood";display_name;0
-select_optional_leg_kit;"Select Optional Leg Kit";display_name;0
-select_optional_lid;"Select Optional Lid";display_name;0
-select_optional_line_latern_base;"Select Optional Line Latern Base";display_name;0
-select_optional_lumbar_pillow;"Select Optional Lumbar Pillow";display_name;0
-select_optional_maintenance_oil;"Select Optional Maintenance Oil";display_name;0
-select_optional_matching_side_table;"Select Optional Matching Side Table";display_name;0
-select_optional_mount_kit;"Select Optional Mount Kit";display_name;0
-select_optional_mounting_set;"Select Optional Mounting Set";display_name;0
-select_optional_parasol_hole;"Select Optional Parasol Hole";display_name;0
-select_optional_pass_shelf;"Select Optional Pass Shelf";display_name;0
-select_optional_pole_mount;"Select Optional Pole Mount";display_name;0
-select_optional_propane_tank_cover;"Select Optional Propane Tank Cover";display_name;0
-select_optional_reducer_ring;"Select Optional Reducer Ring";display_name;0
-select_optional_roof_screen;"Select Optional Roof Screen";display_name;0
-select_optional_rotisserie;"Select Optional Rotisserie";display_name;0
-select_optional_rug_pad;"Select Optional Rug Pad";display_name;0
-select_optional_shell_cushion;"Select Optional Shell Cushion";display_name;0
-select_optional_shield;"Select Optional Shield";display_name;0
-select_optional_side_screens;"Select Optional Side Screens";display_name;0
-select_optional_spark_screen;"Select Optional Spark Screen";display_name;0
-select_optional_spit_rod;"Select Optional Spit Rod";display_name;0
-select_optional_stand;"Select Optional Stand";display_name;0
-select_optional_steel_half_wall_base;"Select Optional Steel Half Wall Base";display_name;0
-select_optional_sunshade;"Select Optional Sunshade";display_name;0
-select_optional_table;"Select Optional Table";display_name;0
-select_optional_table_top_lid;"Select Optional Table Top Lid";display_name;0
-select_optional_tank_cover;"Select Optional Tank Cover";display_name;0
-select_optional_tank_cover_finish;"Select Optional Tank Cover Finish";display_name;0
-select_optional_throw_pillows;"Select Optional Throw Pillows";display_name;0
-select_optional_tilt;"Select Optional Tilt";display_name;0
-select_optional_tray;"Select Optional Tray";display_name;0
-select_optional_trim_kit;"Select Optional Trim Kit";display_name;0
-select_optional_valance;"Select Optional Valance";display_name;0
-select_optional_wind_guard;"Select Optional Wind Guard";display_name;0
-select_optional_wind_screen;"Select Optional Wind Screen";display_name;0
-select_optional_wind_sensor;"Select Optional Wind Sensor";display_name;0
-select_optional_wok_ring_adapter;"Select Optional Wok Ring Adapter";display_name;0
-select_options;"Select Options";display_name;0
-select_pattern;"Select Pattern";display_name;0
-select_pillows_cushions;"Select Pillows & Cushions";display_name;0
-select_planter_top;"Select Planter Top";display_name;0
-select_relay_panel;"Select Relay Panel";display_name;0
-select_replacement_part;"Select Replacement Part";display_name;0
-select_rotisserie_kit;"Select Rotisserie Kit";display_name;0
-select_round_base;"Select Round Base";display_name;0
-select_seat_fabric;"Select Seat Fabric";display_name;0
-select_seat_finish;"Select Seat Finish";display_name;0
-select_sectional_end_panel;"Select Sectional End Panel";display_name;0
-select_side_cushion;"Select Side Cushion";display_name;0
-select_side_plate;"Select Side Plate";display_name;0
-select_side_table_glass_top;"Select Side Table Glass Top";display_name;0
-select_slat_finish;"Select Slat Finish";display_name;0
-select_stem;"Select Stem";display_name;0
-select_stone;"Select Stone";display_name;0
-select_stone_set;"Select Stone Set";display_name;0
-select_strap;"Select Strap";display_name;0
-select_suspension_type;"Select Suspension Type";display_name;0
-select_swing_frame;"Select Swing Frame";display_name;0
-select_switch_type;"Select Switch Type";display_name;0
-select_table_finish;"Select Table Finish";display_name;0
-select_table_height;"Select Table Height";display_name;0
-select_table_top;"Select Table Top";display_name;0
-select_table_top_and_frame;"Select Table Top and Frame";display_name;0
-select_table_top_diameter;"Select Table Top Diameter";display_name;0
-select_tabletop;"Select Tabletop";display_name;0
-select_tool_length;"Select Tool Length";display_name;0
-select_type;"Select Type";display_name;0
-select_umbrella_hole;"Select Umbrella Hole";display_name;0
-select_unit;"Select Unit";display_name;0
-select_voltage;"Select Voltage";display_name;0
-select_welt;"Select Welt";display_name;0
-select_wheel_kit;"Select Wheel Kit";display_name;0
-select_wood;"Select Wood";display_name;0
-select_year_item_was_originally_purchased;"Select Year Item Was Originally Purchased";display_name;0
-upgrade_to_armchairs;"Upgrade to Armchairs";display_name;0
-upgrade_to_optional_casters;"Upgrade to Optional Casters";display_name;0
-upgrade_to_faux_down_insert;"Upgrade to Faux Down Insert";display_name;0
-select_gas_type;"Select Gas Type";display_name;0
-select_grill_cover;"Select Grill Cover";display_name;0
-select_frame_color;"Select Frame Color";display_name;0
-select_protective_cover;"Select Protective Cover";display_name;0
-select_protective_covers;"Select Protective Covers";display_name;0
-select_optional_protective_covers;"Select Optional Protective Covers";display_name;0
-select_parasol_hole;"Select Parasol Hole";display_name;0
-select_planter_size_w_x_d_x_h;"Select Planter Size W x D x H";display_name;0
-select_window_box_size_w_x_d_x_h;"Select Window Box Size W x D x H";display_name;0
-select_pot_size_w_x_d_x_h;"Select Pot Size W x D x H";display_name;0
-select_trough_size_l_x_w_x_d;"Select Trough Size L x W x D";display_name;0
-select_planter_size;"Select Planter Size";display_name;0
-select_trough_size_w_x_d_x_h;"Select Trough Size W x D x H";display_name;0
-select_tank_size_w_x_d_x_h;"Select Tank Size W x D x H";display_name;0
-select_optional_drainage_holes;"Select Optional Drainage Holes";display_name;0
-select_box_size_w_x_d_x_h;"Select Box Size W X D X H";display_name;0
-select_optional_stainless_steel_lid;"Select Optional Stainless Steel Lid";display_name;0
-select_frame_finish;"Select Frame Finish";display_name;0
-select_frame_and_sling_combination;"Select Frame and Sling Combination";display_name;0
-select_chair_colors;"Select Chair Colors";display_name;0
-select_year_kingston_furniture_was_originally_purchased;"Select Year Kingston Furniture Was Originally Purchased";display_name;0
-select_chair_frame_and_sling;"Select Chair Frame and Sling";display_name;0
-select_frame_and_sling;"Select Frame and Sling";display_name;0
-select_year_ventura_furniture_was_originally_purchased;"Select Year Ventura Furniture Was Originally Purchased";display_name;0
-select_glass_top;"Select Glass Top";display_name;0
-select_optional_table_glass;"Select Optional Table Glass";display_name;0
-select_weather_cover;"Select Weather Cover";display_name;0
-select_sling_fabric;"Select Sling Fabric";display_name;0
-add_optional_cover;"Add Optional Cover";display_name;0
-select_cushions;"Select Cushions";display_name;0
-select_table_top_finish;"Select Table Top Finish";display_name;0
-select_size_l_x_w_x_h;"Select Size L x W x H";display_name;0
-select_size_w_x_d_x_h;"Select Size W x D x H";display_name;0
-select_width;"Select Width";display_name;0
-select_gas;"Select Gas";display_name;0
-select_grill_model;"Select Grill Model";display_name;0
-select_dust_cover;"Select Dust Cover";display_name;0
-select_aluminum_legs_finish;"Select Aluminum Legs Finish";display_name;0
-select_when_cantilever_was_purchased;"Select When Cantilever Was Purchased";display_name;0
-select_hinge_type;"Select Hinge Type";display_name;0
-select_tv_size;"Select TV Size";display_name;0
-select_television_model;"Select Television Model";display_name;0
-select_frame_fabric;"Select Frame Fabric";display_name;0
-select_sling_and_frame;"Select Sling and Frame";display_name;0
-select_grill_finish;"Select Grill Finish";display_name;0
-select_wicker_color;"Select Wicker Color";display_name;0
-select_optional_armrests;"Select Optional Armrests";display_name;0
-select_oven_cover;"Select Oven Cover";display_name;0
-select_alfa_tools;"Select ALFA Tools";display_name;0
-no_thanks;"No thanks";display_name;1
-base_product;"Base Product";sku_type;0
+planters;Planters;item_type;0
+icemakers;Icemakers;item_type;0
+faux_plants;"Faux Plants";item_type;0
+loveseats;Loveseats;item_type;0
+bistro_set;"Bistro Set";item_type;0
+dining_set;"Dining Set";item_type;0
+bar_stools;"Bar Stools";item_type;0
+end_tables;"End Tables";item_type;0
+cabanas;Cabanas;item_type;0
+sculptures;Sculptures;item_type;0
+storage_covers;"Storage Covers";item_type;0
+fiberglass_planters;"Fiberglass Planters";item_type;8
 B;"Base Product";sku_type;0
-product_option;"Product Option";sku_type;1
 O;"Product Option";sku_type;1
-price;Price;sku_type;2
 P;Price;sku_type;2
+select_cushion;"Select Cushion";display_name_option;0
+select_optional_cushion;"Select Optional Cushion";display_name_option;0
+select_frame;"Select Frame";display_name_option;0
+select_finish;"Select Finish";display_name_option;0
+select_sling;"Select Sling";display_name_option;0
+select_fabric;"Select Fabric";display_name_option;0
+select_optional_protective_cover;"Select Optional Protective Cover";display_name_option;0
+select_size;"Select Size";display_name_option;0
+select_drainage_holes;"Select Drainage Holes";display_name_option;0
+select_canopy;"Select Canopy";display_name_option;0
+select_base;"Select Base";display_name_option;0
+select_vent;"Select Vent";display_name_option;0
+select_bottom_pole_height;"Select Bottom Pole Height";display_name_option;0
+select_base_weight;"Select Base Weight";display_name_option;0
+select_model;"Select Model";display_name_option;0
+select_fuel_type;"Select Fuel Type";display_name_option;0
+select_style;"Select Style";display_name_option;0
+select_frame_cushion;"Select Frame/Cushion";display_name_option;0
+select_frame_sling;"Select Frame/Sling";display_name_option;0
+select_table_size;"Select Table Size";display_name_option;0
+select_base_size;"Select Base Size";display_name_option;0
+select_bottle_size;"Select Bottle Size";display_name_option;0
+select_burner_size;"Select Burner Size";display_name_option;0
+select_color_and_size;"Select Color and Size";display_name_option;0
+select_corresponding_parasol_model_and_size;"Select Corresponding Parasol Model and Size";display_name_option;0
+select_cover_size;"Select Cover Size";display_name_option;0
+select_door_size;"Select Door Size";display_name_option;0
+select_frame_size;"Select Frame Size";display_name_option;0
+select_grill_size;"Select Grill Size";display_name_option;0
+select_heater_size;"Select Heater Size";display_name_option;0
+select_holder_size;"Select Holder Size";display_name_option;0
+select_oven_size;"Select Oven Size";display_name_option;0
+select_pan_size;"Select Pan Size";display_name_option;0
+select_pan_size_and_finish;"Select Pan Size and Finish";display_name_option;0
+select_ring_size;"Select Ring Size";display_name_option;0
+select_size_and_btus;"Select Size and BTUs";display_name_option;0
+select_size_and_finish;"Select Size and Finish";display_name_option;0
+select_size_and_number_of_canopies;"Select Size and Number of Canopies";display_name_option;0
+select_size_and_shape;"Select Size and Shape";display_name_option;0
+select_size_and_style;"Select Size and Style";display_name_option;0
+select_soundbar_size;"Select Soundbar Size";display_name_option;0
+select_color;"Select Color";display_name_option;0
+select_chair_color;"Select Chair Color";display_name_option;0
+select_cord_color;"Select Cord Color";display_name_option;0
+select_fabric_color;"Select Fabric Color";display_name_option;0
+select_lounger_color;"Select Lounger Color";display_name_option;0
+select_mount_speaker_color;"Select Mount Speaker Color";display_name_option;0
+select_rope_color;"Select Rope Color";display_name_option;0
+select_table_color;"Select Table Color";display_name_option;0
+select_table_stand_color;"Select Table Stand Color";display_name_option;0
+select_weave_color;"Select Weave Color";display_name_option;0
+select_shape;"Select Shape";display_name_option;0
+select_canopy_shape;"Select Canopy Shape";display_name_option;0
+select_optional_tank_cover_shape;"Select Optional Tank Cover Shape";display_name_option;0
+select_screen_shape;"Select Screen Shape";display_name_option;0
+select_add_on_umbrella;"Select Add-On Umbrella";display_name_option;0
+select_tools;"Select Tools";display_name_option;0
+select_aluminum_bottom_finish;"Select Aluminum Bottom Finish";display_name_option;0
+select_aluminum_finish;"Select Aluminum Finish";display_name_option;0
+select_analog_control;"Select Analog Control";display_name_option;0
+select_arm_facing;"Select Arm Facing";display_name_option;0
+select_armrests;"Select Armrests";display_name_option;0
+select_back_cushion;"Select Back Cushion";display_name_option;0
+select_back_plate;"Select Back Plate";display_name_option;0
+select_back_sling;"Select Back Sling";display_name_option;0
+select_base_cushion;"Select Base Cushion";display_name_option;0
+select_base_finish;"Select Base Finish";display_name_option;0
+select_base_stone;"Select Base Stone";display_name_option;0
+select_bench_frame;"Select Bench Frame";display_name_option;0
+select_bench_optional_cushion;"Select Bench Optional Cushion";display_name_option;0
+select_blanet_throw_pillow_fabric;"Select Blanet & Throw Pillow Fabric";display_name_option;0
+select_blower_motor;"Select Blower Motor";display_name_option;0
+select_body_fabric;"Select Body Fabric";display_name_option;0
+select_bottom_aluminum_finish;"Select Bottom Aluminum Finish";display_name_option;0
+select_brackets;"Select Brackets";display_name_option;0
+select_burner_configuration;"Select Burner Configuration";display_name_option;0
+select_burner_type;"Select Burner Type";display_name_option;0
+select_canopies;"Select Canopies";display_name_option;0
+select_cap_stone;"Select Cap Stone";display_name_option;0
+select_capacity;"Select Capacity";display_name_option;0
+select_cart_finish;"Select Cart Finish";display_name_option;0
+select_ceramic_top;"Select Ceramic Top";display_name_option;0
+select_chair_frame;"Select Chair Frame";display_name_option;0
+select_chair_frame_sling;"Select Chair Frame/Sling";display_name_option;0
+select_chair_optional_cushion;"Select Chair Optional Cushion";display_name_option;0
+select_chair_optional_shell_cushion;"Select Chair Optional Shell Cushion";display_name_option;0
+select_chaise_facing;"Select Chaise Facing";display_name_option;0
+select_configuration;"Select Configuration";display_name_option;0
+select_control_switch;"Select Control Switch";display_name_option;0
+select_corresponding_parasol_model;"Select Corresponding Parasol Model";display_name_option;0
+select_cushion_type;"Select Cushion Type";display_name_option;0
+select_cutout_for_switch;"Select Cutout for Switch";display_name_option;0
+select_design;"Select Design";display_name_option;0
+select_diameter;"Select Diameter";display_name_option;0
+select_dining_furniture_collection;"Select Dining Furniture Collection";display_name_option;0
+select_direction;"Select Direction";display_name_option;0
+select_door_hinge;"Select Door Hinge";display_name_option;0
+select_drawer_type;"Select Drawer Type";display_name_option;0
+select_finish_and_canopy;"Select Finish and Canopy";display_name_option;0
+select_footrest;"Select Footrest";display_name_option;0
+select_frame_ceramic_top;"Select Frame/Ceramic Top";display_name_option;0
+select_frame_material;"Select Frame/Material";display_name_option;0
+select_frame_table_top;"Select Frame/Table Top";display_name_option;0
+select_furniture;"Select Furniture";display_name_option;0
+select_gas_and_ignition_type;"Select Gas and Ignition Type";display_name_option;0
+select_gear_operation;"Select Gear Operation";display_name_option;0
+select_hanging_system;"Select Hanging System";display_name_option;0
+select_heater;"Select Heater";display_name_option;0
+select_height;"Select Height";display_name_option;0
+select_hinge;"Select Hinge";display_name_option;0
+select_hose_kit;"Select Hose Kit";display_name_option;0
+select_ignition_type;"Select Ignition Type";display_name_option;0
+select_leg_finish;"Select Leg Finish";display_name_option;0
+select_legs;"Select Legs";display_name_option;0
+select_lumber_top_finish;"Select Lumber Top Finish";display_name_option;0
+select_metal_frame_finish;"Select Metal Frame Finish";display_name_option;0
+select_mgp_arm_accent_finish;"Select MGP Arm/Accent Finish";display_name_option;0
+select_mgp_top_finish;"Select MGP Top Finish";display_name_option;0
+select_mgp_top_of_frame_accent;"Select MGP Top of Frame Accent";display_name_option;0
+select_mgp_top_slat_finish;"Select MGP Top Slat Finish";display_name_option;0
+select_mounting_option;"Select Mounting Option";display_name_option;0
+select_number_of_chairs;"Select Number of Chairs";display_name_option;0
+select_optional_arm_pair;"Select Optional Arm Pair";display_name_option;0
+select_optional_arms;"Select Optional Arms";display_name_option;0
+select_optional_back_and_seat_cushion;"Select Optional Back and Seat Cushion";display_name_option;0
+select_optional_back_pillow;"Select Optional Back Pillow";display_name_option;0
+select_optional_bar_height_pole;"Select Optional Bar Height Pole";display_name_option;0
+select_optional_base;"Select Optional Base";display_name_option;0
+select_optional_base_plate;"Select Optional Base Plate";display_name_option;0
+select_optional_base_weight;"Select Optional Base Weight";display_name_option;0
+select_optional_bowl_lid;"Select Optional Bowl Lid";display_name_option;0
+select_optional_brackets;"Select Optional Brackets";display_name_option;0
+select_optional_canopy;"Select Optional Canopy";display_name_option;0
+select_optional_cart;"Select Optional Cart";display_name_option;0
+select_optional_cart_mount;"Select Optional Cart Mount";display_name_option;0
+select_optional_ceiling_mount_pole;"Select Optional Ceiling Mount Pole";display_name_option;0
+select_optional_configuration;"Select Optional Configuration";display_name_option;0
+select_optional_control_unit;"Select Optional Control Unit";display_name_option;0
+select_optional_countertop;"Select Optional Countertop";display_name_option;0
+select_optional_cover;"Select Optional Cover";display_name_option;0
+select_optional_curtain;"Select Optional Curtain";display_name_option;0
+select_optional_cushion_length;"Select Optional Cushion Length";display_name_option;0
+select_optional_cushions;"Select Optional Cushions";display_name_option;0
+select_optional_deck_installation_kit;"Select Optional Deck Installation Kit";display_name_option;0
+select_optional_drain_pump;"Select Optional Drain Pump";display_name_option;0
+select_optional_drapes;"Select Optional Drapes";display_name_option;0
+select_optional_faux_down_insert;"Select Optional Faux Down Insert";display_name_option;0
+select_optional_fire_bowl_lid;"Select Optional Fire Bowl Lid";display_name_option;0
+select_optional_folio_rocking_kit;"Select Optional Folio Rocking Kit";display_name_option;0
+select_optional_fountain_water_pump;"Select Optional Fountain Water Pump";display_name_option;0
+select_optional_freestanding_cart;"Select Optional Freestanding Cart";display_name_option;0
+select_optional_glass_top;"Select Optional Glass Top";display_name_option;0
+select_optional_grill_cart;"Select Optional Grill Cart";display_name_option;0
+select_optional_gripper_pad;"Select Optional Gripper Pad";display_name_option;0
+select_optional_height_lifting_system;"Select Optional Height Lifting System";display_name_option;0
+select_optional_hood;"Select Optional Hood";display_name_option;0
+select_optional_leg_kit;"Select Optional Leg Kit";display_name_option;0
+select_optional_lid;"Select Optional Lid";display_name_option;0
+select_optional_line_latern_base;"Select Optional Line Latern Base";display_name_option;0
+select_optional_lumbar_pillow;"Select Optional Lumbar Pillow";display_name_option;0
+select_optional_maintenance_oil;"Select Optional Maintenance Oil";display_name_option;0
+select_optional_matching_side_table;"Select Optional Matching Side Table";display_name_option;0
+select_optional_mount_kit;"Select Optional Mount Kit";display_name_option;0
+select_optional_mounting_set;"Select Optional Mounting Set";display_name_option;0
+select_optional_parasol_hole;"Select Optional Parasol Hole";display_name_option;0
+select_optional_pass_shelf;"Select Optional Pass Shelf";display_name_option;0
+select_optional_pole_mount;"Select Optional Pole Mount";display_name_option;0
+select_optional_propane_tank_cover;"Select Optional Propane Tank Cover";display_name_option;0
+select_optional_reducer_ring;"Select Optional Reducer Ring";display_name_option;0
+select_optional_roof_screen;"Select Optional Roof Screen";display_name_option;0
+select_optional_rotisserie;"Select Optional Rotisserie";display_name_option;0
+select_optional_rug_pad;"Select Optional Rug Pad";display_name_option;0
+select_optional_shell_cushion;"Select Optional Shell Cushion";display_name_option;0
+select_optional_shield;"Select Optional Shield";display_name_option;0
+select_optional_side_screens;"Select Optional Side Screens";display_name_option;0
+select_optional_spark_screen;"Select Optional Spark Screen";display_name_option;0
+select_optional_spit_rod;"Select Optional Spit Rod";display_name_option;0
+select_optional_stand;"Select Optional Stand";display_name_option;0
+select_optional_steel_half_wall_base;"Select Optional Steel Half Wall Base";display_name_option;0
+select_optional_sunshade;"Select Optional Sunshade";display_name_option;0
+select_optional_table;"Select Optional Table";display_name_option;0
+select_optional_table_top_lid;"Select Optional Table Top Lid";display_name_option;0
+select_optional_tank_cover;"Select Optional Tank Cover";display_name_option;0
+select_optional_tank_cover_finish;"Select Optional Tank Cover Finish";display_name_option;0
+select_optional_throw_pillows;"Select Optional Throw Pillows";display_name_option;0
+select_optional_tilt;"Select Optional Tilt";display_name_option;0
+select_optional_tray;"Select Optional Tray";display_name_option;0
+select_optional_trim_kit;"Select Optional Trim Kit";display_name_option;0
+select_optional_valance;"Select Optional Valance";display_name_option;0
+select_optional_wind_guard;"Select Optional Wind Guard";display_name_option;0
+select_optional_wind_screen;"Select Optional Wind Screen";display_name_option;0
+select_optional_wind_sensor;"Select Optional Wind Sensor";display_name_option;0
+select_optional_wok_ring_adapter;"Select Optional Wok Ring Adapter";display_name_option;0
+select_options;"Select Options";display_name_option;0
+select_pattern;"Select Pattern";display_name_option;0
+select_pillows_cushions;"Select Pillows & Cushions";display_name_option;0
+select_planter_top;"Select Planter Top";display_name_option;0
+select_relay_panel;"Select Relay Panel";display_name_option;0
+select_replacement_part;"Select Replacement Part";display_name_option;0
+select_rotisserie_kit;"Select Rotisserie Kit";display_name_option;0
+select_round_base;"Select Round Base";display_name_option;0
+select_seat_fabric;"Select Seat Fabric";display_name_option;0
+select_seat_finish;"Select Seat Finish";display_name_option;0
+select_sectional_end_panel;"Select Sectional End Panel";display_name_option;0
+select_side_cushion;"Select Side Cushion";display_name_option;0
+select_side_plate;"Select Side Plate";display_name_option;0
+select_side_table_glass_top;"Select Side Table Glass Top";display_name_option;0
+select_slat_finish;"Select Slat Finish";display_name_option;0
+select_stem;"Select Stem";display_name_option;0
+select_stone;"Select Stone";display_name_option;0
+select_stone_set;"Select Stone Set";display_name_option;0
+select_strap;"Select Strap";display_name_option;0
+select_suspension_type;"Select Suspension Type";display_name_option;0
+select_swing_frame;"Select Swing Frame";display_name_option;0
+select_switch_type;"Select Switch Type";display_name_option;0
+select_table_finish;"Select Table Finish";display_name_option;0
+select_table_height;"Select Table Height";display_name_option;0
+select_table_top;"Select Table Top";display_name_option;0
+select_table_top_and_frame;"Select Table Top and Frame";display_name_option;0
+select_table_top_diameter;"Select Table Top Diameter";display_name_option;0
+select_tabletop;"Select Tabletop";display_name_option;0
+select_tool_length;"Select Tool Length";display_name_option;0
+select_type;"Select Type";display_name_option;0
+select_umbrella_hole;"Select Umbrella Hole";display_name_option;0
+select_unit;"Select Unit";display_name_option;0
+select_voltage;"Select Voltage";display_name_option;0
+select_welt;"Select Welt";display_name_option;0
+select_wheel_kit;"Select Wheel Kit";display_name_option;0
+select_wood;"Select Wood";display_name_option;0
+select_year_item_was_originally_purchased;"Select Year Item Was Originally Purchased";display_name_option;0
+upgrade_to_armchairs;"Upgrade to Armchairs";display_name_option;0
+upgrade_to_optional_casters;"Upgrade to Optional Casters";display_name_option;0
+upgrade_to_faux_down_insert;"Upgrade to Faux Down Insert";display_name_option;0
+select_gas_type;"Select Gas Type";display_name_option;0
+select_grill_cover;"Select Grill Cover";display_name_option;0
+select_frame_color;"Select Frame Color";display_name_option;0
+select_protective_cover;"Select Protective Cover";display_name_option;0
+select_protective_covers;"Select Protective Covers";display_name_option;0
+select_optional_protective_covers;"Select Optional Protective Covers";display_name_option;0
+select_parasol_hole;"Select Parasol Hole";display_name_option;0
+select_planter_size_w_x_d_x_h;"Select Planter Size W x D x H";display_name_option;0
+select_window_box_size_w_x_d_x_h;"Select Window Box Size W x D x H";display_name_option;0
+select_pot_size_w_x_d_x_h;"Select Pot Size W x D x H";display_name_option;0
+select_trough_size_l_x_w_x_d;"Select Trough Size L x W x D";display_name_option;0
+select_planter_size;"Select Planter Size";display_name_option;0
+select_trough_size_w_x_d_x_h;"Select Trough Size W x D x H";display_name_option;0
+select_tank_size_w_x_d_x_h;"Select Tank Size W x D x H";display_name_option;0
+select_optional_drainage_holes;"Select Optional Drainage Holes";display_name_option;0
+select_box_size_w_x_d_x_h;"Select Box Size W X D X H";display_name_option;0
+select_optional_stainless_steel_lid;"Select Optional Stainless Steel Lid";display_name_option;0
+select_frame_finish;"Select Frame Finish";display_name_option;0
+select_frame_and_sling_combination;"Select Frame and Sling Combination";display_name_option;0
+select_chair_colors;"Select Chair Colors";display_name_option;0
+select_year_kingston_furniture_was_originally_purchased;"Select Year Kingston Furniture Was Originally Purchased";display_name_option;0
+select_chair_frame_and_sling;"Select Chair Frame and Sling";display_name_option;0
+select_frame_and_sling;"Select Frame and Sling";display_name_option;0
+select_year_ventura_furniture_was_originally_purchased;"Select Year Ventura Furniture Was Originally Purchased";display_name_option;0
+select_glass_top;"Select Glass Top";display_name_option;0
+select_optional_table_glass;"Select Optional Table Glass";display_name_option;0
+select_weather_cover;"Select Weather Cover";display_name_option;0
+select_sling_fabric;"Select Sling Fabric";display_name_option;0
+add_optional_cover;"Add Optional Cover";display_name_option;0
+select_cushions;"Select Cushions";display_name_option;0
+select_table_top_finish;"Select Table Top Finish";display_name_option;0
+select_size_l_x_w_x_h;"Select Size L x W x H";display_name_option;0
+select_size_w_x_d_x_h;"Select Size W x D x H";display_name_option;0
+select_width;"Select Width";display_name_option;0
+select_gas;"Select Gas";display_name_option;0
+select_grill_model;"Select Grill Model";display_name_option;0
+select_dust_cover;"Select Dust Cover";display_name_option;0
+select_aluminum_legs_finish;"Select Aluminum Legs Finish";display_name_option;0
+select_when_cantilever_was_purchased;"Select When Cantilever Was Purchased";display_name_option;0
+select_hinge_type;"Select Hinge Type";display_name_option;0
+select_tv_size;"Select TV Size";display_name_option;0
+select_television_model;"Select Television Model";display_name_option;0
+select_frame_fabric;"Select Frame Fabric";display_name_option;0
+select_sling_and_frame;"Select Sling and Frame";display_name_option;0
+select_grill_finish;"Select Grill Finish";display_name_option;0
+select_wicker_color;"Select Wicker Color";display_name_option;0
+select_optional_armrests;"Select Optional Armrests";display_name_option;0
+select_oven_cover;"Select Oven Cover";display_name_option;0
+select_alfa_tools;"Select ALFA Tools";display_name_option;0
+select_optional_lock;"Select Optional Lock";display_name_option;0
+select_gear_installation;"Select Gear Installation";display_name_option;0
+select_teak_wall_shelf;"Select Teak Wall Shelf";display_name_option;0
+select_optional_ottoman;"Select Optional Ottoman";display_name_option;0
+select_log_set;"Select Log Set";display_name_option;0
+select_optional_table_top;"Select Optional Table Top";display_name_option;0
+select_uniform_stone_set;"Select Uniform Stone Set";display_name_option;0
+select_optional_back_cushion;"Select Optional Back Cushion";display_name_option;0
+select_optional_seat_cushion;"Select Optional Seat Cushion";display_name_option;0
+select_optional_protection;"Select Optional Protection";display_name_option;0
+select_optional_pump;"Select Optional Pump";display_name_option;0
+select_optional_remote;"Select Optional Remote";display_name_option;0
+select_optional_dimmer_control;"Select Optional Dimmer Control";display_name_option;0
+frame;Frame;display_name_option;0
+sku;SKU;display_name_option;0
+select_extension_color;"Select Extension Color";display_name_option;0
+select_seat;"Select Seat";display_name_option;0
+select_seat_back;"Select Seat/Back";display_name_option;0
+select_table_top_bench_seat;"Select Table Top/Bench Seat";display_name_option;0
+select_teak_add;"Select Teak Add";display_name_option;0
+select__cushion;"Select Cushion";display_name_option;0
+select_teak_add_on;"Select Teak Add-On";display_name_option;0
+select__size_w_x_d_x_h;"Select Size W x D x H";display_name_option;0
+select_chair_sling_and_frame;"Select Chair Sling and Frame";display_name_option;0
+select_pizza_oven_type;"Select Pizza Oven Type";display_name_option;0
+select_optional_glass_door_kit;"Select Optional Glass Door Kit";display_name_option;0
+select_optional_pizza_oven_cover;"Select Optional Pizza Oven Cover";display_name_option;0
+select_chair_finish;"Select Chair Finish";display_name_option;0
+selectcushion;"Select Cushion";display_name_option;0
+select_MGP_armaccent_finish;"Select MGP Arm/Accent Finish";display_name_option;0
+select_cushion;"Select Cushion";display_name_price;0
+select_optional_cushion;"Select Optional Cushion";display_name_price;0
+select_frame;"Select Frame";display_name_price;0
+select_finish;"Select Finish";display_name_price;0
+select_sling;"Select Sling";display_name_price;0
+select_fabric;"Select Fabric";display_name_price;0
+select_optional_protective_cover;"Select Optional Protective Cover";display_name_price;0
+select_size;"Select Size";display_name_price;0
+select_drainage_holes;"Select Drainage Holes";display_name_price;0
+select_canopy;"Select Canopy";display_name_price;0
+select_base;"Select Base";display_name_price;0
+select_vent;"Select Vent";display_name_price;0
+select_bottom_pole_height;"Select Bottom Pole Height";display_name_price;0
+select_base_weight;"Select Base Weight";display_name_price;0
+select_model;"Select Model";display_name_price;0
+select_fuel_type;"Select Fuel Type";display_name_price;0
+select_style;"Select Style";display_name_price;0
+select_frame_cushion;"Select Frame/Cushion";display_name_price;0
+select_frame_sling;"Select Frame/Sling";display_name_price;0
+select_table_size;"Select Table Size";display_name_price;0
+select_base_size;"Select Base Size";display_name_price;0
+select_bottle_size;"Select Bottle Size";display_name_price;0
+select_burner_size;"Select Burner Size";display_name_price;0
+select_color_and_size;"Select Color and Size";display_name_price;0
+select_corresponding_parasol_model_and_size;"Select Corresponding Parasol Model and Size";display_name_price;0
+select_cover_size;"Select Cover Size";display_name_price;0
+select_door_size;"Select Door Size";display_name_price;0
+select_frame_size;"Select Frame Size";display_name_price;0
+select_grill_size;"Select Grill Size";display_name_price;0
+select_heater_size;"Select Heater Size";display_name_price;0
+select_holder_size;"Select Holder Size";display_name_price;0
+select_oven_size;"Select Oven Size";display_name_price;0
+select_pan_size;"Select Pan Size";display_name_price;0
+select_pan_size_and_finish;"Select Pan Size and Finish";display_name_price;0
+select_ring_size;"Select Ring Size";display_name_price;0
+select_size_and_btus;"Select Size and BTUs";display_name_price;0
+select_size_and_finish;"Select Size and Finish";display_name_price;0
+select_size_and_number_of_canopies;"Select Size and Number of Canopies";display_name_price;0
+select_size_and_shape;"Select Size and Shape";display_name_price;0
+select_size_and_style;"Select Size and Style";display_name_price;0
+select_soundbar_size;"Select Soundbar Size";display_name_price;0
+select_color;"Select Color";display_name_price;0
+select_chair_color;"Select Chair Color";display_name_price;0
+select_cord_color;"Select Cord Color";display_name_price;0
+select_fabric_color;"Select Fabric Color";display_name_price;0
+select_lounger_color;"Select Lounger Color";display_name_price;0
+select_mount_speaker_color;"Select Mount Speaker Color";display_name_price;0
+select_rope_color;"Select Rope Color";display_name_price;0
+select_table_color;"Select Table Color";display_name_price;0
+select_table_stand_color;"Select Table Stand Color";display_name_price;0
+select_weave_color;"Select Weave Color";display_name_price;0
+select_shape;"Select Shape";display_name_price;0
+select_canopy_shape;"Select Canopy Shape";display_name_price;0
+select_optional_tank_cover_shape;"Select Optional Tank Cover Shape";display_name_price;0
+select_screen_shape;"Select Screen Shape";display_name_price;0
+select_add_on_umbrella;"Select Add-On Umbrella";display_name_price;0
+select_tools;"Select Tools";display_name_price;0
+select_aluminum_bottom_finish;"Select Aluminum Bottom Finish";display_name_price;0
+select_aluminum_finish;"Select Aluminum Finish";display_name_price;0
+select_analog_control;"Select Analog Control";display_name_price;0
+select_arm_facing;"Select Arm Facing";display_name_price;0
+select_armrests;"Select Armrests";display_name_price;0
+select_back_cushion;"Select Back Cushion";display_name_price;0
+select_back_plate;"Select Back Plate";display_name_price;0
+select_back_sling;"Select Back Sling";display_name_price;0
+select_base_cushion;"Select Base Cushion";display_name_price;0
+select_base_finish;"Select Base Finish";display_name_price;0
+select_base_stone;"Select Base Stone";display_name_price;0
+select_bench_frame;"Select Bench Frame";display_name_price;0
+select_bench_optional_cushion;"Select Bench Optional Cushion";display_name_price;0
+select_blanet_throw_pillow_fabric;"Select Blanet & Throw Pillow Fabric";display_name_price;0
+select_blower_motor;"Select Blower Motor";display_name_price;0
+select_body_fabric;"Select Body Fabric";display_name_price;0
+select_bottom_aluminum_finish;"Select Bottom Aluminum Finish";display_name_price;0
+select_brackets;"Select Brackets";display_name_price;0
+select_burner_configuration;"Select Burner Configuration";display_name_price;0
+select_burner_type;"Select Burner Type";display_name_price;0
+select_canopies;"Select Canopies";display_name_price;0
+select_cap_stone;"Select Cap Stone";display_name_price;0
+select_capacity;"Select Capacity";display_name_price;0
+select_cart_finish;"Select Cart Finish";display_name_price;0
+select_ceramic_top;"Select Ceramic Top";display_name_price;0
+select_chair_frame;"Select Chair Frame";display_name_price;0
+select_chair_frame_sling;"Select Chair Frame/Sling";display_name_price;0
+select_chair_optional_cushion;"Select Chair Optional Cushion";display_name_price;0
+select_chair_optional_shell_cushion;"Select Chair Optional Shell Cushion";display_name_price;0
+select_chaise_facing;"Select Chaise Facing";display_name_price;0
+select_configuration;"Select Configuration";display_name_price;0
+select_control_switch;"Select Control Switch";display_name_price;0
+select_corresponding_parasol_model;"Select Corresponding Parasol Model";display_name_price;0
+select_cushion_type;"Select Cushion Type";display_name_price;0
+select_cutout_for_switch;"Select Cutout for Switch";display_name_price;0
+select_design;"Select Design";display_name_price;0
+select_diameter;"Select Diameter";display_name_price;0
+select_dining_furniture_collection;"Select Dining Furniture Collection";display_name_price;0
+select_direction;"Select Direction";display_name_price;0
+select_door_hinge;"Select Door Hinge";display_name_price;0
+select_drawer_type;"Select Drawer Type";display_name_price;0
+select_finish_and_canopy;"Select Finish and Canopy";display_name_price;0
+select_footrest;"Select Footrest";display_name_price;0
+select_frame_ceramic_top;"Select Frame/Ceramic Top";display_name_price;0
+select_frame_material;"Select Frame/Material";display_name_price;0
+select_frame_table_top;"Select Frame/Table Top";display_name_price;0
+select_furniture;"Select Furniture";display_name_price;0
+select_gas_and_ignition_type;"Select Gas and Ignition Type";display_name_price;0
+select_gear_operation;"Select Gear Operation";display_name_price;0
+select_hanging_system;"Select Hanging System";display_name_price;0
+select_heater;"Select Heater";display_name_price;0
+select_height;"Select Height";display_name_price;0
+select_hinge;"Select Hinge";display_name_price;0
+select_hose_kit;"Select Hose Kit";display_name_price;0
+select_ignition_type;"Select Ignition Type";display_name_price;0
+select_leg_finish;"Select Leg Finish";display_name_price;0
+select_legs;"Select Legs";display_name_price;0
+select_lumber_top_finish;"Select Lumber Top Finish";display_name_price;0
+select_metal_frame_finish;"Select Metal Frame Finish";display_name_price;0
+select_mgp_arm_accent_finish;"Select MGP Arm/Accent Finish";display_name_price;0
+select_mgp_top_finish;"Select MGP Top Finish";display_name_price;0
+select_mgp_top_of_frame_accent;"Select MGP Top of Frame Accent";display_name_price;0
+select_mgp_top_slat_finish;"Select MGP Top Slat Finish";display_name_price;0
+select_mounting_option;"Select Mounting Option";display_name_price;0
+select_number_of_chairs;"Select Number of Chairs";display_name_price;0
+select_optional_arm_pair;"Select Optional Arm Pair";display_name_price;0
+select_optional_arms;"Select Optional Arms";display_name_price;0
+select_optional_back_and_seat_cushion;"Select Optional Back and Seat Cushion";display_name_price;0
+select_optional_back_pillow;"Select Optional Back Pillow";display_name_price;0
+select_optional_bar_height_pole;"Select Optional Bar Height Pole";display_name_price;0
+select_optional_base;"Select Optional Base";display_name_price;0
+select_optional_base_plate;"Select Optional Base Plate";display_name_price;0
+select_optional_base_weight;"Select Optional Base Weight";display_name_price;0
+select_optional_bowl_lid;"Select Optional Bowl Lid";display_name_price;0
+select_optional_brackets;"Select Optional Brackets";display_name_price;0
+select_optional_canopy;"Select Optional Canopy";display_name_price;0
+select_optional_cart;"Select Optional Cart";display_name_price;0
+select_optional_cart_mount;"Select Optional Cart Mount";display_name_price;0
+select_optional_ceiling_mount_pole;"Select Optional Ceiling Mount Pole";display_name_price;0
+select_optional_configuration;"Select Optional Configuration";display_name_price;0
+select_optional_control_unit;"Select Optional Control Unit";display_name_price;0
+select_optional_countertop;"Select Optional Countertop";display_name_price;0
+select_optional_cover;"Select Optional Cover";display_name_price;0
+select_optional_curtain;"Select Optional Curtain";display_name_price;0
+select_optional_cushion_length;"Select Optional Cushion Length";display_name_price;0
+select_optional_cushions;"Select Optional Cushions";display_name_price;0
+select_optional_deck_installation_kit;"Select Optional Deck Installation Kit";display_name_price;0
+select_optional_drain_pump;"Select Optional Drain Pump";display_name_price;0
+select_optional_drapes;"Select Optional Drapes";display_name_price;0
+select_optional_faux_down_insert;"Select Optional Faux Down Insert";display_name_price;0
+select_optional_fire_bowl_lid;"Select Optional Fire Bowl Lid";display_name_price;0
+select_optional_folio_rocking_kit;"Select Optional Folio Rocking Kit";display_name_price;0
+select_optional_fountain_water_pump;"Select Optional Fountain Water Pump";display_name_price;0
+select_optional_freestanding_cart;"Select Optional Freestanding Cart";display_name_price;0
+select_optional_glass_top;"Select Optional Glass Top";display_name_price;0
+select_optional_grill_cart;"Select Optional Grill Cart";display_name_price;0
+select_optional_gripper_pad;"Select Optional Gripper Pad";display_name_price;0
+select_optional_height_lifting_system;"Select Optional Height Lifting System";display_name_price;0
+select_optional_hood;"Select Optional Hood";display_name_price;0
+select_optional_leg_kit;"Select Optional Leg Kit";display_name_price;0
+select_optional_lid;"Select Optional Lid";display_name_price;0
+select_optional_line_latern_base;"Select Optional Line Latern Base";display_name_price;0
+select_optional_lumbar_pillow;"Select Optional Lumbar Pillow";display_name_price;0
+select_optional_maintenance_oil;"Select Optional Maintenance Oil";display_name_price;0
+select_optional_matching_side_table;"Select Optional Matching Side Table";display_name_price;0
+select_optional_mount_kit;"Select Optional Mount Kit";display_name_price;0
+select_optional_mounting_set;"Select Optional Mounting Set";display_name_price;0
+select_optional_parasol_hole;"Select Optional Parasol Hole";display_name_price;0
+select_optional_pass_shelf;"Select Optional Pass Shelf";display_name_price;0
+select_optional_pole_mount;"Select Optional Pole Mount";display_name_price;0
+select_optional_propane_tank_cover;"Select Optional Propane Tank Cover";display_name_price;0
+select_optional_reducer_ring;"Select Optional Reducer Ring";display_name_price;0
+select_optional_roof_screen;"Select Optional Roof Screen";display_name_price;0
+select_optional_rotisserie;"Select Optional Rotisserie";display_name_price;0
+select_optional_rug_pad;"Select Optional Rug Pad";display_name_price;0
+select_optional_shell_cushion;"Select Optional Shell Cushion";display_name_price;0
+select_optional_shield;"Select Optional Shield";display_name_price;0
+select_optional_side_screens;"Select Optional Side Screens";display_name_price;0
+select_optional_spark_screen;"Select Optional Spark Screen";display_name_price;0
+select_optional_spit_rod;"Select Optional Spit Rod";display_name_price;0
+select_optional_stand;"Select Optional Stand";display_name_price;0
+select_optional_steel_half_wall_base;"Select Optional Steel Half Wall Base";display_name_price;0
+select_optional_sunshade;"Select Optional Sunshade";display_name_price;0
+select_optional_table;"Select Optional Table";display_name_price;0
+select_optional_table_top_lid;"Select Optional Table Top Lid";display_name_price;0
+select_optional_tank_cover;"Select Optional Tank Cover";display_name_price;0
+select_optional_tank_cover_finish;"Select Optional Tank Cover Finish";display_name_price;0
+select_optional_throw_pillows;"Select Optional Throw Pillows";display_name_price;0
+select_optional_tilt;"Select Optional Tilt";display_name_price;0
+select_optional_tray;"Select Optional Tray";display_name_price;0
+select_optional_trim_kit;"Select Optional Trim Kit";display_name_price;0
+select_optional_valance;"Select Optional Valance";display_name_price;0
+select_optional_wind_guard;"Select Optional Wind Guard";display_name_price;0
+select_optional_wind_screen;"Select Optional Wind Screen";display_name_price;0
+select_optional_wind_sensor;"Select Optional Wind Sensor";display_name_price;0
+select_optional_wok_ring_adapter;"Select Optional Wok Ring Adapter";display_name_price;0
+select_options;"Select Options";display_name_price;0
+select_pattern;"Select Pattern";display_name_price;0
+select_pillows_cushions;"Select Pillows & Cushions";display_name_price;0
+select_planter_top;"Select Planter Top";display_name_price;0
+select_relay_panel;"Select Relay Panel";display_name_price;0
+select_replacement_part;"Select Replacement Part";display_name_price;0
+select_rotisserie_kit;"Select Rotisserie Kit";display_name_price;0
+select_round_base;"Select Round Base";display_name_price;0
+select_seat_fabric;"Select Seat Fabric";display_name_price;0
+select_seat_finish;"Select Seat Finish";display_name_price;0
+select_sectional_end_panel;"Select Sectional End Panel";display_name_price;0
+select_side_cushion;"Select Side Cushion";display_name_price;0
+select_side_plate;"Select Side Plate";display_name_price;0
+select_side_table_glass_top;"Select Side Table Glass Top";display_name_price;0
+select_slat_finish;"Select Slat Finish";display_name_price;0
+select_stem;"Select Stem";display_name_price;0
+select_stone;"Select Stone";display_name_price;0
+select_stone_set;"Select Stone Set";display_name_price;0
+select_strap;"Select Strap";display_name_price;0
+select_suspension_type;"Select Suspension Type";display_name_price;0
+select_swing_frame;"Select Swing Frame";display_name_price;0
+select_switch_type;"Select Switch Type";display_name_price;0
+select_table_finish;"Select Table Finish";display_name_price;0
+select_table_height;"Select Table Height";display_name_price;0
+select_table_top;"Select Table Top";display_name_price;0
+select_table_top_and_frame;"Select Table Top and Frame";display_name_price;0
+select_table_top_diameter;"Select Table Top Diameter";display_name_price;0
+select_tabletop;"Select Tabletop";display_name_price;0
+select_tool_length;"Select Tool Length";display_name_price;0
+select_type;"Select Type";display_name_price;0
+select_umbrella_hole;"Select Umbrella Hole";display_name_price;0
+select_unit;"Select Unit";display_name_price;0
+select_voltage;"Select Voltage";display_name_price;0
+select_welt;"Select Welt";display_name_price;0
+select_wheel_kit;"Select Wheel Kit";display_name_price;0
+select_wood;"Select Wood";display_name_price;0
+select_year_item_was_originally_purchased;"Select Year Item Was Originally Purchased";display_name_price;0
+upgrade_to_armchairs;"Upgrade to Armchairs";display_name_price;0
+upgrade_to_optional_casters;"Upgrade to Optional Casters";display_name_price;0
+upgrade_to_faux_down_insert;"Upgrade to Faux Down Insert";display_name_price;0
+select_gas_type;"Select Gas Type";display_name_price;0
+select_grill_cover;"Select Grill Cover";display_name_price;0
+select_frame_color;"Select Frame Color";display_name_price;0
+select_protective_cover;"Select Protective Cover";display_name_price;0
+select_protective_covers;"Select Protective Covers";display_name_price;0
+select_optional_protective_covers;"Select Optional Protective Covers";display_name_price;0
+select_parasol_hole;"Select Parasol Hole";display_name_price;0
+select_planter_size_w_x_d_x_h;"Select Planter Size W x D x H";display_name_price;0
+select_window_box_size_w_x_d_x_h;"Select Window Box Size W x D x H";display_name_price;0
+select_pot_size_w_x_d_x_h;"Select Pot Size W x D x H";display_name_price;0
+select_trough_size_l_x_w_x_d;"Select Trough Size L x W x D";display_name_price;0
+select_planter_size;"Select Planter Size";display_name_price;0
+select_trough_size_w_x_d_x_h;"Select Trough Size W x D x H";display_name_price;0
+select_tank_size_w_x_d_x_h;"Select Tank Size W x D x H";display_name_price;0
+select_optional_drainage_holes;"Select Optional Drainage Holes";display_name_price;0
+select_box_size_w_x_d_x_h;"Select Box Size W X D X H";display_name_price;0
+select_optional_stainless_steel_lid;"Select Optional Stainless Steel Lid";display_name_price;0
+select_frame_finish;"Select Frame Finish";display_name_price;0
+select_frame_and_sling_combination;"Select Frame and Sling Combination";display_name_price;0
+select_chair_colors;"Select Chair Colors";display_name_price;0
+select_year_kingston_furniture_was_originally_purchased;"Select Year Kingston Furniture Was Originally Purchased";display_name_price;0
+select_chair_frame_and_sling;"Select Chair Frame and Sling";display_name_price;0
+select_frame_and_sling;"Select Frame and Sling";display_name_price;0
+select_year_ventura_furniture_was_originally_purchased;"Select Year Ventura Furniture Was Originally Purchased";display_name_price;0
+select_glass_top;"Select Glass Top";display_name_price;0
+select_optional_table_glass;"Select Optional Table Glass";display_name_price;0
+select_weather_cover;"Select Weather Cover";display_name_price;0
+select_sling_fabric;"Select Sling Fabric";display_name_price;0
+add_optional_cover;"Add Optional Cover";display_name_price;0
+select_cushions;"Select Cushions";display_name_price;0
+select_table_top_finish;"Select Table Top Finish";display_name_price;0
+select_size_l_x_w_x_h;"Select Size L x W x H";display_name_price;0
+select_size_w_x_d_x_h;"Select Size W x D x H";display_name_price;0
+select_width;"Select Width";display_name_price;0
+select_gas;"Select Gas";display_name_price;0
+select_grill_model;"Select Grill Model";display_name_price;0
+select_dust_cover;"Select Dust Cover";display_name_price;0
+select_aluminum_legs_finish;"Select Aluminum Legs Finish";display_name_price;0
+select_when_cantilever_was_purchased;"Select When Cantilever Was Purchased";display_name_price;0
+select_hinge_type;"Select Hinge Type";display_name_price;0
+select_tv_size;"Select TV Size";display_name_price;0
+select_television_model;"Select Television Model";display_name_price;0
+select_frame_fabric;"Select Frame Fabric";display_name_price;0
+select_sling_and_frame;"Select Sling and Frame";display_name_price;0
+select_grill_finish;"Select Grill Finish";display_name_price;0
+select_wicker_color;"Select Wicker Color";display_name_price;0
+select_optional_armrests;"Select Optional Armrests";display_name_price;0
+select_oven_cover;"Select Oven Cover";display_name_price;0
+select_alfa_tools;"Select ALFA Tools";display_name_price;0
+select_optional_lock;"Select Optional Lock";display_name_price;0
+select_gear_installation;"Select Gear Installation";display_name_price;0
+select_teak_wall_shelf;"Select Teak Wall Shelf";display_name_price;0
+select_optional_ottoman;"Select Optional Ottoman";display_name_price;0
+select_log_set;"Select Log Set";display_name_price;0
+select_optional_table_top;"Select Optional Table Top";display_name_price;0
+select_uniform_stone_set;"Select Uniform Stone Set";display_name_price;0
+select_optional_back_cushion;"Select Optional Back Cushion";display_name_price;0
+select_optional_seat_cushion;"Select Optional Seat Cushion";display_name_price;0
+select_optional_protection;"Select Optional Protection";display_name_price;0
+select_optional_pump;"Select Optional Pump";display_name_price;0
+select_optional_remote;"Select Optional Remote";display_name_price;0
+select_optional_dimmer_control;"Select Optional Dimmer Control";display_name_price;0
+frame;Frame;display_name_price;0
+sku;SKU;display_name_price;0
+select_extension_color;"Select Extension Color";display_name_price;0
+select_seat;"Select Seat";display_name_price;0
+select_seat_back;"Select Seat/Back";display_name_price;0
+select_table_top_bench_seat;"Select Table Top/Bench Seat";display_name_price;0
+select_teak_add;"Select Teak Add";display_name_price;0
+select__cushion;"Select Cushion";display_name_price;0
+select_teak_add_on;"Select Teak Add-On";display_name_price;0
+select__size_w_x_d_x_h;"Select Size W x D x H";display_name_price;0
+select_chair_sling_and_frame;"Select Chair Sling and Frame";display_name_price;0
+select_pizza_oven_type;"Select Pizza Oven Type";display_name_price;0
+select_optional_glass_door_kit;"Select Optional Glass Door Kit";display_name_price;0
+select_optional_pizza_oven_cover;"Select Optional Pizza Oven Cover";display_name_price;0
+select_chair_finish;"Select Chair Finish";display_name_price;0
+selectcushion;"Select Cushion";display_name_price;0
+select_MGP_armaccent_finish;"Select MGP Arm/Accent Finish";display_name_price;0
