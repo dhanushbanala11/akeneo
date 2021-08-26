@@ -24,7 +24,7 @@ public class CSVUtil {
 			while (line != null) {
 				if (csvFileType == CSV_FILE_TYPE.ATTRIBUTE_OPTION) { 
 					String[] recordLine = line.split(";");
-					if (recordLine.length >=3) { 
+					if (recordLine.length >=3) {
 						recordLine[1] = recordLine[1].replace("\"", "");
 						record.put((recordLine[2].trim()+"-"+recordLine[1].trim()).toLowerCase(), recordLine[0].trim());
 					}
@@ -53,7 +53,7 @@ public class CSVUtil {
                 BufferedReader reader = new BufferedReader(streamReader)) {		
 			String line = reader.readLine(); 
 			while (line != null) {
-				String[] recordLine = line.split(",");
+				String[] recordLine = line.split(";");
 				if (recordLine.length >=3) {
 					String metric = null;
 					if(recordLine.length == 4) {

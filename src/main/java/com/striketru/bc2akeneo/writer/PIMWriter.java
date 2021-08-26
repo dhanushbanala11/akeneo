@@ -57,10 +57,11 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 					String baseProductAssociationResponse = productapi.upsertMutipleProducts(baseProductAssociationRequest);
 					writeData.getReport().addResponse(baseProductAssociationResponse);
 					requestList =  getRequestList((List<ProductJson>)writeData.getPrice());
+					ProductJson prodJson = writeData.getBaseProduct();
 					for (String request: requestList)  {
 						if (StringUtils.isNotEmpty(request)){
 							String response = productapi.upsertMutipleProducts(request);
-							writeData.getReport().addResponse(response);
+							writeData.getReport().addResponse(prodJson.getIdentifier()+"--"+response);
 						}
 					}
 				}
@@ -96,17 +97,35 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
     	StringBuilder strbuild = new StringBuilder("{");
     	strbuild.append(createKeyValueJson("identifier", productJson.getIdentifier()));
     	strbuild.append(",").append(createKeyValueJson("family", productJson.getFamily()));
-		List<String> prodOptions = new ArrayList<>();
+		List<String> swatchOptions = new ArrayList<>();
+		List<String> dropDownOptions = new ArrayList<>();
 		for (ProductJson optionProd: optionsProduct.values()) {
-			prodOptions.add(optionProd.getIdentifier());
+			if(optionProd.getFamily().equals("options_swatches")) {
+				swatchOptions.add(optionProd.getIdentifier());
+			}else {
+				dropDownOptions.add(optionProd.getIdentifier());
+			}
 		}
-		if(prodOptions.size() >0) {
-			strbuild.append(",").append("\"associations\": { \"options\": { ");
-			strbuild.append(createKeyValueListJson("products", prodOptions));
-			strbuild.append("}}");
+
+		if(swatchOptions.size() >0 || dropDownOptions.size() >0) {
+			strbuild.append(",").append("\"associations\": {");
+			if(swatchOptions.size() >0) {
+				strbuild.append("\"options_swatches\": { ");
+				strbuild.append(createKeyValueListJson("products", swatchOptions));
+				strbuild.append("}");
+			}
+			if(dropDownOptions.size() >0) {
+				if(swatchOptions.size() >0) {
+					strbuild.append(",");
+				}
+				strbuild.append("\"options_dropdown\": { ");
+				strbuild.append(createKeyValueListJson("products", dropDownOptions));
+				strbuild.append("}");
+			}
+			strbuild.append("}");
 		}
 		strbuild.append("}");
-    	return strbuild.length() > 2 ? strbuild.toString() : null;	
+    	return strbuild.length() > 2 ? strbuild.toString() : null;
 	}
 	
 	public void writeImagetoPIM(MediaJson imageJson) {
@@ -127,14 +146,20 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 		}
 	}
 	
-	public void writeJsonToFile(Object productData, String bcId) {
-		String destinationPath = JSON_FOLDER;
+	public void writeJsonToFile(Object productData, String bcId, boolean isPermanentlyHidden) {
+		String destinationPath = getPdfFolder();
+		String hiddenFolderPath = "/hidden";
+		String visibleFolderPath = "/visible";
+		if(isPermanentlyHidden)
+			destinationPath = destinationPath+hiddenFolderPath;
+		else
+			destinationPath = destinationPath+visibleFolderPath;
 		try {
 			FileWriter file = new FileWriter(destinationPath+"/"+bcId+".json");
 			gson.toJson(productData, file);
 			file.close();
 		}catch (Exception e) {
-			LOGGER.error(bcId+"|"+e.getStackTrace());
+			LOGGER.error(bcId+"|"+e.getMessage());
 		}
 	}
 

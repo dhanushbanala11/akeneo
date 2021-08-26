@@ -38,11 +38,11 @@ public class BigCommReader extends Reader {
 		try {
 			boolean isLoadImage = false;
 			boolean isLoadDocs = false;
-			RUN_TYPE currentRun = RUN_TYPE.JSON;
+			RUN_TYPE currentRun = RUN_TYPE.CUSTOMER_SPECIFIC;
 			
 			if (currentRun == RUN_TYPE.INV_TEST) {
 //				Set<String> customerList = new HashSet<>(Arrays.asList("4812","4814","4876","4877","4879","4880","4881","4884","4885","4886","4887","4888","4889","4890","4891","4892","4893","4894","4895","4896","5092","5097","5126","5128","5129","5130","5131","5141","5145","5146","5150","5156","5202","5203","5204","5205","6069","6310","6311","6312","6444","6613","6615","6616","6909","6911","6978","7115","7295","7680","8027","8345","8368","2023","9250"));
-				Set<String> customerList = new HashSet<>(Arrays.asList("8618"));
+				Set<String> customerList = new HashSet<>(Arrays.asList("2832"));
 				List<Object> dataTemp =  bigCommAPI.getData(customerList); //"9147", "2864", "440", "375", "233", "7834","7079","7790",
 				executeProductPage(dataTemp, isLoadImage, isLoadDocs);
 			} else if (currentRun == RUN_TYPE.CUSTOMER_SPECIFIC) {
@@ -111,7 +111,11 @@ public class BigCommReader extends Reader {
 	public boolean getProductPageJson(List<Object> data){
 		for (Object productData : data) {
 			ReaderData reader = new ReaderData(productData);
-				pimWriter.writeJsonToFile(productData, reader.getBcId());
+			if (isPermanentHidden(reader)) {
+				pimWriter.writeJsonToFile(productData, reader.getBcId(), false);
+			}else {
+				pimWriter.writeJsonToFile(productData, reader.getBcId(), true);
+			}
 		}
 		return true;
 	}
@@ -141,7 +145,9 @@ public class BigCommReader extends Reader {
 	}
 
 	private Set<String> getCustomerListOfIds(){
-		return new HashSet<>(Arrays.asList("8580","8581","8585","8602","8606","8607","8608","8609","8617","8618","8619","8620","8621","8622","8623","8624","8625","9092","9120","9131","9155","9228"));
+		return new HashSet<>(Arrays.asList("5134")); // 9236, 5150, 8389, 1380, 5533, 8009, 3221, 6993, "5134","613","6993"
+//		return new HashSet<>(Arrays.asList("8009","3620","473","1007","1045","1380","1403","1548","1905","2486","3221","3319","3405","3551","3598","3672","4002","4245","4199","4352","4517","4839","4814","4865","4991","5215","5533","5671","5744","5915","6162","6424","6453","6476","6485","6557","6549","6993","7178","7239","7275","7592","7940","8054","8522","8739","1089","1942","338","6508","8389","8390","8612","8602","8580","9236","9247","6980","5134","5150","6362","613","6318","7229","5215","9243"));
+		//return new HashSet<>(Arrays.asList("8580","8581","8585","8602","8606","8607","8608","8609","8617","8618","8619","8620","8621","8622","8623","8624","8625","9092","9120","9131","9155","9228"));
 		//"8009","3620","473","1007","1045","1380","1403","1548","1905","2486","3221","3319","3405","3551","3598","3672","4002","4245","4199","4352","4517","4839","4814","4865","4991","5215","5533","5671","5744","5915","6162","6424","6453","6476","6485","6557","6549","6993","7178","7239","7275","7592","7940","8054","8522","8739","1089","1942","338","6508"
 	}
 
