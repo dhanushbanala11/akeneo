@@ -86,7 +86,7 @@ public class PIMWriter extends Writer<WriterData> implements PIMRequestUtil {
 				String inputFilename = mediaJson.getUrl().substring(mediaJson.getUrl().lastIndexOf("/") + 1);
 				if (inputFilename.contains("?")) {
 					inputFilename = inputFilename.substring(0, inputFilename.indexOf("?"));
-				} 
+				}
 				FILE_LOGGER.info(String.format("%s|%s|%s|%s", mediaJson.getIdentifier(), mediaJson.getAttribute_code(),  inputFilename, mediaJson.getUrl()));
 //				writeImagetoPIM(mediaJson);
 			}

@@ -216,12 +216,20 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 					for(Map<String, Object> optionVal: optionValues) {
 						String label = getStringDataFromMap(optionVal, "label");
 						// Calling the price 
+						// Example SKUs
+						// Grade B Ashbee (+$129.00) -- 379;
+						// Grade A Atlantic Blue Stripe -- 649; 
+						// Natural Gas -- L54TRF-NG
+						// Wood Burning with Natural Gas Kit (+$406.00)
+						// 18 Inch x 6 Inch - Oil Rubbed Finish - Natural 
+						// Gas (+$100.00) -- OB-AFPPSIT-N-18
+						/* label[0] - Grade, label[1] - Manufacturer Name, label[2] - Marketing Color, label[3] - Color Code */
 						String[] labelInfo = parseLabel(label.trim().replaceAll("  +", " "), getStringDataFromMap(optionVal, "id"));
-						String optionSwatchSku = getSku(labelInfo, optionVal, "option", null);
-				    	
+						String optionSku = getSku(labelInfo, optionVal, "option", null);
+						
 						String price = getPriceFromLabel(label);
 						if (price != null ) {
-							ProductJson priceRecord = createProductPrice(optionVal, displayName, writerData, labelInfo, price, priceSkus);
+							ProductJson priceRecord = createPriceRecord(optionVal, displayName, writerData, labelInfo, price, priceSkus);
 							if(priceRecord!=null)
 								writerData.addPrice(priceRecord);
 						}
@@ -230,14 +238,13 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 						}
 						if (StringUtils.equalsIgnoreCase(type, Constants.MODIFIERS) || StringUtils.equalsIgnoreCase(type, Constants.OPTIONS)) {
 							if (optionVal.get("value_data") != null) {
-								
-								processImages(optionSwatchSku, getStringDataFromMap((Map<String, Object>)optionVal.get("value_data"), "image_url"), "-1", writerData);
+								processImages(optionSku, getStringDataFromMap((Map<String, Object>)optionVal.get("value_data"), "image_url"), "-1", writerData);
 							}
 						}
-						if(!label.toLowerCase().contains("grade")) {
+						if(!label.toLowerCase().contains("grade")) { // For Non graded options, no consolidation happen
 							ProductJson optionProduct = createOptionProduct(optionVal, labelInfo, writerData.getSku(), displayName, optionType, optionsDisplayNameBySku);
 							writerData.getOptionsProduct().put(optionProduct.getIdentifier(), optionProduct);
-						}else if (writerData.getOptionsProduct().get(label) == null) {
+						}else {
 							writerData.getOptionsProduct().put(label, createOptionProduct(optionVal, labelInfo, writerData.getSku(), displayName, optionType, optionsDisplayNameBySku));
 //							ProductJson optionProduct = createOptionProduct(optionVal, labelInfo, writerData.getSku(), displayName, optionType, optionsDisplayNameBySku);
 //							writerData.getOptionsProduct().put(optionProduct.getIdentifier(), optionProduct);
@@ -275,20 +282,20 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	String idetntifier = getSku(labelInfo, data, "option", null);
     			
     			
-    	ArrayList<String> values = (ArrayList<String>) optionsDisplayNameBySku.get(labelInfo[3].trim());
+    	ArrayList<String> values = (ArrayList<String>) optionsDisplayNameBySku.get(idetntifier);
     	if(values!=null && !values.contains(displayCode) && data.get("label").toString().toLowerCase().contains("grade")) {
     		String newDisplayValue = getAttributeCode("display_name_option", "display_name_option"+"-"+displayName);
     		if(!values.contains(newDisplayValue)) {
     			values.add(newDisplayValue);
     		}
-    		optionsDisplayNameBySku.put(labelInfo[3].trim(), values);
+    		optionsDisplayNameBySku.put(idetntifier, values);
     		for (String value : values) {
 				if(!displayCode.contains(value)) {
 					displayCode.add(value);
 				}
 			}
     	}else {
-    		optionsDisplayNameBySku.put(labelInfo[3].trim(), displayCode);
+    		optionsDisplayNameBySku.put(idetntifier, displayCode);
     	}
     	prodJson.setFamily(family);
     	prodJson.addAttributeValues(new AttributeJson("sku_type", null, null, "O"));
@@ -313,23 +320,43 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     private String getSku(String[] labelInfo, Map<String, Object> data, String skuType, String baseSku) {
     	if(skuType.equals("option")) {
 	    	if(data.get("label").toString().contains("--") && StringUtils.isNotBlank(labelInfo[0]))
-	    		// -- represents SKU and labelInfo[0] represents grade
+	    		// -- represents Color Code and labelInfo[0] represents grade
 	    		return labelInfo[3].trim()+"_"+labelInfo[1].trim()+"_"+getAttributeCode("grade", "grade"+"-"+labelInfo[0].toLowerCase().trim());
-			else
-				// -- represents SKU and labelInfo[0] represents grade
-				return labelInfo[3].trim()+"_"+data.get("id");
+			else {
+				if(!StringUtils.isBlank(labelInfo[3]))
+					// -- represents Color Code
+					return labelInfo[3].trim()+"_"+data.get("id");
+				else 
+					return data.get("id").toString();
+			}
 			//else
 				//return labelInfo[3].trim()+"_"+data.get("id");
-    	}else {
+    	}else { // indicates Price
     		if (StringUtils.isNotEmpty(labelInfo[0]))
         		return baseSku+"_"+getAttributeCode("grade", "grade"+"-"+labelInfo[0].toLowerCase().trim());
-        	else
-        		return baseSku+"_"+labelInfo[3];
+        	else {
+        		//return baseSku+"_"+labelInfo[3];
+        		if(!StringUtils.isBlank(labelInfo[3]))
+					// -- represents Color Code
+					return baseSku+"_"+labelInfo[3];
+				else 
+					return baseSku+"_"+data.get("id");
+        	}
+        		
     	}
     }
     
-    private ProductJson createProductPrice( Map<String, Object> data, String displayName, WriterData writeData, String[] labelInfo, String price, Set<String> priceSkus) {
-
+    /**
+     * @deprecated
+     * @param data
+     * @param displayName
+     * @param writeData
+     * @param labelInfo
+     * @param price
+     * @param priceSkus
+     * @return
+     */
+    private ProductJson createProductPrice(Map<String, Object> data, String displayName, WriterData writeData, String[] labelInfo, String price, Set<String> priceSkus) {
     	String baseSku = writeData.getSku();
     	/* SKU generation starts */
     	String priceSku = getSku(labelInfo, data, "price", baseSku);
@@ -349,25 +376,22 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
     	
     	if(priceSkus.contains(priceSku)) {
     		List<ProductJson> prices = writeData.getPrice();
-    		boolean isNewSku = false;
-    		for(ProductJson priceProd : prices) {
-    			if(priceProd.getIdentifier().equals(priceSku) && !priceProd.getValues().get(1).getData().equals(displayCode)) {
-    				String newIdentifier = priceProd.getIdentifier()+"--"+priceProd.getValues().get(1).getData();
-    				priceProd.setIdentifier(newIdentifier);
-    				priceSkus.add(newIdentifier);
-    				isNewSku = true;
-    				break;
-    			}else if(priceProd.getIdentifier().equals(priceSku) && priceProd.getValues().get(1).getData().equals(displayCode)) {
+    		
+    		String newIdentifier = null;
+    		for(ProductJson priceProd :prices) {
+    			if(priceProd.getIdentifier().equals(priceSku) && priceProd.getValues().get(1).getData().equals(displayCode)) {
     				return null;
+    			}else if(priceProd.getIdentifier().equals(priceSku) && !priceProd.getValues().get(1).getData().equals(displayCode)) {
+    				newIdentifier = priceProd.getIdentifier()+"--"+displayCode;
+    				prodJson.setIdentifier(newIdentifier);
+    				int index = writeData.getPrice().indexOf(priceProd);
+    				priceProd.setIdentifier(priceProd.getIdentifier()+"--"+priceProd.getValues().get(1).getData());
+    				priceSkus.add(newIdentifier);
+    				break;
+    			}else if(!priceSkus.contains(priceSku)){
+    				prodJson.setIdentifier(priceSku);
+    	    		priceSkus.add(priceSku);
     			}
-    		}
-    		if(isNewSku) {
-	    		String identifier = priceSku+"--"+displayCode;
-	    		prodJson.setIdentifier(identifier);
-	    		priceSkus.add(identifier);
-    		}else {
-    			prodJson.setIdentifier(priceSku);
-        		priceSkus.add(priceSku);
     		}
     	}else {
     		prodJson.setIdentifier(priceSku);
@@ -385,6 +409,95 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
         	prodJson.addAttributeValues(new AttributeJson("option_sku", null, null, labelInfo[3]));
     	}
     	return prodJson;
+    }
+    
+    /**
+     * Replacement method for createProductPrice
+     * This method is used to create the price record from the BC options
+     * @param data
+     * @param displayName
+     * @param writeData
+     * @param labelInfo
+     * @param price
+     * @param priceSkus
+     * @return ProductJson
+     */
+    private ProductJson createPriceRecord(Map<String, Object> data, String displayName, WriterData writeData, String[] labelInfo, String price, Set<String> priceSkus) {
+    	ProductJson productJson = new ProductJson();
+    	String baseSku = writeData.getSku();
+    	/* SKU generation starts */
+    	String currentPriceSku = getSku(labelInfo, data, "price", baseSku);
+    	/* SKU generation ends */
+    	
+    	price = getPrice(price);
+    	
+    	productJson.addAttributeValues(new AttributeJson("sku_type", null, null, "P"));
+    	
+    	String currentDisplayCode = getAttributeCode("display_name_price", "display_name_price"+"-"+displayName);
+    	
+    	if(!labelInfo[0].isEmpty()) { // Graded Price
+    		productJson.setFamily("product_pricing_graded");
+    		productJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSku));
+    		productJson.addAttributeValues(new AttributeJson("grade", null, null, getAttributeCode("grade", "grade"+"-"+labelInfo[0].toLowerCase().trim())));
+    		productJson.addAttributeValues(new AttributeJson("display_name_price", null, null, currentDisplayCode));
+    		productJson.addAttributeValues(new AttributeJson("price", null, null, price));
+	    	if(!priceSkus.contains(currentPriceSku)) { // Price SKU processed for the 1st time
+	    		priceSkus.add(currentPriceSku);
+	    		productJson.setIdentifier(currentPriceSku);
+	    	}else { // Price SKU was processed at-least once before
+	    		List<ProductJson> writerPrices = writerData.getPrice();
+	    		for(ProductJson writerPrice :writerPrices) {
+	    			String existingPriceSku = writerPrice.getIdentifier();
+	    			String existingDisplayName = writerPrice.getValues().get(3).getData();
+	    			
+	    			if(existingPriceSku==null) {continue;}
+	    			if(!existingPriceSku.equals(currentPriceSku)) { // If existing SKU doesnt match current SKU, skip it and continue
+	    				continue;
+	    			}
+	    			
+	    			if(existingPriceSku.equals(currentPriceSku) && !existingPriceSku.contains("--")) { // Current SKU exists with Writer data
+	    				if(!existingDisplayName.equals(currentDisplayCode)) { //if the existing display name is not the same as current display name
+	    					if(!existingPriceSku.contains("--")) {
+		    					/* Update existing SKU in writer data */
+		    					writerPrice.setIdentifier(existingPriceSku+"--"+existingDisplayName);
+	    					}
+	    					/* Same Price SKU with a different Display Name, adjusting SKU to include display name */
+	    					productJson.setIdentifier(currentPriceSku+"--"+currentDisplayCode);
+	    					break;
+	    				}else { //if the existing display name is the same as current display name
+	    					return null;
+	    				}
+	    			}else if(existingPriceSku.equals(currentPriceSku) && existingPriceSku.contains("--")) {
+	    				continue;
+	    			}
+//	    			else if(!existingPriceSku.equals(currentPriceSku) && currentDisplayCode.equals(existingDisplayName)) {
+//	    				continue;
+//	    			}
+	    			else 
+	    				return null;
+	    		}
+	    	}
+    	}else { // Non graded Price
+    		productJson.setIdentifier(currentPriceSku);
+    		productJson.setFamily("product_pricing");
+    		productJson.addAttributeValues(new AttributeJson("base_sku", null, null, baseSku));
+    		productJson.addAttributeValues(new AttributeJson("option_sku", null, null, labelInfo[3]));
+    		productJson.addAttributeValues(new AttributeJson("display_name_price", null, null, currentDisplayCode));
+    		productJson.addAttributeValues(new AttributeJson("price", null, null, price));
+        	priceSkus.add(currentPriceSku);
+    	}
+    	return productJson;
+    }
+    
+    private String getPrice(String price) {
+    	if (price.indexOf("$") >0) {
+    		if (price.indexOf("-") > -1) {
+    			price = "-" + price.substring(price.indexOf("$")+1).trim();
+    		} else {
+    			price = price.substring(price.indexOf("$")+1).trim();
+    		} 
+    	}
+    	return price;
     }
 	
     private void processImages(String sku, String url, String sort_order, WriterData writerData) {
@@ -479,6 +592,9 @@ public class BC2PIMTransformer extends Transformer<ReaderData, WriterData> {
 	    		priceString = priceString.substring(0, priceString.indexOf(")"));
 	    	} else if (label.indexOf("(-$") >0) {
 	    		priceString = label.substring(label.indexOf("(-$")+1);
+	    		priceString = priceString.substring(0, priceString.indexOf(")"));
+	    	}else if(label.indexOf("($") > 0) {
+	    		priceString = label.substring(label.indexOf("($")+2);
 	    		priceString = priceString.substring(0, priceString.indexOf(")"));
 	    	}
     	}
